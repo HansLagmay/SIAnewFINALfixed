@@ -143,12 +143,16 @@ npm start
 
 ## 🔒 Security Note
 
-This is a demonstration system using JSON file storage. For production use:
-- Implement proper database (MongoDB, PostgreSQL)
-- Add JWT authentication
-- Use environment variables for sensitive data
-- Implement proper password hashing
-- Add input validation and sanitization
+This is a demonstration system using JSON file storage and plain text passwords for simplicity. For production use:
+- ✅ Implement proper database (MongoDB, PostgreSQL)
+- ✅ Add JWT authentication with refresh tokens
+- ✅ **Use bcrypt for password hashing** (currently plain text)
+- ✅ Add input validation and sanitization
+- ✅ Implement rate limiting
+- ✅ Use environment variables for all sensitive data
+- ✅ Add HTTPS/SSL support
+- ✅ Implement CSRF protection
+- ✅ Add proper session management
 
 ## 📄 License
 

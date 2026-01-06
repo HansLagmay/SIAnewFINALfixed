@@ -33,8 +33,8 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
       setTimeout(() => {
         onClose();
       }, 2000);
-    } catch (err) {
-      setError('Failed to send inquiry. Please try again.');
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to send inquiry. Please try again.');
     } finally {
       setLoading(false);
     }
