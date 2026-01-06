@@ -64,6 +64,7 @@ npm run dev
 # - Admin Portal:      http://localhost:5173/admin
 # - Agent Portal:      http://localhost:5173/agent
 # - Super Admin Portal: http://localhost:5173/superadmin
+# - Database Portal:   http://localhost:5173/database
 # - Backend API:       http://localhost:3000/api
 ```
 
@@ -132,6 +133,37 @@ cd client && npm run dev
 - ✅ Success modal with copyable credentials
 - ✅ "Add Another Agent" or "View All Agents" options
 
+### **Backend Database Portal** (Protected - Admin Role Only) 🗄️
+- ✅ **Visual database management UI** (phpMyAdmin-style)
+- ✅ **Dashboard Overview** with statistics cards:
+  - Total Properties, Inquiries, Users, Calendar Events, Activity Log entries
+  - Status breakdowns for inquiries
+  - Recently added items count (new-properties, new-inquiries, new-agents)
+  - Last database activity display
+- ✅ **Properties Section:**
+  - View all properties with metadata (file size, record count, last modified)
+  - Display new properties list with details
+  - Export to JSON/CSV
+  - Clear new properties tracking list
+- ✅ **Inquiries Section:**
+  - View all inquiries with status breakdown
+  - Display new/unassigned inquiries
+  - Export and clear functionality
+- ✅ **Users Section:**
+  - View all users with role breakdown (admins/agents)
+  - Display recently added agents
+  - Export and clear functionality
+- ✅ **Calendar Events Section:**
+  - View all calendar events with type breakdown
+  - Export functionality
+- ✅ **Activity Log Viewer:**
+  - Timeline view of recent activities
+  - Action type icons (login, add, delete, update, assign)
+  - Relative time display ("2 mins ago")
+  - Toggle between last 10 and all activities
+  - Export functionality
+- ✅ Navigate via Admin sidebar "Database Portal 🗄️" button
+
 ---
 
 ## 🔧 API Endpoints
@@ -163,6 +195,15 @@ All endpoints available at `http://localhost:3000/api`
 
 ### Activity Log
 - `GET /api/activity-log` - Get recent system activities
+
+### Database Management
+- `GET /api/database/overview` - Get database statistics
+- `GET /api/database/file-metadata/:filename` - Get file metadata
+- `GET /api/database/file/:filename` - Get all data from file
+- `GET /api/database/recent/:type` - Get recently added items (properties/inquiries/agents)
+- `POST /api/database/clear-new/:type` - Clear "new-*" tracking list
+- `GET /api/database/export/:filename/csv` - Export file as CSV
+- `GET /api/database/export/:filename/json` - Export file as JSON
 
 ---
 

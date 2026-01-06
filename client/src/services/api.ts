@@ -7,7 +7,9 @@ import type {
   ActivityLog,
   LoginCredentials,
   LoginResponse,
-  NewAgent
+  NewAgent,
+  DatabaseOverview,
+  FileMetadata
 } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -66,6 +68,18 @@ export const activityLogAPI = {
       '/activity-log',
       { params: { page, limit } }
     ),
+};
+
+// Database API
+export const databaseAPI = {
+  getOverview: () => api.get<DatabaseOverview>('/database/overview'),
+  getFileMetadata: (filename: string) => api.get<FileMetadata>(`/database/file-metadata/${filename}`),
+  getFile: (filename: string) => api.get<any>(`/database/file/${filename}`),
+  getRecent: (type: 'properties' | 'inquiries' | 'agents') => api.get<any[]>(`/database/recent/${type}`),
+  clearNew: (type: 'properties' | 'inquiries' | 'agents', clearedBy: string) => 
+    api.post(`/database/clear-new/${type}`, { clearedBy }),
+  exportCSV: (filename: string) => api.get(`/database/export/${filename}/csv`, { responseType: 'blob' }),
+  exportJSON: (filename: string) => api.get(`/database/export/${filename}/json`, { responseType: 'blob' }),
 };
 
 export default api;

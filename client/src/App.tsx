@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import AdminPortal from './pages/AdminPortal';
 import AgentPortal from './pages/AgentPortal';
 import SuperAdminPortal from './pages/SuperAdminPortal';
+import DatabasePortal from './pages/DatabasePortal';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 
 function App() {
@@ -36,6 +37,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <SuperAdminPortal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/database"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <DatabasePortal />
             </ProtectedRoute>
           }
         />

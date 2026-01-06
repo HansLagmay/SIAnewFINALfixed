@@ -97,3 +97,38 @@ export interface EmploymentData {
     phone: string;
   };
 }
+
+// Database types
+export interface DatabaseOverview {
+  properties: {
+    total: number;
+    new: number;
+  };
+  inquiries: {
+    total: number;
+    new: number;
+    byStatus: Record<string, number>;
+  };
+  users: {
+    total: number;
+    admins: number;
+    agents: number;
+    new: number;
+  };
+  calendar: {
+    total: number;
+  };
+  activityLog: {
+    total: number;
+    last24Hours: number;
+  };
+  lastActivity: ActivityLog | null;
+}
+
+export interface FileMetadata {
+  filename: string;
+  size: number;
+  sizeFormatted: string;
+  lastModified: string;
+  recordCount: number;
+}

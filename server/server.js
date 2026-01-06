@@ -28,6 +28,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/calendar', require('./routes/calendar'));
 app.use('/api/login', require('./routes/auth'));
 app.use('/api/activity-log', require('./routes/activity-log'));
+app.use('/api/database', require('./routes/database'));
 
 // Health check
 app.get('/api/health', (req, res) => {
