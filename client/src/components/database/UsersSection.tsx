@@ -64,8 +64,18 @@ export default function UsersSection() {
     if (!confirm('Are you sure you want to clear the new agents list?')) return;
     
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      await databaseAPI.clearNew('agents', user.name || 'Admin');
+      let userName = 'Admin';
+      try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          userName = user.name || 'Admin';
+        }
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+      
+      await databaseAPI.clearNew('agents', userName);
       alert('New agents list cleared successfully');
       fetchData();
     } catch (error) {

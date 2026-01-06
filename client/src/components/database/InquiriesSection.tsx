@@ -64,8 +64,18 @@ export default function InquiriesSection() {
     if (!confirm('Are you sure you want to clear the new inquiries list?')) return;
     
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      await databaseAPI.clearNew('inquiries', user.name || 'Admin');
+      let userName = 'Admin';
+      try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          userName = user.name || 'Admin';
+        }
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+      
+      await databaseAPI.clearNew('inquiries', userName);
       alert('New inquiries list cleared successfully');
       fetchData();
     } catch (error) {

@@ -3,6 +3,8 @@ interface DataTableProps {
   maxRows?: number;
 }
 
+const MAX_DISPLAY_LENGTH = 100;
+
 export default function DataTable({ data, maxRows = 10 }: DataTableProps) {
   if (!data || data.length === 0) {
     return (
@@ -41,8 +43,8 @@ export default function DataTable({ data, maxRows = 10 }: DataTableProps) {
                   if (typeof value === 'object' && value !== null) {
                     const jsonStr = JSON.stringify(value);
                     // Truncate long JSON strings for performance
-                    displayValue = jsonStr.length > 100 
-                      ? jsonStr.substring(0, 100) + '...' 
+                    displayValue = jsonStr.length > MAX_DISPLAY_LENGTH 
+                      ? jsonStr.substring(0, MAX_DISPLAY_LENGTH) + '...' 
                       : jsonStr;
                   } else {
                     displayValue = String(value ?? '');
