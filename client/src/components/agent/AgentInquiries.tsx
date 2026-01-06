@@ -6,7 +6,7 @@ interface AgentInquiriesProps {
   user: User | null;
 }
 
-const AgentInquiries = ({ user }: AgentInquiriesProps) => {
+const AgentInquiries = ({ }: AgentInquiriesProps) => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
@@ -29,7 +29,7 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
 
   const handleStatusUpdate = async (id: string, newStatus: 'pending' | 'contacted' | 'closed') => {
     try {
-      await inquiriesAPI.update(id, { status: newStatus, user: user?.name });
+      await inquiriesAPI.update(id, { status: newStatus });
       await loadInquiries();
     } catch (error) {
       console.error('Failed to update inquiry:', error);

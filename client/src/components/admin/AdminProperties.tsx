@@ -5,7 +5,6 @@ import type { Property } from '../../types';
 const AdminProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     loadProperties();
@@ -42,12 +41,6 @@ const AdminProperties = () => {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Properties</h1>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          + Add Property
-        </button>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">

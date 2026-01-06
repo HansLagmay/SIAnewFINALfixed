@@ -24,7 +24,7 @@ const AdminInquiries = () => {
 
   const handleStatusUpdate = async (id: string, newStatus: 'pending' | 'contacted' | 'closed') => {
     try {
-      await inquiriesAPI.update(id, { status: newStatus, user: 'Admin' });
+      await inquiriesAPI.update(id, { status: newStatus });
       await loadInquiries();
     } catch (error) {
       console.error('Failed to update inquiry:', error);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { propertiesAPI, inquiriesAPI, usersAPI } from '../../services/api';
-import type { Property, Inquiry, User } from '../../types';
+import type { Inquiry } from '../../types';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
