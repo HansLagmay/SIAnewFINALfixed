@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "1767660073801",
+    "timestamp": "2026-01-06T00:41:13.801Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1767660156309",
+    "timestamp": "2026-01-06T00:42:36.309Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  }
+]
