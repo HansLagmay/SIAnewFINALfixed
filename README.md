@@ -2,158 +2,257 @@
 
 A complete professional real estate management system rebuilt with **React + Express** architecture.
 
+## 🛠️ Tech Stack & Frameworks
+
+### **Frontend**
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **React** | 18.2+ | UI library for building component-based interfaces |
+| **TypeScript** | 5.3+ | Type-safe JavaScript superset for better code quality |
+| **React Router** | 6.22+ | Client-side routing (BrowserRouter for clean URLs) |
+| **Vite** | 5.1+ | Fast build tool and development server |
+| **Tailwind CSS** | 3.4+ | Utility-first CSS framework for rapid UI development |
+| **Axios** | 1.6+ | Promise-based HTTP client for API calls |
+
+### **Backend**
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Node.js** | 18+ | JavaScript runtime environment |
+| **Express.js** | 4.18+ | Minimal web application framework for REST API |
+| **CORS** | 2.8+ | Cross-Origin Resource Sharing middleware |
+| **JSON Files** | - | Lightweight data storage (easily migrated to database) |
+
+### **Languages**
+- **TypeScript** (Frontend - 95% of client code)
+- **JavaScript ES6+** (Backend - 100% of server code)
+- **HTML5** (Semantic markup structure)
+- **CSS3** (via Tailwind utility classes)
+- **JSON** (Data storage format)
+
+### **Development Tools**
+- **Nodemon** - Auto-restart backend server on file changes
+- **Concurrently** - Run frontend + backend simultaneously
+- **ESLint** - Code linting for consistency
+- **Prettier** - Code formatting
+
+---
+
 ## 🌟 Architecture
 
-**Frontend:** React 18 with TypeScript, React Router v6, Tailwind CSS  
-**Backend:** Express.js REST API with JSON file storage  
-**Separation:** Clear `/client` and `/server` folders
+**Pattern:** Multi-Portal Single Page Application (SPA) with REST API  
+**Separation:** Clear `/client` (React) and `/server` (Express) folders  
+**Routing:** React Router v6 with BrowserRouter (no hash routing)  
+**State Management:** React Hooks (useState, useEffect, useContext)  
+**API Communication:** RESTful endpoints with JSON responses  
+**Data Storage:** JSON files in `/server/data/` (easily migrated to PostgreSQL/MongoDB)  
+**Authentication:** LocalStorage session management (JWT recommended for production)
+
+---
 
 ## 🚀 Quick Start
 
 ```bash
-# Install dependencies
-npm install
-cd client && npm install
-cd ../server && npm install
-
-# Run both frontend and backend
-cd ..
-npm run dev
-
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:3000
-```
-
-## 📋 Portal Access
-
-- **Customer Portal:** `http://localhost:5173/` (public, no login)
-- **Login Page:** `http://localhost:5173/login`
-- **Admin Portal:** `http://localhost:5173/admin` (login required)
-- **Agent Portal:** `http://localhost:5173/agent` (login required)
-- **Super Admin:** `http://localhost:5173/superadmin` (admin only)
-
-## 🔑 Test Accounts
-
-**Admin:** admin@tesproperty.com / admin123  
-**Agent:** maria@tesproperty.com / agent123
-
-## 🛠️ Tech Stack
-
-**Frontend:**
-- React 18 + TypeScript
-- React Router v6 (no hash routing!)
-- Tailwind CSS
-- Axios for API calls
-- Vite build tool
-
-**Backend:**
-- Express.js
-- CORS middleware
-- JSON file storage
-- Activity logging
-- RESTful API design
-
-## 📁 Project Structure
-
-```
-├── client/          # React frontend
-│   ├── src/
-│   │   ├── pages/   # Portal pages
-│   │   └── components/
-├── server/          # Express backend (VISIBLE!)
-│   ├── routes/      # API routes
-│   ├── data/        # JSON files
-│   └── server.js    # Main server
-```
-
-## ✅ Fixed Issues
-
-- ✅ No more hash routing (`#dashboard` → `/admin/dashboard`)
-- ✅ Login page is separate (not in customer portal)
-- ✅ Backend code visible in `/server` folder
-- ✅ Proper React Router navigation
-- ✅ No 404 errors on refresh
-- ✅ Clean URL structure
-
-## 📝 How to Add New Agent
-
-Use the **Super Admin Portal** at `http://localhost:5173/superadmin`
-
-1. Login as admin
-2. Navigate to Admin Portal
-3. Click "HR Portal" in sidebar
-4. Fill employment registration form (7 sections)
-5. Submit to create agent account
-
-## 📦 API Endpoints
-
-- `POST /api/login` - User authentication
-- `GET /api/properties` - List all properties
-- `GET /api/inquiries` - List all inquiries
-- `POST /api/inquiries` - Create new inquiry
-- `GET /api/users` - List all users
-- `POST /api/users` - Create new agent
-- `GET /api/calendar` - List calendar events
-- `GET /api/activity-log` - View activity logs
-
-## 🎯 Features
-
-### Customer Portal (Public)
-- Browse properties without login
-- Search and filter properties
-- View property details
-- Submit inquiries
-
-### Admin Portal
-- Dashboard with statistics
-- Manage properties
-- Handle inquiries
-- Manage agents
-- View activity reports
-- Access HR Portal
-
-### Agent Portal
-- Personal dashboard
-- View assigned inquiries
-- Manage inquiry status
-- View calendar events
-- Browse available properties
-
-### Super Admin (HR Portal)
-- 7-section registration form
-- Auto-generated secure passwords
-- Complete employment records
-- Benefits management
-
-## 📖 Development
-
-```bash
 # Install all dependencies
-npm run install-all
+npm install
 
-# Development mode (runs both servers)
+# Run both frontend + backend concurrently
 npm run dev
 
-# Build frontend for production
-npm run build
-
-# Start production server
-npm start
+# Access portals:
+# - Customer Portal:   http://localhost:5173/
+# - Login Page:        http://localhost:5173/login
+# - Admin Portal:      http://localhost:5173/admin
+# - Agent Portal:      http://localhost:5173/agent
+# - Super Admin Portal: http://localhost:5173/superadmin
+# - Backend API:       http://localhost:3000/api
 ```
 
-## 🔒 Security Note
+### Individual Commands
+```bash
+# Run only backend
+cd server && npm run dev
 
-This is a demonstration system using JSON file storage and plain text passwords for simplicity. For production use:
-- ✅ Implement proper database (MongoDB, PostgreSQL)
-- ✅ Add JWT authentication with refresh tokens
-- ✅ **Use bcrypt for password hashing** (currently plain text)
-- ✅ Add input validation and sanitization
-- ✅ Implement rate limiting
-- ✅ Use environment variables for all sensitive data
-- ✅ Add HTTPS/SSL support
-- ✅ Implement CSRF protection
-- ✅ Add proper session management
+# Run only frontend
+cd client && npm run dev
+```
 
-## 📄 License
+---
 
-MIT
+## ✅ Working Features (v2.0)
+
+### **Customer Portal** (Public - No Authentication Required)
+- ✅ Browse all available properties
+- ✅ Search properties by name, location, price
+- ✅ Filter by property type, bedrooms, price range
+- ✅ View property details in modal with photo gallery
+- ✅ Submit inquiries via contact form
+- ✅ Responsive design for mobile/tablet/desktop
+- ✅ **NO login button** - completely public access
+
+### **Admin Portal** (Protected - Admin Role Only)
+- ✅ Dashboard with real-time statistics (properties, inquiries, agents)
+- ✅ Navigate all sections with working sidebar (no hash routing!)
+- ✅ **Inquiries Management:**
+  - View all customer inquiries
+  - Assign inquiries to agents
+  - Filter by status (New, Assigned, In Progress, etc.)
+  - Update inquiry status
+- ✅ **Property Management:**
+  - View all properties
+  - Add new properties with comprehensive form
+  - Edit existing properties
+  - Change property status (Available, Reserved, Sold)
+- ✅ **Agent Management:**
+  - View all agents
+  - See agent performance stats
+  - View assigned inquiries per agent
+- ✅ **Reports:**
+  - Generate CSV exports
+  - View activity logs
+- ✅ Access Super Admin Portal via "HR Portal →" button
+
+### **Agent Portal** (Protected - Agent Role Only)
+- ✅ Dashboard showing assigned inquiries
+- ✅ View inquiry details
+- ✅ Update inquiry status (In Progress, Viewing Scheduled, etc.)
+- ✅ Add notes to inquiries
+- ✅ View calendar with viewing schedules
+- ✅ Schedule property viewings
+- ✅ View properties and track commissions
+- ✅ Navigate all sections with working sidebar
+
+### **Super Admin Portal** (Protected - Admin Role Only)
+- ✅ Employment registration form with 7 comprehensive sections
+- ✅ Form validation (email format, phone format, required fields)
+- ✅ Real-time email duplicate checking
+- ✅ Auto-generate Employee ID (EMP-YYYY-XXX format)
+- ✅ Auto-calculate probation end date (+3 months)
+- ✅ Phone format validation (0917-XXX-XXXX)
+- ✅ Submit agent creation to backend API
+- ✅ Success modal with copyable credentials
+- ✅ "Add Another Agent" or "View All Agents" options
+
+---
+
+## 🔧 API Endpoints
+
+All endpoints available at `http://localhost:3000/api`
+
+### Properties
+- `GET /api/properties` - Get all properties
+- `GET /api/properties/:id` - Get single property
+- `POST /api/properties` - Add new property
+- `PUT /api/properties/:id` - Update property
+- `DELETE /api/properties/:id` - Delete property
+
+### Inquiries
+- `GET /api/inquiries` - Get all inquiries
+- `POST /api/inquiries` - Submit new inquiry
+- `PUT /api/inquiries/:id` - Update inquiry (status, assign agent, notes)
+
+### Users/Agents
+- `GET /api/users` - Get all users (excludes passwords)
+- `POST /api/users` - Create new agent account
+- `POST /api/login` - Login (returns user object without password)
+
+### Calendar
+- `GET /api/calendar` - Get all calendar events
+- `POST /api/calendar` - Add new viewing/event
+- `PUT /api/calendar/:id` - Update event
+- `DELETE /api/calendar/:id` - Delete event
+
+### Activity Log
+- `GET /api/activity-log` - Get recent system activities
+
+---
+
+## 👥 Test Accounts
+
+### Admin
+- Email: `admin@tesproperty.com`
+- Password: `admin123`
+- Access: Admin Portal + Super Admin Portal
+
+### Agent
+- Email: `maria@tesproperty.com`
+- Password: `agent123`
+- Access: Agent Portal
+
+---
+
+## ⚠️ Known Limitations (Intentional for MVP)
+
+The following features have UI but limited backend functionality:
+
+### Not Yet Implemented (Frontend Only)
+- 📧 **Email notifications** (UI exists, no email service configured)
+- 📱 **SMS notifications** (UI exists, no SMS service configured)
+- 💳 **Payment processing** (status changes work, no real payment gateway)
+- 📊 **Advanced analytics** (basic stats work, advanced charts are mock data)
+- 🔔 **Real-time notifications** (uses polling every 30s, not WebSocket)
+
+### Production Requirements Not Included
+- 🔐 **Password hashing** (currently plain text - use bcrypt in production)
+- 🗄️ **Database** (currently JSON files - migrate to PostgreSQL/MongoDB)
+- 🔑 **JWT authentication** (currently LocalStorage - implement JWT tokens)
+- ☁️ **Cloud storage** (images as base64 - use AWS S3/Cloudinary)
+- 🔒 **Rate limiting** (no API rate limiting implemented)
+- ✅ **Input sanitization** (basic validation only - add DOMPurify)
+
+---
+
+## 🐛 Debugging
+
+### Backend not starting?
+```bash
+cd server
+npm install
+node server.js
+```
+
+### Frontend not loading?
+```bash
+cd client
+npm install
+npm run dev
+```
+
+### API calls failing?
+- Check backend is running on port 3000
+- Check CORS configuration in `server/server.js`
+- Verify API URLs in `client/src/services/api.ts`
+
+---
+
+## 📂 Project Structure
+
+```
+SIAfrontendonlyFINAL/
+├── client/                    # React frontend
+│   ├── src/
+│   │   ├── pages/             # Main portal pages
+│   │   ├── components/        # Reusable components (by portal)
+│   │   ├── services/api.ts    # Axios API client
+│   │   ├── types/index.ts     # TypeScript type definitions
+│   │   ├── App.tsx            # Main router configuration
+│   │   └── main.tsx           # React entry point
+│   └── package.json
+│
+├── server/                    # Express backend
+│   ├── routes/                # API route handlers
+│   ├── data/                  # JSON file storage
+│   ├── middleware/logger.js   # Activity logging middleware
+│   ├── utils/fileOps.js       # File read/write helpers
+│   ├── server.js              # Express server entry point
+│   └── package.json
+│
+├── .env.example               # Environment variables template
+├── package.json               # Root scripts (dev, build)
+└── README.md                  # This file
+```
+
+---
+
+## 📝 License
+
+MIT License - This is a demo/educational project.
