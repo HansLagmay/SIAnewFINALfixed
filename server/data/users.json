@@ -1,0 +1,18 @@
+[
+  {
+    "id": "user001",
+    "email": "admin@tesproperty.com",
+    "password": "admin123",
+    "role": "admin",
+    "name": "Admin User",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "user002",
+    "email": "maria@tesproperty.com",
+    "password": "agent123",
+    "role": "agent",
+    "name": "Maria Santos",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]

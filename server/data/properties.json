@@ -1,0 +1,47 @@
+[
+  {
+    "id": "prop001",
+    "title": "Modern Family Home in Manila",
+    "type": "House",
+    "price": 8500000,
+    "location": "Quezon City, Metro Manila",
+    "bedrooms": 4,
+    "bathrooms": 3,
+    "area": 250,
+    "description": "Beautiful modern family home with spacious living areas and private garden.",
+    "features": ["Parking", "Garden", "Security", "Modern Kitchen"],
+    "status": "available",
+    "imageUrl": "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "prop002",
+    "title": "Luxury Condo in BGC",
+    "type": "Condominium",
+    "price": 12000000,
+    "location": "Bonifacio Global City, Taguig",
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "area": 120,
+    "description": "High-end condominium unit with stunning city views and premium amenities.",
+    "features": ["Swimming Pool", "Gym", "24/7 Security", "Parking"],
+    "status": "available",
+    "imageUrl": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800",
+    "createdAt": "2024-01-02T00:00:00.000Z"
+  },
+  {
+    "id": "prop003",
+    "title": "Beachfront Villa in Batangas",
+    "type": "Villa",
+    "price": 15000000,
+    "location": "Batangas",
+    "bedrooms": 5,
+    "bathrooms": 4,
+    "area": 400,
+    "description": "Stunning beachfront villa with private beach access and infinity pool.",
+    "features": ["Beach Access", "Pool", "Garden", "Parking"],
+    "status": "available",
+    "imageUrl": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800",
+    "createdAt": "2024-01-03T00:00:00.000Z"
+  }
+]
