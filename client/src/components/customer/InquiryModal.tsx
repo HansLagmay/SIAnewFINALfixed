@@ -17,6 +17,57 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [ticketNumber, setTicketNumber] = useState('');
+
+  const validateInquiry = (data: typeof formData) => {
+    const errors: string[] = [];
+    
+    // Phone format validation: 0917-XXX-XXXX or 09171234567 or +639171234567
+    const phoneRegex = /^(09|\+639)\d{9}$/;
+    const cleanPhone = data.phone.replace(/[-\s]/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      errors.push('Invalid Philippine phone number format (e.g., 0917-123-4567 or +639171234567)');
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      errors.push('Invalid email address');
+    }
+    
+    // Message minimum length
+    if (!data.message || data.message.trim().length < 20) {
+      errors.push('Message must be at least 20 characters');
+    }
+    
+    return errors;
+  };
+
+  const checkDuplicateInquiry = async (email: string, propertyId: string) => {
+    try {
+      const response = await inquiriesAPI.getAll();
+      
+      const existingInquiry = response.data.find(inq => 
+        inq.email.toLowerCase() === email.toLowerCase() && 
+        inq.propertyId === propertyId &&
+        inq.status !== 'closed' && 
+        inq.status !== 'cancelled'
+      );
+      
+      if (existingInquiry) {
+        return {
+          isDuplicate: true,
+          message: `You already have an active inquiry for this property (Ticket #${existingInquiry.ticketNumber}).`,
+          existingTicket: existingInquiry
+        };
+      }
+      
+      return { isDuplicate: false };
+    } catch (error) {
+      console.error('Error checking duplicates:', error);
+      return { isDuplicate: false }; // Allow submission if check fails
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +75,36 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
     setError('');
 
     try {
-      await inquiriesAPI.create({
+      // Validate form data
+      const validationErrors = validateInquiry(formData);
+      if (validationErrors.length > 0) {
+        setError(validationErrors.join('. '));
+        setLoading(false);
+        return;
+      }
+
+      // Check for duplicate inquiry
+      const duplicateCheck = await checkDuplicateInquiry(formData.email, property.id);
+      if (duplicateCheck.isDuplicate && duplicateCheck.message) {
+        setError(duplicateCheck.message);
+        setLoading(false);
+        return;
+      }
+
+      // Submit inquiry with complete data structure
+      const response = await inquiriesAPI.create({
         ...formData,
         propertyId: property.id,
-        propertyTitle: property.title
+        propertyTitle: property.title,
+        propertyPrice: property.price,
+        propertyLocation: property.location
       });
+      
+      // Extract ticket number from response
+      if (response.data && response.data.ticketNumber) {
+        setTicketNumber(response.data.ticketNumber);
+      }
+      
       setSuccess(true);
       setTimeout(() => {
         onClose();
@@ -50,6 +126,11 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
             </svg>
           </div>
           <h3 className="text-2xl font-bold text-gray-800 mb-2">Inquiry Sent!</h3>
+          {ticketNumber && (
+            <p className="text-lg font-semibold text-blue-600 mb-2">
+              Ticket #{ticketNumber}
+            </p>
+          )}
           <p className="text-gray-600">We'll get back to you soon.</p>
         </div>
       </div>
@@ -129,15 +210,20 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Message
+                Message (minimum 20 characters) *
               </label>
               <textarea
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                required
+                minLength={20}
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="I'm interested in this property..."
+                placeholder="I'm interested in this property... (Please provide at least 20 characters)"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                {formData.message.length}/20 characters minimum
+              </p>
             </div>
 
             <div className="flex gap-4 pt-4">

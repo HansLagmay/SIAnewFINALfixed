@@ -9,6 +9,19 @@ export interface User {
 }
 
 // Property types
+export interface PropertyStatusHistory {
+  status: string;
+  changedBy: string;
+  changedByName: string;
+  changedAt: string;
+  reason?: string;
+}
+
+export interface PropertyViewHistory {
+  viewedAt: string;
+  ipAddress?: string; // Optional for analytics
+}
+
 export interface Property {
   id: string;
   title: string;
@@ -20,25 +33,89 @@ export interface Property {
   area: number;
   description: string;
   features: string[];
-  status: 'available' | 'sold' | 'pending';
+  status: 'draft' | 'available' | 'reserved' | 'under-contract' | 'sold' | 'withdrawn' | 'off-market';
   imageUrl: string;
+  
+  // Status History
+  statusHistory: PropertyStatusHistory[];
+  
+  // Sale information
+  soldBy?: string; // agent name
+  soldByAgentId?: string; // agent ID
+  soldAt?: string; // timestamp
+  salePrice?: number; // final closing price
+  
+  // Reservation info
+  reservedBy?: string; // agent name
+  reservedAt?: string;
+  reservedUntil?: string;
+  
+  // View tracking
+  viewCount: number;
+  lastViewedAt?: string;
+  viewHistory: PropertyViewHistory[];
+  
+  // Timestamps
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 }
 
 // Inquiry types
+export interface InquiryNote {
+  id: string;
+  agentId: string;
+  agentName: string;
+  note: string;
+  createdAt: string;
+}
+
+export interface FollowUpReminder {
+  id: string;
+  dueAt: string;
+  completed: boolean;
+  completedAt?: string;
+  note?: string;
+}
+
 export interface Inquiry {
   id: string;
+  ticketNumber: string; // "INQ-2026-001" format
+  
+  // Customer Info
   name: string;
   email: string;
   phone: string;
+  message: string;
+  
+  // Property Info
   propertyId: string;
   propertyTitle?: string;
-  message: string;
-  status: 'pending' | 'contacted' | 'closed';
-  assignedTo?: string;
+  propertyPrice?: number;
+  propertyLocation?: string;
+  
+  // Assignment Status
+  status: 'new' | 'claimed' | 'assigned' | 'in-progress' | 
+          'viewing-scheduled' | 'viewed-interested' | 'viewed-not-interested' |
+          'successful' | 'cancelled' | 'closed';
+  
+  assignedTo: string | null; // agent ID
+  claimedBy: string | null; // agent ID (if self-claimed)
+  assignedBy: string | null; // admin ID (if manually assigned)
+  claimedAt: string | null;
+  assignedAt: string | null;
+  
+  // Communication History
+  notes: InquiryNote[];
+  
+  // Follow-up System
+  lastFollowUpAt: string | null;
+  nextFollowUpAt: string | null;
+  followUpReminders: FollowUpReminder[];
+  
+  // Timestamps
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
+  closedAt: string | null;
 }
 
 // Calendar Event types

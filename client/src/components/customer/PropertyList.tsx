@@ -7,6 +7,15 @@ interface PropertyListProps {
 }
 
 const PropertyList = ({ properties, onViewDetails, onInquire }: PropertyListProps) => {
+  // Calculate days on market
+  const daysOnMarket = (createdAt: string) => {
+    const created = new Date(createdAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - created.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   if (properties.length === 0) {
     return (
       <div className="text-center py-12">
@@ -28,9 +37,21 @@ const PropertyList = ({ properties, onViewDetails, onInquire }: PropertyListProp
               alt={property.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-              {property.type}
+            <div className="absolute top-4 right-4 flex flex-col gap-2">
+              <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                {property.type}
+              </div>
+              {daysOnMarket(property.createdAt) <= 7 && (
+                <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  🔥 New!
+                </div>
+              )}
             </div>
+            {daysOnMarket(property.createdAt) > 90 && (
+              <div className="absolute bottom-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                ⏳ {daysOnMarket(property.createdAt)} days
+              </div>
+            )}
           </div>
 
           <div className="p-6">

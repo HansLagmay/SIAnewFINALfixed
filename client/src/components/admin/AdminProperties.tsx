@@ -97,7 +97,10 @@ const AdminProperties = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     property.status === 'available' ? 'bg-green-100 text-green-800' :
-                    property.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    property.status === 'reserved' ? 'bg-yellow-100 text-yellow-800' :
+                    property.status === 'under-contract' ? 'bg-blue-100 text-blue-800' :
+                    property.status === 'sold' ? 'bg-purple-100 text-purple-800' :
+                    property.status === 'draft' ? 'bg-gray-100 text-gray-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
                     {property.status}

@@ -33,5 +33,40 @@
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Admin User",
     "user": "Admin User"
+  },
+  {
+    "id": "1768053830675",
+    "timestamp": "2026-01-10T14:03:50.675Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: John Test Customer (INQ-2026-001)",
+    "user": "Customer"
+  },
+  {
+    "id": "1768053838379",
+    "timestamp": "2026-01-10T14:03:58.379Z",
+    "action": "UPDATE_INQUIRY",
+    "details": "Updated inquiry: mk8dlmvnn7rfir8im9j",
+    "user": "System"
+  },
+  {
+    "id": "1768053845973",
+    "timestamp": "2026-01-10T14:04:05.973Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: Maria Test Customer (INQ-2026-002)",
+    "user": "Customer"
+  },
+  {
+    "id": "1768053852861",
+    "timestamp": "2026-01-10T14:04:12.861Z",
+    "action": "UPDATE_INQUIRY",
+    "details": "Updated inquiry: mk8dlyok265j8cnbxcg",
+    "user": "System"
+  },
+  {
+    "id": "1768053860168",
+    "timestamp": "2026-01-10T14:04:20.168Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: John Test Customer (INQ-2026-003)",
+    "user": "Customer"
   }
 ]

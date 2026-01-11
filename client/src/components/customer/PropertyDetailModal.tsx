@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import type { Property } from '../../types';
+import { propertiesAPI } from '../../services/api';
 
 interface PropertyDetailModalProps {
   property: Property;
@@ -7,6 +9,37 @@ interface PropertyDetailModalProps {
 }
 
 const PropertyDetailModal = ({ property, onClose, onInquire }: PropertyDetailModalProps) => {
+  // Increment view count when modal opens
+  useEffect(() => {
+    const incrementViewCount = async () => {
+      try {
+        await propertiesAPI.update(property.id, {
+          viewCount: (property.viewCount || 0) + 1,
+          lastViewedAt: new Date().toISOString(),
+          viewHistory: [
+            ...(property.viewHistory || []),
+            {
+              viewedAt: new Date().toISOString()
+            }
+          ]
+        });
+      } catch (error) {
+        console.error('Failed to increment view count:', error);
+      }
+    };
+    
+    incrementViewCount();
+  }, [property.id]);
+
+  // Calculate days on market
+  const daysOnMarket = () => {
+    const created = new Date(property.createdAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - created.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -29,9 +62,21 @@ const PropertyDetailModal = ({ property, onClose, onInquire }: PropertyDetailMod
         <div className="p-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-3xl font-bold text-gray-800">{property.title}</h2>
-            <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-semibold">
-              {property.type}
-            </span>
+            <div className="flex gap-2">
+              <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-semibold">
+                {property.type}
+              </span>
+              {daysOnMarket() <= 7 && (
+                <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full font-semibold">
+                  🔥 New Listing
+                </span>
+              )}
+              {daysOnMarket() > 90 && (
+                <span className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-semibold text-sm">
+                  ⏳ {daysOnMarket()} days on market
+                </span>
+              )}
+            </div>
           </div>
 
           <p className="text-gray-600 mb-2 flex items-center text-lg">
@@ -41,9 +86,15 @@ const PropertyDetailModal = ({ property, onClose, onInquire }: PropertyDetailMod
             {property.location}
           </p>
 
-          <p className="text-4xl font-bold text-blue-600 mb-6">
-            ₱{property.price.toLocaleString()}
-          </p>
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-4xl font-bold text-blue-600">
+              ₱{property.price.toLocaleString()}
+            </p>
+            <div className="text-right text-sm text-gray-500">
+              <p>👁️ {property.viewCount || 0} views</p>
+              <p>📅 Listed {daysOnMarket()} days ago</p>
+            </div>
+          </div>
 
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="text-center p-4 bg-gray-50 rounded-lg">

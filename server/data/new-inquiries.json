@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "mk8dlmvnn7rfir8im9j",
+    "ticketNumber": "INQ-2026-001",
+    "name": "John Test Customer",
+    "propertyTitle": "Modern Family Home in Manila",
+    "createdAt": "2026-01-10T14:03:50.675Z"
+  },
+  {
+    "id": "mk8dlyok265j8cnbxcg",
+    "ticketNumber": "INQ-2026-002",
+    "name": "Maria Test Customer",
+    "propertyTitle": "Luxury Condo in BGC",
+    "createdAt": "2026-01-10T14:04:05.972Z"
+  },
+  {
+    "id": "mk8dm9mw5dm4irzwtmh",
+    "ticketNumber": "INQ-2026-003",
+    "name": "John Test Customer",
+    "propertyTitle": "Modern Family Home in Manila",
+    "createdAt": "2026-01-10T14:04:20.168Z"
+  }
+]

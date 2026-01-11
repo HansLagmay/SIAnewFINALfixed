@@ -25,12 +25,12 @@ const AdminDashboard = () => {
       ]);
 
       const inquiries = inquiriesRes.data;
-      const pendingCount = inquiries.filter(i => i.status === 'pending').length;
+      const newCount = inquiries.filter(i => i.status === 'new' || i.status === 'claimed').length;
 
       setStats({
         totalProperties: propertiesRes.data.length,
         totalInquiries: inquiries.length,
-        pendingInquiries: pendingCount,
+        pendingInquiries: newCount,
         totalAgents: usersRes.data.length
       });
 
@@ -138,9 +138,12 @@ const AdminDashboard = () => {
                   </div>
                   <div className="text-right">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      inquiry.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      inquiry.status === 'contacted' ? 'bg-blue-100 text-blue-800' :
-                      'bg-green-100 text-green-800'
+                      inquiry.status === 'new' ? 'bg-purple-100 text-purple-800' :
+                      inquiry.status === 'claimed' ? 'bg-cyan-100 text-cyan-800' :
+                      inquiry.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                      inquiry.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
+                      inquiry.status === 'successful' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
                     }`}>
                       {inquiry.status}
                     </span>
