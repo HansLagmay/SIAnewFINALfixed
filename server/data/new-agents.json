@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "mk9gv6567fczmc7syuq",
+    "email": "testagent@test.com",
+    "password": "$2b$10$5wKOHDWA9lgB6ICXhe13y.ShtodpZNbVH488WHjThB9Kew1Z/jNlC",
+    "role": "agent",
+    "name": "Test Agent",
+    "phone": "123-456-7890",
+    "createdAt": "2026-01-11T08:23:00.570Z"
+  }
+]

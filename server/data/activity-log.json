@@ -68,5 +68,47 @@
     "action": "CREATE_INQUIRY",
     "details": "New inquiry from: John Test Customer (INQ-2026-003)",
     "user": "Customer"
+  },
+  {
+    "id": "1768119745376",
+    "timestamp": "2026-01-11T08:22:25.376Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1768119762950",
+    "timestamp": "2026-01-11T08:22:42.950Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1768119772497",
+    "timestamp": "2026-01-11T08:22:52.497Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1768119772594",
+    "timestamp": "2026-01-11T08:22:52.594Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1768119780469",
+    "timestamp": "2026-01-11T08:23:00.469Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1768119780574",
+    "timestamp": "2026-01-11T08:23:00.574Z",
+    "action": "CREATE_AGENT",
+    "details": "Created new agent: Test Agent",
+    "user": "Admin"
   }
 ]
