@@ -68,5 +68,33 @@
     "action": "CREATE_INQUIRY",
     "details": "New inquiry from: John Test Customer (INQ-2026-003)",
     "user": "Customer"
+  },
+  {
+    "id": "1768121780430",
+    "timestamp": "2026-01-11T08:56:20.430Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1768121780505",
+    "timestamp": "2026-01-11T08:56:20.505Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1768121780555",
+    "timestamp": "2026-01-11T08:56:20.555Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: &lt;script&gt;alert(1)&lt;&#x2F;script&gt; (INQ-2026-004)",
+    "user": "Customer"
+  },
+  {
+    "id": "1768121780631",
+    "timestamp": "2026-01-11T08:56:20.631Z",
+    "action": "LOGIN_FAILED",
+    "details": "Failed login attempt: admin@tesproperty.com",
+    "user": "Unknown"
   }
 ]

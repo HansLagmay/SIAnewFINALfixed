@@ -39,6 +39,7 @@ const sanitizeEmail = (email) => {
  * Sanitize and validate Philippine phone number
  * - Validates Philippine phone format
  * - Accepts formats: 09XXXXXXXXX, +639XXXXXXXXX, 639XXXXXXXXX
+ * - Fallback: Accepts 10-15 digit numbers for international customers
  * @param {string} phone - Phone number to sanitize
  * @returns {string|null} - Sanitized phone or null if invalid
  */
@@ -59,7 +60,8 @@ const sanitizePhone = (phone) => {
     return '0' + cleaned.substring(2); // Convert 639XX to 09XX
   }
   
-  // Also accept general format with 10-15 digits
+  // Fallback: Accept 10-15 digit numbers for international customers
+  // This allows flexibility for non-Philippine numbers while maintaining some validation
   if (cleaned.length >= 10 && cleaned.length <= 15) {
     return cleaned;
   }
@@ -71,8 +73,9 @@ const sanitizePhone = (phone) => {
  * Sanitize message/description input
  * - Trims whitespace
  * - Escapes HTML to prevent XSS
- * - Removes script tags
  * - Limits length to prevent abuse
+ * Note: validator.escape() handles all XSS vectors including script tags,
+ * event handlers, iframes, etc. No need for manual tag removal.
  * @param {string} message - Message to sanitize
  * @param {number} maxLength - Maximum allowed length (default: 5000)
  * @returns {string} - Sanitized message
@@ -80,18 +83,16 @@ const sanitizePhone = (phone) => {
 const sanitizeMessage = (message, maxLength = 5000) => {
   if (typeof message !== 'string') return '';
   
-  // Remove any script tags
-  let cleaned = message.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-  
   // Trim whitespace
-  cleaned = validator.trim(cleaned);
+  let cleaned = validator.trim(message);
   
-  // Limit length
+  // Limit length BEFORE escaping to prevent entity truncation issues
   if (cleaned.length > maxLength) {
     cleaned = cleaned.substring(0, maxLength);
   }
   
-  // Escape HTML special characters
+  // Escape HTML special characters - this protects against all XSS vectors
+  // including <script>, <iframe>, event handlers like onclick, etc.
   cleaned = validator.escape(cleaned);
   
   return cleaned;

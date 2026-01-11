@@ -73,5 +73,30 @@
     "createdAt": "2026-01-10T14:04:20.168Z",
     "updatedAt": "2026-01-10T14:04:20.168Z",
     "closedAt": null
+  },
+  {
+    "id": "mk9i21c7f3guh90pcnv",
+    "ticketNumber": "INQ-2026-004",
+    "name": "&lt;script&gt;alert(1)&lt;&#x2F;script&gt;",
+    "email": "test@test.com",
+    "phone": "09171234567",
+    "message": "test",
+    "propertyId": "prop001",
+    "propertyTitle": null,
+    "propertyPrice": null,
+    "propertyLocation": null,
+    "status": "new",
+    "assignedTo": null,
+    "claimedBy": null,
+    "assignedBy": null,
+    "claimedAt": null,
+    "assignedAt": null,
+    "notes": [],
+    "lastFollowUpAt": null,
+    "nextFollowUpAt": null,
+    "followUpReminders": [],
+    "createdAt": "2026-01-11T08:56:20.551Z",
+    "updatedAt": "2026-01-11T08:56:20.551Z",
+    "closedAt": null
   }
 ]
