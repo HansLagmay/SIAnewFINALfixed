@@ -110,5 +110,19 @@
     "action": "CREATE_AGENT",
     "details": "Created new agent: Test Agent",
     "user": "Admin"
+  },
+  {
+    "id": "1768120147761",
+    "timestamp": "2026-01-11T08:29:07.761Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1768120148009",
+    "timestamp": "2026-01-11T08:29:08.009Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
   }
 ]
