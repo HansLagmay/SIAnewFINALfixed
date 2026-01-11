@@ -48,31 +48,16 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
   const handleClaimTicket = async (inquiry: Inquiry) => {
     if (!user) return;
     
+    if (!confirm('Claim this ticket? It will be assigned to you.')) return;
+    
     setClaimingId(inquiry.id);
     try {
-      // Check if still unassigned
-      const checkResponse = await inquiriesAPI.getAll();
-      const currentInquiry = checkResponse.data.find(i => i.id === inquiry.id);
-      
-      if (currentInquiry && currentInquiry.assignedTo) {
-        alert('Ticket already claimed by another agent');
-        await loadInquiries();
-        return;
-      }
-      
-      // Claim the ticket
-      await inquiriesAPI.update(inquiry.id, {
-        assignedTo: user.id,
-        claimedBy: user.id,
-        claimedAt: new Date().toISOString(),
-        status: 'claimed',
-        updatedAt: new Date().toISOString()
-      });
-      
+      await inquiriesAPI.claim(inquiry.id, user.id, user.name);
+      alert('Ticket claimed successfully!');
       await loadInquiries();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to claim ticket:', error);
-      alert('Failed to claim ticket. Please try again.');
+      alert(error.response?.data?.error || 'Failed to claim ticket. It may have been claimed by another agent.');
     } finally {
       setClaimingId(null);
     }

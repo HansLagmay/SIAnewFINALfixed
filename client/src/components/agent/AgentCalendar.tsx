@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { calendarAPI } from '../../services/api';
 import type { CalendarEvent, User } from '../../types';
+import ScheduleViewingModal from './ScheduleViewingModal';
 
 interface AgentCalendarProps {
   user: User | null;
@@ -9,6 +10,7 @@ interface AgentCalendarProps {
 const AgentCalendar = ({ user }: AgentCalendarProps) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -35,7 +37,15 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">My Calendar</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">My Calendar</h1>
+        <button
+          onClick={() => setShowScheduleModal(true)}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+        >
+          + Schedule Viewing
+        </button>
+      </div>
 
       <div className="bg-white rounded-lg shadow">
         {events.length === 0 ? (
@@ -75,9 +85,19 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
 
       <div className="mt-6 p-6 bg-blue-50 rounded-lg">
         <p className="text-sm text-blue-800">
-          💡 <strong>Tip:</strong> Calendar events are managed by the admin. Contact your admin to schedule property viewings and meetings.
+          💡 <strong>Tip:</strong> Use the "Schedule Viewing" button to create property viewing appointments.
         </p>
       </div>
+
+      {showScheduleModal && user && (
+        <ScheduleViewingModal
+          user={user}
+          onClose={() => setShowScheduleModal(false)}
+          onSuccess={() => {
+            loadEvents();
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -27,7 +27,30 @@ router.get('/agent/:agentId', (req, res) => {
 // POST new event
 router.post('/', (req, res) => {
   try {
+    const { start, end, agentId } = req.body;
     const events = readJSONFile('calendar-events.json');
+    
+    // Check for conflicts (30-minute buffer)
+    const buffer = 30 * 60 * 1000; // 30 minutes in milliseconds
+    const newStart = new Date(start).getTime();
+    const newEnd = new Date(end).getTime();
+    
+    const hasConflict = events.some(event => {
+      if (event.agentId !== agentId) return false;
+      
+      const eventStart = new Date(event.start).getTime();
+      const eventEnd = new Date(event.end).getTime();
+      
+      // Check if there's overlap with 30-minute buffer
+      return (newStart < eventEnd + buffer) && (newEnd > eventStart - buffer);
+    });
+    
+    if (hasConflict) {
+      return res.status(409).json({ 
+        error: 'Schedule conflict: You have another event within 30 minutes of this time' 
+      });
+    }
+    
     const newEvent = {
       id: generateId(),
       ...req.body,
@@ -41,6 +64,7 @@ router.post('/', (req, res) => {
     
     res.status(201).json(newEvent);
   } catch (error) {
+    console.error('Failed to create event:', error);
     res.status(500).json({ error: 'Failed to create event' });
   }
 });

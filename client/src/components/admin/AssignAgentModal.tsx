@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import type { Inquiry, User } from '../../types';
 import { inquiriesAPI, usersAPI } from '../../services/api';
 
+interface AgentWorkload {
+  agentId: string;
+  agentName: string;
+  activeInquiries: number;
+  totalInquiries: number;
+  successfulInquiries: number;
+}
+
 interface AssignAgentModalProps {
   inquiry: Inquiry;
   onAssign: () => void;
@@ -10,8 +18,8 @@ interface AssignAgentModalProps {
 
 const AssignAgentModal = ({ inquiry, onAssign, onClose }: AssignAgentModalProps) => {
   const [agents, setAgents] = useState<User[]>([]);
+  const [workload, setWorkload] = useState<AgentWorkload[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState('');
-  const [agentWorkload, setAgentWorkload] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,26 +29,17 @@ const AssignAgentModal = ({ inquiry, onAssign, onClose }: AssignAgentModalProps)
 
   const loadAgentsAndWorkload = async () => {
     try {
-      // Load all agents
-      const usersResponse = await usersAPI.getAll();
+      const [usersResponse, workloadResponse] = await Promise.all([
+        usersAPI.getAll(),
+        inquiriesAPI.getAgentWorkload()
+      ]);
+      
       const agentUsers = usersResponse.data.filter(u => u.role === 'agent');
       setAgents(agentUsers);
-
-      // Calculate workload for each agent
-      const inquiriesResponse = await inquiriesAPI.getAll();
-      const workload: Record<string, number> = {};
-      
-      agentUsers.forEach(agent => {
-        workload[agent.id] = inquiriesResponse.data.filter(inq => 
-          inq.assignedTo === agent.id && 
-          inq.status !== 'closed' &&
-          inq.status !== 'cancelled'
-        ).length;
-      });
-      
-      setAgentWorkload(workload);
+      setWorkload(workloadResponse.data);
     } catch (error) {
       console.error('Failed to load agents:', error);
+      alert('Failed to load agents');
     } finally {
       setLoading(false);
     }
@@ -55,19 +54,22 @@ const AssignAgentModal = ({ inquiry, onAssign, onClose }: AssignAgentModalProps)
     setSubmitting(true);
     try {
       const adminUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const selectedAgent = agents.find(a => a.id === selectedAgentId);
       
-      await inquiriesAPI.update(inquiry.id, {
-        assignedTo: selectedAgentId,
-        assignedBy: adminUser.id,
-        assignedAt: new Date().toISOString(),
-        status: 'assigned'
-      });
+      await inquiriesAPI.assign(
+        inquiry.id,
+        selectedAgentId,
+        adminUser.id,
+        adminUser.name,
+        selectedAgent?.name || ''
+      );
       
+      alert('Inquiry assigned successfully!');
       onAssign();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to assign agent:', error);
-      alert('Failed to assign agent. Please try again.');
+      alert(error.response?.data?.error || 'Failed to assign inquiry. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -116,39 +118,44 @@ const AssignAgentModal = ({ inquiry, onAssign, onClose }: AssignAgentModalProps)
               </div>
             ) : (
               <div className="space-y-2">
-                {agents.map(agent => (
-                  <div
-                    key={agent.id}
-                    onClick={() => setSelectedAgentId(agent.id)}
-                    className={`p-4 border-2 rounded-lg cursor-pointer transition ${
-                      selectedAgentId === agent.id
-                        ? 'border-blue-600 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${
-                            selectedAgentId === agent.id ? 'bg-blue-600' : 'bg-gray-300'
-                          }`} />
-                          <p className="font-semibold text-gray-800">{agent.name}</p>
+                {agents.map(agent => {
+                  const agentWorkload = workload.find(w => w.agentId === agent.id);
+                  const conversionRate = agentWorkload && agentWorkload.totalInquiries > 0
+                    ? ((agentWorkload.successfulInquiries / agentWorkload.totalInquiries) * 100).toFixed(1)
+                    : '0.0';
+                  
+                  return (
+                    <div
+                      key={agent.id}
+                      onClick={() => setSelectedAgentId(agent.id)}
+                      className={`p-4 border-2 rounded-lg cursor-pointer transition ${
+                        selectedAgentId === agent.id
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full ${
+                              selectedAgentId === agent.id ? 'bg-blue-600' : 'bg-gray-300'
+                            }`} />
+                            <p className="font-semibold text-gray-800">{agent.name}</p>
+                          </div>
+                          <p className="text-sm text-gray-600 ml-5">{agent.email}</p>
                         </div>
-                        <p className="text-sm text-gray-600 ml-5">{agent.email}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium text-gray-600">Active Tickets</p>
-                        <p className={`text-2xl font-bold ${
-                          (agentWorkload[agent.id] || 0) > 10 ? 'text-red-600' :
-                          (agentWorkload[agent.id] || 0) > 5 ? 'text-yellow-600' :
-                          'text-green-600'
-                        }`}>
-                          {agentWorkload[agent.id] || 0}
-                        </p>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-gray-700">
+                            Active: {agentWorkload?.activeInquiries || 0} tickets
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Conversion: {conversionRate}%
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

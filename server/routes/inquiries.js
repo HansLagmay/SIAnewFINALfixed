@@ -153,4 +153,96 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+// POST claim inquiry (agent self-service)
+router.post('/:id/claim', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { agentId, agentName } = req.body;
+    
+    const inquiries = readJSONFile('inquiries.json');
+    const inquiry = inquiries.find(i => i.id === id);
+    
+    if (!inquiry) {
+      return res.status(404).json({ error: 'Inquiry not found' });
+    }
+    
+    if (inquiry.assignedTo) {
+      return res.status(409).json({ error: 'Ticket already claimed by another agent' });
+    }
+    
+    inquiry.assignedTo = agentId;
+    inquiry.claimedBy = agentId;
+    inquiry.claimedAt = new Date().toISOString();
+    inquiry.status = 'claimed';
+    inquiry.updatedAt = new Date().toISOString();
+    
+    writeJSONFile('inquiries.json', inquiries);
+    logActivity('CLAIM_INQUIRY', `Agent ${agentName} claimed inquiry ${inquiry.ticketNumber}`, agentName);
+    
+    res.json(inquiry);
+  } catch (error) {
+    console.error('Failed to claim inquiry:', error);
+    res.status(500).json({ error: 'Failed to claim inquiry' });
+  }
+});
+
+// POST assign inquiry (admin)
+router.post('/:id/assign', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { agentId, adminId, adminName, agentName } = req.body;
+    
+    const inquiries = readJSONFile('inquiries.json');
+    const inquiry = inquiries.find(i => i.id === id);
+    
+    if (!inquiry) {
+      return res.status(404).json({ error: 'Inquiry not found' });
+    }
+    
+    inquiry.assignedTo = agentId;
+    inquiry.assignedBy = adminId;
+    inquiry.assignedAt = new Date().toISOString();
+    inquiry.status = 'assigned';
+    inquiry.updatedAt = new Date().toISOString();
+    
+    writeJSONFile('inquiries.json', inquiries);
+    logActivity('ASSIGN_INQUIRY', `Admin ${adminName} assigned inquiry ${inquiry.ticketNumber} to ${agentName}`, adminName);
+    
+    res.json(inquiry);
+  } catch (error) {
+    console.error('Failed to assign inquiry:', error);
+    res.status(500).json({ error: 'Failed to assign inquiry' });
+  }
+});
+
+// GET agent workload
+router.get('/agents/workload', (req, res) => {
+  try {
+    const inquiries = readJSONFile('inquiries.json');
+    const users = readJSONFile('users.json');
+    
+    const agents = users.filter(u => u.role === 'agent');
+    
+    const workload = agents.map(agent => ({
+      agentId: agent.id,
+      agentName: agent.name,
+      activeInquiries: inquiries.filter(i => 
+        i.assignedTo === agent.id && 
+        i.status !== 'closed' && 
+        i.status !== 'cancelled'
+      ).length,
+      totalInquiries: inquiries.filter(i => i.assignedTo === agent.id).length,
+      successfulInquiries: inquiries.filter(i => 
+        i.assignedTo === agent.id && 
+        i.status === 'successful'
+      ).length
+    }));
+    
+    res.json(workload);
+  } catch (error) {
+    console.error('Failed to get agent workload:', error);
+    res.status(500).json({ error: 'Failed to get agent workload' });
+  }
+});
+
 module.exports = router;

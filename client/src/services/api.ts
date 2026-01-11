@@ -37,6 +37,18 @@ export const inquiriesAPI = {
   create: (inquiry: Partial<Inquiry>) => api.post<Inquiry>('/inquiries', inquiry),
   update: (id: string, inquiry: Partial<Inquiry>) => api.put<Inquiry>(`/inquiries/${id}`, inquiry),
   delete: (id: string, user?: string) => api.delete(`/inquiries/${id}`, { params: { user } }),
+  claim: (id: string, agentId: string, agentName: string) =>
+    api.post<Inquiry>(`/inquiries/${id}/claim`, { agentId, agentName }),
+  assign: (id: string, agentId: string, adminId: string, adminName: string, agentName: string) =>
+    api.post<Inquiry>(`/inquiries/${id}/assign`, { agentId, adminId, adminName, agentName }),
+  getAgentWorkload: () =>
+    api.get<Array<{
+      agentId: string;
+      agentName: string;
+      activeInquiries: number;
+      totalInquiries: number;
+      successfulInquiries: number;
+    }>>('/inquiries/agents/workload'),
 };
 
 // Users API
