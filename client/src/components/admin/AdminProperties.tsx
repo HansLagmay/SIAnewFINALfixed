@@ -18,7 +18,7 @@ const AdminProperties = () => {
         usersAPI.getAll()
       ]);
       setProperties(propertiesRes.data);
-      setAgents(usersRes.data.filter(u => u.role === 'agent'));
+      setAgents(usersRes.data.filter((u: any) => u.role === 'agent'));
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -101,7 +101,7 @@ const AdminProperties = () => {
     if (!confirm('Are you sure you want to delete this property?')) return;
 
     try {
-      await propertiesAPI.delete(id, 'Admin');
+      await propertiesAPI.delete(id);
       await loadProperties();
     } catch (error) {
       console.error('Failed to delete property:', error);

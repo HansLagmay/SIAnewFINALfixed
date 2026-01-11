@@ -22,7 +22,7 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
     try {
       const response = await calendarAPI.getAll();
       // Filter events for this agent
-      const myEvents = response.data.filter(e => e.agentId === user?.id);
+      const myEvents = response.data.filter((e: any) => e.agentId === user?.id);
       setEvents(myEvents);
     } catch (error) {
       console.error('Failed to load calendar events:', error);

@@ -68,7 +68,16 @@ export interface PaginatedResponse<T> {
 
 // Properties API
 export const propertiesAPI = {
-  getAll: (page?: number, limit?: number) => 
+  // Backward compatible - returns all items
+  getAll: () => api.get<Property[]>('/properties', { params: { limit: 1000 } }).then(res => {
+    // Handle both paginated and non-paginated responses
+    if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+      return { ...res, data: (res.data as any).data };
+    }
+    return res;
+  }),
+  // Paginated version
+  getAllPaginated: (page?: number, limit?: number) => 
     api.get<PaginatedResponse<Property>>('/properties', { params: { page, limit } }),
   getById: (id: string) => api.get<Property>(`/properties/${id}`),
   create: (property: Partial<Property>) => api.post<Property>('/properties', property),
@@ -82,7 +91,15 @@ export const propertiesAPI = {
 
 // Inquiries API
 export const inquiriesAPI = {
-  getAll: (page?: number, limit?: number) => 
+  // Backward compatible - returns all items
+  getAll: () => api.get<Inquiry[]>('/inquiries', { params: { limit: 1000 } }).then(res => {
+    if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+      return { ...res, data: (res.data as any).data };
+    }
+    return res;
+  }),
+  // Paginated version
+  getAllPaginated: (page?: number, limit?: number) => 
     api.get<PaginatedResponse<Inquiry>>('/inquiries', { params: { page, limit } }),
   getById: (id: string) => api.get<Inquiry>(`/inquiries/${id}`),
   create: (inquiry: Partial<Inquiry>) => api.post<Inquiry>('/inquiries', inquiry),
@@ -103,9 +120,24 @@ export const inquiriesAPI = {
 
 // Users API
 export const usersAPI = {
-  getAll: (page?: number, limit?: number) => 
+  // Backward compatible - returns all items
+  getAll: () => api.get<User[]>('/users', { params: { limit: 1000 } }).then(res => {
+    if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+      return { ...res, data: (res.data as any).data };
+    }
+    return res;
+  }),
+  // Paginated version
+  getAllPaginated: (page?: number, limit?: number) => 
     api.get<PaginatedResponse<User>>('/users', { params: { page, limit } }),
-  getAgents: (page?: number, limit?: number) => 
+  getAgents: () => api.get<User[]>('/users/agents', { params: { limit: 1000 } }).then(res => {
+    if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+      return { ...res, data: (res.data as any).data };
+    }
+    return res;
+  }),
+  // Paginated version
+  getAgentsPaginated: (page?: number, limit?: number) => 
     api.get<PaginatedResponse<User>>('/users/agents', { params: { page, limit } }),
   create: (agent: NewAgent) => api.post<User>('/users', agent),
   delete: (id: string) => api.delete(`/users/${id}`),
@@ -113,7 +145,15 @@ export const usersAPI = {
 
 // Calendar API
 export const calendarAPI = {
-  getAll: (page?: number, limit?: number) => 
+  // Backward compatible - returns all items
+  getAll: () => api.get<CalendarEvent[]>('/calendar', { params: { limit: 1000 } }).then(res => {
+    if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+      return { ...res, data: (res.data as any).data };
+    }
+    return res;
+  }),
+  // Paginated version
+  getAllPaginated: (page?: number, limit?: number) => 
     api.get<PaginatedResponse<CalendarEvent>>('/calendar', { params: { page, limit } }),
   getByAgent: (agentId: string) => api.get<CalendarEvent[]>(`/calendar/agent/${agentId}`),
   create: (event: Partial<CalendarEvent>) => api.post<CalendarEvent>('/calendar', event),
@@ -128,7 +168,29 @@ export const authAPI = {
 
 // Activity Log API
 export const activityLogAPI = {
+  // Backward compatible
   getAll: (page?: number, limit?: number) => 
+    api.get<{ logs: ActivityLog[]; total: number; page: number; totalPages: number }>(
+      '/activity-log',
+      { params: { page, limit } }
+    ).then(res => {
+      // Handle paginated response format
+      if (res.data && typeof res.data === 'object' && 'data' in res.data) {
+        const paginatedData = res.data as any;
+        return {
+          ...res,
+          data: {
+            logs: paginatedData.data,
+            total: paginatedData.pagination.totalRecords,
+            page: paginatedData.pagination.currentPage,
+            totalPages: paginatedData.pagination.totalPages
+          }
+        };
+      }
+      return res;
+    }),
+  // Paginated version
+  getAllPaginated: (page?: number, limit?: number) => 
     api.get<PaginatedResponse<ActivityLog>>('/activity-log', { params: { page, limit } }),
 };
 

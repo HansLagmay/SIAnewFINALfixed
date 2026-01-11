@@ -39,7 +39,7 @@ const AdminInquiries = () => {
     if (!confirm('Are you sure you want to delete this inquiry?')) return;
 
     try {
-      await inquiriesAPI.delete(id, 'Admin');
+      await inquiriesAPI.delete(id);
       await loadInquiries();
     } catch (error) {
       console.error('Failed to delete inquiry:', error);

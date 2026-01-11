@@ -34,7 +34,7 @@ const AssignAgentModal = ({ inquiry, onAssign, onClose }: AssignAgentModalProps)
         inquiriesAPI.getAgentWorkload()
       ]);
       
-      const agentUsers = usersResponse.data.filter(u => u.role === 'agent');
+      const agentUsers = usersResponse.data.filter((u: any) => u.role === 'agent');
       setAgents(agentUsers);
       setWorkload(workloadResponse.data);
     } catch (error) {
@@ -53,14 +53,11 @@ const AssignAgentModal = ({ inquiry, onAssign, onClose }: AssignAgentModalProps)
 
     setSubmitting(true);
     try {
-      const adminUser = JSON.parse(localStorage.getItem('user') || '{}');
-      const selectedAgent = agents.find(a => a.id === selectedAgentId);
+      const selectedAgent = agents.find((a: any) => a.id === selectedAgentId);
       
       await inquiriesAPI.assign(
         inquiry.id,
         selectedAgentId,
-        adminUser.id,
-        adminUser.name,
         selectedAgent?.name || ''
       );
       

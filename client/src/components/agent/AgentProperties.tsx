@@ -13,7 +13,7 @@ const AgentProperties = () => {
   const loadProperties = async () => {
     try {
       const response = await propertiesAPI.getAll();
-      setProperties(response.data.filter(p => p.status === 'available'));
+      setProperties(response.data.filter((p: any) => p.status === 'available'));
     } catch (error) {
       console.error('Failed to load properties:', error);
     } finally {

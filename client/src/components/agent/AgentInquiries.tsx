@@ -26,7 +26,7 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
       }
       
       // SECURITY FIX: Filter to show only assigned tickets + unassigned tickets
-      const myInquiries = response.data.filter(inquiry => {
+      const myInquiries = response.data.filter((inquiry: any) => {
         // Show if assigned to me
         if (inquiry.assignedTo === user.id) return true;
         
@@ -52,7 +52,7 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
     
     setClaimingId(inquiry.id);
     try {
-      await inquiriesAPI.claim(inquiry.id, user.id, user.name);
+      await inquiriesAPI.claim(inquiry.id);
       alert('Ticket claimed successfully!');
       await loadInquiries();
     } catch (error: any) {

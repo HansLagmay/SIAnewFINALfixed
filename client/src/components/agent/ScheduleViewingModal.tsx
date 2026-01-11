@@ -67,7 +67,7 @@ const ScheduleViewingModal = ({ user, inquiry, onClose, onSuccess }: ScheduleVie
         start: startDateTime.toISOString(),
         end: endDateTime.toISOString(),
         agentId: user.id,
-        inquiryId: inquiry?.id || null,
+        inquiryId: inquiry?.id || undefined,
         type: 'viewing' as const
       };
       

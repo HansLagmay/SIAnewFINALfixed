@@ -47,7 +47,7 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
     try {
       const response = await inquiriesAPI.getAll();
       
-      const existingInquiry = response.data.find(inq => 
+      const existingInquiry = response.data.find((inq: any) => 
         inq.email.toLowerCase() === email.toLowerCase() && 
         inq.propertyId === propertyId &&
         inq.status !== 'closed' && 

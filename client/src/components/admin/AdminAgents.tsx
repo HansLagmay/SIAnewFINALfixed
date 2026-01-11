@@ -25,7 +25,7 @@ const AdminAgents = () => {
     if (!confirm('Are you sure you want to delete this agent?')) return;
 
     try {
-      await usersAPI.delete(id, 'Admin');
+      await usersAPI.delete(id);
       await loadAgents();
     } catch (error) {
       console.error('Failed to delete agent:', error);
