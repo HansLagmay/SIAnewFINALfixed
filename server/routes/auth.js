@@ -19,7 +19,7 @@ router.post('/', loginLimiter, async (req, res) => {
     const user = users.find(u => u.email === email);
     
     if (!user) {
-      logActivity('LOGIN_FAILED', `Failed login attempt: ${email}`, 'Unknown');
+      await logActivity('LOGIN_FAILED', `Failed login attempt: ${email}`, 'Unknown');
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     
@@ -27,14 +27,14 @@ router.post('/', loginLimiter, async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
     
     if (!passwordMatch) {
-      logActivity('LOGIN_FAILED', `Failed login attempt: ${email}`, 'Unknown');
+      await logActivity('LOGIN_FAILED', `Failed login attempt: ${email}`, 'Unknown');
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     
     // Generate JWT token
     const token = generateToken(user);
     
-    logActivity('LOGIN_SUCCESS', `User logged in: ${user.name}`, user.name);
+    await logActivity('LOGIN_SUCCESS', `User logged in: ${user.name}`, user.name);
     
     // Don't send password back
     const { password: _, ...safeUser } = user;

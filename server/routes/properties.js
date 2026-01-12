@@ -40,7 +40,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST upload property images (protected, admin only)
-router.post('/upload', authenticateToken, requireRole(['admin']), upload.array('images', 10), (req, res) => {
+router.post('/upload', authenticateToken, requireRole(['admin']), upload.array('images', 10), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No images uploaded' });
@@ -49,7 +49,7 @@ router.post('/upload', authenticateToken, requireRole(['admin']), upload.array('
     // Return URLs for uploaded images
     const imageUrls = req.files.map(file => `/uploads/properties/${file.filename}`);
     
-    logActivity('UPLOAD_IMAGES', `Uploaded ${req.files.length} property images`, req.user.name);
+    await logActivity('UPLOAD_IMAGES', `Uploaded ${req.files.length} property images`, req.user.name);
     
     res.json({ imageUrls });
   } catch (error) {
@@ -74,7 +74,7 @@ router.post('/', authenticateToken, requireRole(['admin']), sanitizeBody, proper
     properties.push(newProperty);
     await writeJSONFile('properties.json', properties);
     
-    logActivity('CREATE_PROPERTY', `Created property: ${newProperty.title}`, req.user.name);
+    await logActivity('CREATE_PROPERTY', `Created property: ${newProperty.title}`, req.user.name);
     
     res.status(201).json(newProperty);
   } catch (error) {
@@ -112,7 +112,7 @@ router.put('/:id', authenticateToken, requireRole(['admin']), sanitizeBody, asyn
     
     await writeJSONFile('properties.json', properties);
     
-    logActivity('UPDATE_PROPERTY', `Updated property: ${properties[index].title}`, req.user.name);
+    await logActivity('UPDATE_PROPERTY', `Updated property: ${properties[index].title}`, req.user.name);
     
     res.json(properties[index]);
   } catch (error) {
@@ -133,7 +133,7 @@ router.delete('/:id', authenticateToken, requireRole(['admin']), async (req, res
     const deletedProperty = properties.splice(index, 1)[0];
     await writeJSONFile('properties.json', properties);
     
-    logActivity('DELETE_PROPERTY', `Deleted property: ${deletedProperty.title}`, req.user.name);
+    await logActivity('DELETE_PROPERTY', `Deleted property: ${deletedProperty.title}`, req.user.name);
     
     res.json({ message: 'Property deleted successfully' });
   } catch (error) {

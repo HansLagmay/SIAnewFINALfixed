@@ -80,7 +80,7 @@ router.post('/', authenticateToken, requireRole(['admin']), sanitizeBody, async 
     await writeJSONFile('users.json', users);
     await writeJSONFile('new-agents.json', newAgents);
     
-    logActivity('CREATE_AGENT', `Created new agent: ${newAgent.name}`, req.body.createdBy || 'Admin');
+    await logActivity('CREATE_AGENT', `Created new agent: ${newAgent.name}`, req.body.createdBy || 'Admin');
     
     const { password, ...safeAgent } = newAgent;
     res.status(201).json(safeAgent);
@@ -103,7 +103,7 @@ router.delete('/:id', authenticateToken, requireRole(['admin']), async (req, res
     const deletedUser = users.splice(index, 1)[0];
     await writeJSONFile('users.json', users);
     
-    logActivity('DELETE_USER', `Deleted user: ${deletedUser.name}`, req.user.name);
+    await logActivity('DELETE_USER', `Deleted user: ${deletedUser.name}`, req.user.name);
     
     res.json({ message: 'User deleted successfully' });
   } catch (error) {

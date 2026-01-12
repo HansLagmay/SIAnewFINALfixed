@@ -17,6 +17,7 @@ const logActivity = async (action, details, user = 'System') => {
     await writeJSONFile('activity-log.json', logs);
   } catch (error) {
     console.error('Error logging activity:', error);
+    // Don't throw - logging errors shouldn't break the main flow
   }
 };
 

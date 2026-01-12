@@ -76,7 +76,7 @@ router.post('/', sanitizeBody, inquiryLimiter, async (req, res) => {
     // Check for duplicate inquiry
     const duplicate = checkDuplicate(inquiries, req.body.email, req.body.propertyId);
     if (duplicate) {
-      logActivity('DUPLICATE_INQUIRY', `Duplicate inquiry attempt: ${req.body.email} for property ${req.body.propertyId}`, 'System');
+      await logActivity('DUPLICATE_INQUIRY', `Duplicate inquiry attempt: ${req.body.email} for property ${req.body.propertyId}`, 'System');
       return res.status(409).json({ 
         error: 'You have already submitted an inquiry for this property.',
         existingTicket: duplicate.ticketNumber,
@@ -146,7 +146,7 @@ router.post('/', sanitizeBody, inquiryLimiter, async (req, res) => {
       console.error('Failed to update new-inquiries tracking:', e);
     }
     
-    logActivity('CREATE_INQUIRY', `New inquiry from: ${newInquiry.name} (${ticketNumber})`, 'Customer');
+    await logActivity('CREATE_INQUIRY', `New inquiry from: ${newInquiry.name} (${ticketNumber})`, 'Customer');
     
     res.status(201).json(newInquiry);
   } catch (error) {
@@ -189,7 +189,7 @@ router.put('/:id', authenticateToken, sanitizeBody, async (req, res) => {
     
     await writeJSONFile('inquiries.json', inquiries);
     
-    logActivity('UPDATE_INQUIRY', `Updated inquiry: ${inquiries[index].ticketNumber}`, req.user.name);
+    await logActivity('UPDATE_INQUIRY', `Updated inquiry: ${inquiries[index].ticketNumber}`, req.user.name);
     
     res.json(inquiries[index]);
   } catch (error) {
@@ -210,7 +210,7 @@ router.delete('/:id', authenticateToken, requireRole(['admin']), async (req, res
     const deletedInquiry = inquiries.splice(index, 1)[0];
     await writeJSONFile('inquiries.json', inquiries);
     
-    logActivity('DELETE_INQUIRY', `Deleted inquiry: ${deletedInquiry.ticketNumber}`, req.user.name);
+    await logActivity('DELETE_INQUIRY', `Deleted inquiry: ${deletedInquiry.ticketNumber}`, req.user.name);
     
     res.json({ message: 'Inquiry deleted successfully' });
   } catch (error) {
@@ -245,7 +245,7 @@ router.post('/:id/claim', authenticateToken, requireRole(['agent']), async (req,
     inquiry.updatedAt = new Date().toISOString();
     
     await writeJSONFile('inquiries.json', inquiries);
-    logActivity('CLAIM_INQUIRY', `Agent ${req.user.name} claimed inquiry ${inquiry.ticketNumber}`, req.user.name);
+    await logActivity('CLAIM_INQUIRY', `Agent ${req.user.name} claimed inquiry ${inquiry.ticketNumber}`, req.user.name);
     
     res.json(inquiry);
   } catch (error) {
@@ -278,7 +278,7 @@ router.post('/:id/assign', authenticateToken, requireRole(['admin']), async (req
     inquiry.updatedAt = new Date().toISOString();
     
     await writeJSONFile('inquiries.json', inquiries);
-    logActivity('ASSIGN_INQUIRY', `Admin ${req.user.name} assigned inquiry ${inquiry.ticketNumber} to ${agentName}`, req.user.name);
+    await logActivity('ASSIGN_INQUIRY', `Admin ${req.user.name} assigned inquiry ${inquiry.ticketNumber} to ${agentName}`, req.user.name);
     
     res.json(inquiry);
   } catch (error) {

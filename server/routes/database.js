@@ -106,7 +106,7 @@ router.post('/clear-new/:type', authenticateToken, requireRole(['admin']), async
     writeJSONFile(filename, []);
     
     // Log activity
-    logActivity(
+    await logActivity(
       'CLEAR_NEW_DATA',
       `Cleared new-${type} tracking list (${count} items)`,
       req.body.clearedBy || 'System Admin'

@@ -86,7 +86,7 @@ router.post('/', authenticateToken, sanitizeBody, async (req, res) => {
     events.push(newEvent);
     await writeJSONFile('calendar-events.json', events);
     
-    logActivity('CREATE_EVENT', `Created calendar event: ${newEvent.title}`, req.user.name);
+    await logActivity('CREATE_EVENT', `Created calendar event: ${newEvent.title}`, req.user.name);
     
     res.status(201).json(newEvent);
   } catch (error) {
@@ -119,7 +119,7 @@ router.put('/:id', authenticateToken, sanitizeBody, async (req, res) => {
     
     await writeJSONFile('calendar-events.json', events);
     
-    logActivity('UPDATE_EVENT', `Updated calendar event: ${events[index].title}`, req.user.name);
+    await logActivity('UPDATE_EVENT', `Updated calendar event: ${events[index].title}`, req.user.name);
     
     res.json(events[index]);
   } catch (error) {
@@ -145,7 +145,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const deletedEvent = events.splice(index, 1)[0];
     await writeJSONFile('calendar-events.json', events);
     
-    logActivity('DELETE_EVENT', `Deleted calendar event: ${deletedEvent.title}`, req.user.name);
+    await logActivity('DELETE_EVENT', `Deleted calendar event: ${deletedEvent.title}`, req.user.name);
     
     res.json({ message: 'Event deleted successfully' });
   } catch (error) {

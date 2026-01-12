@@ -70,59 +70,73 @@
     "user": "Customer"
   },
   {
-    "id": "1768119745376",
-    "timestamp": "2026-01-11T08:22:25.376Z",
+    "id": "1768121780430",
+    "timestamp": "2026-01-11T08:56:20.430Z",
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Admin User",
     "user": "Admin User"
   },
   {
-    "id": "1768119762950",
-    "timestamp": "2026-01-11T08:22:42.950Z",
-    "action": "LOGIN_SUCCESS",
-    "details": "User logged in: Admin User",
-    "user": "Admin User"
-  },
-  {
-    "id": "1768119772497",
-    "timestamp": "2026-01-11T08:22:52.497Z",
-    "action": "LOGIN_SUCCESS",
-    "details": "User logged in: Admin User",
-    "user": "Admin User"
-  },
-  {
-    "id": "1768119772594",
-    "timestamp": "2026-01-11T08:22:52.594Z",
+    "id": "1768121780505",
+    "timestamp": "2026-01-11T08:56:20.505Z",
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Maria Santos",
     "user": "Maria Santos"
   },
   {
-    "id": "1768119780469",
-    "timestamp": "2026-01-11T08:23:00.469Z",
+    "id": "1768121780555",
+    "timestamp": "2026-01-11T08:56:20.555Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: &lt;script&gt;alert(1)&lt;&#x2F;script&gt; (INQ-2026-004)",
+    "user": "Customer"
+  },
+  {
+    "id": "1768121780631",
+    "timestamp": "2026-01-11T08:56:20.631Z",
+    "action": "LOGIN_FAILED",
+    "details": "Failed login attempt: admin@tesproperty.com",
+    "user": "Unknown"
+  },
+  {
+    "id": "1768122035483",
+    "timestamp": "2026-01-11T09:00:35.483Z",
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Admin User",
     "user": "Admin User"
   },
   {
-    "id": "1768119780574",
-    "timestamp": "2026-01-11T08:23:00.574Z",
-    "action": "CREATE_AGENT",
-    "details": "Created new agent: Test Agent",
-    "user": "Admin"
-  },
-  {
-    "id": "1768120147761",
-    "timestamp": "2026-01-11T08:29:07.761Z",
-    "action": "LOGIN_SUCCESS",
-    "details": "User logged in: Admin User",
-    "user": "Admin User"
-  },
-  {
-    "id": "1768120148009",
-    "timestamp": "2026-01-11T08:29:08.009Z",
+    "id": "1768122035566",
+    "timestamp": "2026-01-11T09:00:35.566Z",
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Maria Santos",
     "user": "Maria Santos"
+  },
+  {
+    "id": "1768122035610",
+    "timestamp": "2026-01-11T09:00:35.610Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: &lt;script&gt;alert(1)&lt;&#x2F;script&gt;Test (INQ-2026-005)",
+    "user": "Customer"
+  },
+  {
+    "id": "1768122035669",
+    "timestamp": "2026-01-11T09:00:35.669Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: Public Test (INQ-2026-006)",
+    "user": "Customer"
+  },
+  {
+    "id": "1768122035739",
+    "timestamp": "2026-01-11T09:00:35.740Z",
+    "action": "LOGIN_FAILED",
+    "details": "Failed login attempt: admin@tesproperty.com",
+    "user": "Unknown"
+  },
+  {
+    "id": "1768122035753",
+    "timestamp": "2026-01-11T09:00:35.753Z",
+    "action": "LOGIN_FAILED",
+    "details": "Failed login attempt: nobody@test.com",
+    "user": "Unknown"
   }
 ]
