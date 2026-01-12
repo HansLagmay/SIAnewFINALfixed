@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
@@ -14,7 +14,7 @@ const authenticateToken = (req, res, next) => {
   
   jwt.verify(token, SECRET, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
+      return res.status(401).json({ error: 'Invalid or expired token' });
     }
     req.user = user;
     next();
