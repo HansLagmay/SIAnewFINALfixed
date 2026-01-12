@@ -133,7 +133,8 @@ export const usersAPI = {
     api.get<PaginatedResponse<User>>('/users', { params: { page, limit } }),
   getAgents: () => api.get<User[]>('/users/agents', { params: { limit: 1000 } }).then(res => {
     if (res.data && typeof res.data === 'object' && 'data' in res.data) {
-      return { ...res, data: (res.data as any).data };
+      const paginatedData = res.data as unknown as PaginatedResponse<User>;
+      return { ...res, data: paginatedData.data };
     }
     return res;
   }),

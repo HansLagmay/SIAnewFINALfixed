@@ -28,7 +28,7 @@ export const useApiCall = <T, Args extends unknown[] = []>(
       
       // Type guard for axios error
       const isAxiosError = (error: unknown): error is { response?: { status: number; data?: { error?: string } }; request?: unknown; message?: string } => {
-        return typeof error === 'object' && error !== null;
+        return typeof error === 'object' && error !== null && ('response' in error || 'request' in error || 'message' in error);
       };
       
       if (isAxiosError(err) && err.response) {
@@ -59,7 +59,7 @@ export const useApiCall = <T, Args extends unknown[] = []>(
       } else if (isAxiosError(err) && err.request) {
         errorMessage = 'Network error. Please check your connection.';
       } else if (isAxiosError(err) && err.message) {
-        errorMessage = err.message || errorMessage;
+        errorMessage = err.message;
       }
       
       setError(errorMessage);
