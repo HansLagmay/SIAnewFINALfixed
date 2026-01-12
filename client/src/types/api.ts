@@ -1,21 +1,14 @@
 import { AxiosResponse } from 'axios';
+import type { Property } from './index';
 
 // Generic API function type with proper typing
 export interface ApiFunction<TArgs extends any[], TResponse> {
   (...args: TArgs): Promise<AxiosResponse<TResponse>>;
 }
 
-// Property update data with proper types
-export interface PropertyUpdateData {
-  status?: string;
+// Property update data with proper types (compatible with Partial<Property>)
+export interface PropertyUpdateData extends Partial<Property> {
   statusHistory?: StatusHistoryEntry[];
-  soldBy?: string;
-  soldByAgentId?: string;
-  soldAt?: string;
-  salePrice?: number;
-  reservedBy?: string;
-  reservedAt?: string;
-  reservedUntil?: string;
 }
 
 export interface StatusHistoryEntry {
