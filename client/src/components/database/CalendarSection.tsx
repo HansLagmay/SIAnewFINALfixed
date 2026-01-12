@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { databaseAPI } from '../../services/api';
+import { handleFileExport } from '../../utils/exportHelper';
 import FileMetadataComponent from './FileMetadata';
 import ExportButtons from './ExportButtons';
 import DataTable from './DataTable';
+import Toast, { ToastType } from '../shared/Toast';
 import type { FileMetadata, CalendarEvent } from '../../types';
 
 export default function CalendarSection() {
@@ -10,6 +12,13 @@ export default function CalendarSection() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [showTable, setShowTable] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  // Toast state
+  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
+    message: '',
+    type: 'info',
+    isVisible: false
+  });
 
   useEffect(() => {
     fetchData();
@@ -34,22 +43,9 @@ export default function CalendarSection() {
 
   const handleExport = async (format: 'csv' | 'json') => {
     try {
-      const response = format === 'csv' 
-        ? await databaseAPI.exportCSV('calendar-events.json')
-        : await databaseAPI.exportJSON('calendar-events.json');
-      
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `calendar-events.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      await handleFileExport('calendar-events.json', format);
     } catch (error) {
-      console.error('Failed to export:', error);
-      alert('Failed to export file');
+      setToast({ message: 'Failed to export file', type: 'error', isVisible: true });
     }
   };
 
@@ -112,6 +108,14 @@ export default function CalendarSection() {
           </div>
         )}
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast({ ...toast, isVisible: false })}
+      />
     </div>
   );
 }
