@@ -11,7 +11,7 @@ export const validateProperty = (property: PropertyValidationData): ValidationEr
     errors.price = 'Price must be between ₱100,000 and ₱1,000,000,000';
   }
   
-  if (property.bedrooms < 0 || property.bedrooms > 10) {
+  if (property.bedrooms !== undefined && (property.bedrooms < 0 || property.bedrooms > 10)) {
     errors.bedrooms = 'Bedrooms must be between 0 and 10';
   }
   
@@ -30,12 +30,12 @@ export const validateInquiry = (inquiry: InquiryValidationData): ValidationError
   const errors: Record<string, string> = {};
   
   const phoneRegex = /^(09|\+639)\d{9}$/;
-  if (!phoneRegex.test(inquiry.phone.replace(/-/g, ''))) {
+  if (inquiry.phone && !phoneRegex.test(inquiry.phone.replace(/-/g, ''))) {
     errors.phone = 'Invalid Philippine phone number';
   }
   
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(inquiry.email)) {
+  if (inquiry.email && !emailRegex.test(inquiry.email)) {
     errors.email = 'Invalid email address';
   }
   

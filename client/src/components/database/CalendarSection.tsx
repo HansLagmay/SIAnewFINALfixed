@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { databaseAPI } from '../../services/api';
+import { handleFileExport } from '../../utils/exportHelper';
 import FileMetadataComponent from './FileMetadata';
 import ExportButtons from './ExportButtons';
 import DataTable from './DataTable';
+import Toast, { ToastType } from '../shared/Toast';
 import type { FileMetadata, CalendarEvent } from '../../types';
 import { useDialog } from '../../hooks/useDialog';
 import { handleDatabaseExport } from '../../utils/database';
@@ -29,7 +31,7 @@ export default function CalendarSection() {
       ]);
       
       setMetadata(metaRes.data);
-      setEvents(eventsRes.data);
+      setEvents(eventsRes.data as CalendarEvent[]);
     } catch (error) {
       console.error('Failed to fetch calendar data:', error);
     } finally {

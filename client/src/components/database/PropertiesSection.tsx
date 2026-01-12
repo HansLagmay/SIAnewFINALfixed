@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { databaseAPI } from '../../services/api';
+import { handleFileExport } from '../../utils/exportHelper';
+import { handleClearNewItems } from '../../utils/clearNewHelper';
 import FileMetadataComponent from './FileMetadata';
 import ExportButtons from './ExportButtons';
 import DataTable from './DataTable';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import Toast, { ToastType } from '../shared/Toast';
 import type { FileMetadata, Property } from '../../types';
 import { useDialog } from '../../hooks/useDialog';
 import { handleDatabaseExport, handleClearNewTracking, getUserFromStorage } from '../../utils/database';
@@ -44,8 +48,8 @@ export default function PropertiesSection() {
       
       setMetadata(metaRes.data);
       setNewMetadata(newMetaRes.data);
-      setProperties(propsRes.data);
-      setNewProperties(newPropsRes.data);
+      setProperties(propsRes.data as Property[]);
+      setNewProperties(newPropsRes.data as Property[]);
     } catch (error) {
       console.error('Failed to fetch properties data:', error);
     } finally {
@@ -121,7 +125,7 @@ export default function PropertiesSection() {
           <h3 className="text-xl font-bold text-gray-900">⭐ Recently Added Properties (new-properties.json)</h3>
           {newProperties.length > 0 && (
             <button
-              onClick={handleClearNew}
+              onClick={() => setShowConfirmDialog(true)}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
             >
               🗑️ Clear New Properties List

@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { databaseAPI } from '../../services/api';
+import { handleFileExport } from '../../utils/exportHelper';
+import { handleClearNewItems } from '../../utils/clearNewHelper';
 import FileMetadataComponent from './FileMetadata';
 import ExportButtons from './ExportButtons';
 import DataTable from './DataTable';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import Toast, { ToastType } from '../shared/Toast';
 import type { FileMetadata, Inquiry } from '../../types';
 import { useDialog } from '../../hooks/useDialog';
 import { handleDatabaseExport, handleClearNewTracking, getUserFromStorage } from '../../utils/database';
@@ -44,8 +48,8 @@ export default function InquiriesSection() {
       
       setMetadata(metaRes.data);
       setNewMetadata(newMetaRes.data);
-      setInquiries(inqRes.data);
-      setNewInquiries(newInqRes.data);
+      setInquiries(inqRes.data as Inquiry[]);
+      setNewInquiries(newInqRes.data as Inquiry[]);
     } catch (error) {
       console.error('Failed to fetch inquiries data:', error);
     } finally {
@@ -145,7 +149,7 @@ export default function InquiriesSection() {
           <h3 className="text-xl font-bold text-gray-900">⭐ New/Unassigned Inquiries (new-inquiries.json)</h3>
           {newInquiries.length > 0 && (
             <button
-              onClick={handleClearNew}
+              onClick={() => setShowConfirmDialog(true)}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
             >
               🗑️ Clear New Inquiries List

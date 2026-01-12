@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { propertiesAPI, usersAPI } from '../../services/api';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import PromptDialog from '../shared/PromptDialog';
+import Toast, { ToastType } from '../shared/Toast';
 import type { Property, User } from '../../types';
 import type { PropertyUpdateData } from '../../types/api';
 import { useDialog } from '../../hooks/useDialog';
@@ -61,7 +64,7 @@ const AdminProperties = () => {
         statusHistory: [
           ...(property.statusHistory || []),
           {
-            status: newStatus,
+            status: status,
             changedBy: admin.id,
             changedByName: admin.name,
             changedAt: new Date().toISOString()
@@ -137,7 +140,7 @@ const AdminProperties = () => {
     if (!confirmed) return;
 
     try {
-      await propertiesAPI.delete(id);
+      await propertiesAPI.delete(selectedProperty.id);
       await loadProperties();
       showToast({ type: 'success', message: 'Property deleted successfully' });
     } catch (error) {

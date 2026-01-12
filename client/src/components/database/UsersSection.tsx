@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { databaseAPI } from '../../services/api';
+import { handleFileExport } from '../../utils/exportHelper';
+import { handleClearNewItems } from '../../utils/clearNewHelper';
 import FileMetadataComponent from './FileMetadata';
 import ExportButtons from './ExportButtons';
 import DataTable from './DataTable';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import Toast, { ToastType } from '../shared/Toast';
 import type { FileMetadata, User } from '../../types';
 import { useDialog } from '../../hooks/useDialog';
 import { handleDatabaseExport, handleClearNewTracking, getUserFromStorage } from '../../utils/database';
@@ -44,8 +48,8 @@ export default function UsersSection() {
       
       setMetadata(metaRes.data);
       setNewMetadata(newMetaRes.data);
-      setUsers(usersRes.data);
-      setNewAgents(newAgentsRes.data);
+      setUsers(usersRes.data as User[]);
+      setNewAgents(newAgentsRes.data as User[]);
     } catch (error) {
       console.error('Failed to fetch users data:', error);
     } finally {
@@ -143,7 +147,7 @@ export default function UsersSection() {
           <h3 className="text-xl font-bold text-gray-900">⭐ Recently Added Agents (new-agents.json)</h3>
           {newAgents.length > 0 && (
             <button
-              onClick={handleClearNew}
+              onClick={() => setShowConfirmDialog(true)}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
             >
               🗑️ Clear New Agents List

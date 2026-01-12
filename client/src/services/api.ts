@@ -72,7 +72,8 @@ export const propertiesAPI = {
   getAll: () => api.get<Property[]>('/properties', { params: { limit: 1000 } }).then(res => {
     // Handle both paginated and non-paginated responses
     if (res.data && typeof res.data === 'object' && 'data' in res.data) {
-      return { ...res, data: (res.data as any).data };
+      const paginatedData = res.data as unknown as PaginatedResponse<Property>;
+      return { ...res, data: paginatedData.data };
     }
     return res;
   }),
@@ -132,7 +133,8 @@ export const usersAPI = {
     api.get<PaginatedResponse<User>>('/users', { params: { page, limit } }),
   getAgents: () => api.get<User[]>('/users/agents', { params: { limit: 1000 } }).then(res => {
     if (res.data && typeof res.data === 'object' && 'data' in res.data) {
-      return { ...res, data: (res.data as any).data };
+      const paginatedData = res.data as unknown as PaginatedResponse<User>;
+      return { ...res, data: paginatedData.data };
     }
     return res;
   }),
@@ -148,7 +150,8 @@ export const calendarAPI = {
   // Backward compatible - returns all items
   getAll: () => api.get<CalendarEvent[]>('/calendar', { params: { limit: 1000 } }).then(res => {
     if (res.data && typeof res.data === 'object' && 'data' in res.data) {
-      return { ...res, data: (res.data as any).data };
+      const paginatedData = res.data as unknown as PaginatedResponse<CalendarEvent>;
+      return { ...res, data: paginatedData.data };
     }
     return res;
   }),
@@ -176,7 +179,7 @@ export const activityLogAPI = {
     ).then(res => {
       // Handle paginated response format
       if (res.data && typeof res.data === 'object' && 'data' in res.data) {
-        const paginatedData = res.data as any;
+        const paginatedData = res.data as unknown as PaginatedResponse<ActivityLog>;
         return {
           ...res,
           data: {
@@ -198,8 +201,8 @@ export const activityLogAPI = {
 export const databaseAPI = {
   getOverview: () => api.get<DatabaseOverview>('/database/overview'),
   getFileMetadata: (filename: string) => api.get<FileMetadata>(`/database/file-metadata/${filename}`),
-  getFile: (filename: string) => api.get<any>(`/database/file/${filename}`),
-  getRecent: (type: 'properties' | 'inquiries' | 'agents') => api.get<any[]>(`/database/recent/${type}`),
+  getFile: (filename: string) => api.get<Property[] | Inquiry[] | User[] | CalendarEvent[] | ActivityLog[]>(`/database/file/${filename}`),
+  getRecent: (type: 'properties' | 'inquiries' | 'agents') => api.get<Property[] | Inquiry[] | User[]>(`/database/recent/${type}`),
   clearNew: (type: 'properties' | 'inquiries' | 'agents', clearedBy: string) => 
     api.post(`/database/clear-new/${type}`, { clearedBy }),
   exportCSV: (filename: string) => api.get(`/database/export/${filename}/csv`, { responseType: 'blob' }),
