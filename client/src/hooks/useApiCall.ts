@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AxiosResponse } from 'axios';
 
 export interface ApiCallState<T> {
   data: T | null;
@@ -6,12 +7,14 @@ export interface ApiCallState<T> {
   error: string | null;
 }
 
-export const useApiCall = <T,>(apiFunction: (...args: any[]) => Promise<any>) => {
+export const useApiCall = <T, Args extends unknown[] = []>(
+  apiFunction: (...args: Args) => Promise<AxiosResponse<T>>
+) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const execute = async (...args: any[]): Promise<T | undefined> => {
+  const execute = async (...args: Args): Promise<T | undefined> => {
     setLoading(true);
     setError(null);
     
@@ -20,10 +23,15 @@ export const useApiCall = <T,>(apiFunction: (...args: any[]) => Promise<any>) =>
       const responseData = result.data as T;
       setData(responseData);
       return responseData;
-    } catch (err: any) {
+    } catch (err: unknown) {
       let errorMessage = 'An unexpected error occurred';
       
-      if (err.response) {
+      // Type guard for axios error
+      const isAxiosError = (error: unknown): error is { response?: { status: number; data?: { error?: string } }; request?: unknown; message?: string } => {
+        return typeof error === 'object' && error !== null && ('response' in error || 'request' in error || 'message' in error);
+      };
+      
+      if (isAxiosError(err) && err.response) {
         // Handle specific HTTP status codes
         switch (err.response.status) {
           case 401:
@@ -48,10 +56,10 @@ export const useApiCall = <T,>(apiFunction: (...args: any[]) => Promise<any>) =>
           default:
             errorMessage = err.response.data?.error || errorMessage;
         }
-      } else if (err.request) {
+      } else if (isAxiosError(err) && err.request) {
         errorMessage = 'Network error. Please check your connection.';
-      } else {
-        errorMessage = err.message || errorMessage;
+      } else if (isAxiosError(err) && err.message) {
+        errorMessage = err.message;
       }
       
       setError(errorMessage);

@@ -1,18 +1,30 @@
 import { useState, useEffect } from 'react';
 import { databaseAPI } from '../../services/api';
+import { handleFileExport } from '../../utils/exportHelper';
+import { handleClearNewItems } from '../../utils/clearNewHelper';
 import FileMetadataComponent from './FileMetadata';
 import ExportButtons from './ExportButtons';
 import DataTable from './DataTable';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import Toast, { ToastType } from '../shared/Toast';
 import type { FileMetadata, User } from '../../types';
 
 export default function UsersSection() {
   const [metadata, setMetadata] = useState<FileMetadata | null>(null);
   const [newMetadata, setNewMetadata] = useState<FileMetadata | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [newAgents, setNewAgents] = useState<any[]>([]);
+  const [newAgents, setNewAgents] = useState<User[]>([]);
   const [showTable, setShowTable] = useState(false);
   const [showNewAgents, setShowNewAgents] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  // Dialog and Toast states
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
+    message: '',
+    type: 'info',
+    isVisible: false
+  });
 
   useEffect(() => {
     fetchData();
@@ -30,8 +42,8 @@ export default function UsersSection() {
       
       setMetadata(metaRes.data);
       setNewMetadata(newMetaRes.data);
-      setUsers(usersRes.data);
-      setNewAgents(newAgentsRes.data);
+      setUsers(usersRes.data as User[]);
+      setNewAgents(newAgentsRes.data as User[]);
     } catch (error) {
       console.error('Failed to fetch users data:', error);
     } finally {
@@ -41,46 +53,19 @@ export default function UsersSection() {
 
   const handleExport = async (filename: string, format: 'csv' | 'json') => {
     try {
-      const response = format === 'csv' 
-        ? await databaseAPI.exportCSV(filename)
-        : await databaseAPI.exportJSON(filename);
-      
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename.replace('.json', `.${format}`);
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      await handleFileExport(filename, format);
     } catch (error) {
-      console.error('Failed to export:', error);
-      alert('Failed to export file');
+      setToast({ message: 'Failed to export file', type: 'error', isVisible: true });
     }
   };
 
   const handleClearNew = async () => {
-    if (!confirm('Are you sure you want to clear the new agents list?')) return;
-    
+    setShowConfirmDialog(false);
     try {
-      let userName = 'Admin';
-      try {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          userName = user.name || 'Admin';
-        }
-      } catch (e) {
-        console.error('Error parsing user data:', e);
-      }
-      
-      await databaseAPI.clearNew('agents', userName);
-      alert('New agents list cleared successfully');
-      fetchData();
+      await handleClearNewItems('agents', fetchData);
+      setToast({ message: 'New agents list cleared successfully', type: 'success', isVisible: true });
     } catch (error) {
-      console.error('Failed to clear new agents:', error);
-      alert('Failed to clear new agents list');
+      setToast({ message: 'Failed to clear new agents list', type: 'error', isVisible: true });
     }
   };
 
@@ -132,7 +117,7 @@ export default function UsersSection() {
 
         {showTable && (
           <div className="mt-4">
-            <DataTable data={users} maxRows={10} />
+            <DataTable data={users as unknown as Record<string, unknown>[]} maxRows={10} />
           </div>
         )}
       </div>
@@ -143,7 +128,7 @@ export default function UsersSection() {
           <h3 className="text-xl font-bold text-gray-900">⭐ Recently Added Agents (new-agents.json)</h3>
           {newAgents.length > 0 && (
             <button
-              onClick={handleClearNew}
+              onClick={() => setShowConfirmDialog(true)}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
             >
               🗑️ Clear New Agents List
@@ -194,6 +179,26 @@ export default function UsersSection() {
           </>
         )}
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        title="Clear New Agents"
+        message="Are you sure you want to clear the new agents list? This action cannot be undone."
+        onConfirm={handleClearNew}
+        onCancel={() => setShowConfirmDialog(false)}
+        confirmText="Clear"
+        cancelText="Cancel"
+        confirmStyle="danger"
+      />
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast({ ...toast, isVisible: false })}
+      />
     </div>
   );
 }

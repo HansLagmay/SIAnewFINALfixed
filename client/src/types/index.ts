@@ -6,6 +6,7 @@ export interface User {
   name: string;
   phone?: string;
   createdAt: string;
+  employmentData?: EmploymentData;
 }
 
 // Property types

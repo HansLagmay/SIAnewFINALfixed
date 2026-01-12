@@ -1,15 +1,12 @@
+import type { User } from '../types';
+
 export interface Session {
-  user: {
-    id: string;
-    email: string;
-    role: string;
-    name: string;
-  };
+  user: User;
   token: string;
   expiresAt: number;
 }
 
-export const setSession = (user: any, token: string): void => {
+export const setSession = (user: User, token: string): void => {
   const session: Session = {
     user,
     token,

@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { databaseAPI } from '../../services/api';
+import { handleFileExport } from '../../utils/exportHelper';
+import { handleClearNewItems } from '../../utils/clearNewHelper';
 import FileMetadataComponent from './FileMetadata';
 import ExportButtons from './ExportButtons';
 import DataTable from './DataTable';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import Toast, { ToastType } from '../shared/Toast';
 import type { FileMetadata, Property } from '../../types';
 
 export default function PropertiesSection() {
@@ -13,6 +17,14 @@ export default function PropertiesSection() {
   const [showTable, setShowTable] = useState(false);
   const [showNewProperties, setShowNewProperties] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  // Dialog and Toast states
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
+    message: '',
+    type: 'info',
+    isVisible: false
+  });
 
   useEffect(() => {
     fetchData();
@@ -30,8 +42,8 @@ export default function PropertiesSection() {
       
       setMetadata(metaRes.data);
       setNewMetadata(newMetaRes.data);
-      setProperties(propsRes.data);
-      setNewProperties(newPropsRes.data);
+      setProperties(propsRes.data as Property[]);
+      setNewProperties(newPropsRes.data as Property[]);
     } catch (error) {
       console.error('Failed to fetch properties data:', error);
     } finally {
@@ -41,46 +53,19 @@ export default function PropertiesSection() {
 
   const handleExport = async (filename: string, format: 'csv' | 'json') => {
     try {
-      const response = format === 'csv' 
-        ? await databaseAPI.exportCSV(filename)
-        : await databaseAPI.exportJSON(filename);
-      
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename.replace('.json', `.${format}`);
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      await handleFileExport(filename, format);
     } catch (error) {
-      console.error('Failed to export:', error);
-      alert('Failed to export file');
+      setToast({ message: 'Failed to export file', type: 'error', isVisible: true });
     }
   };
 
   const handleClearNew = async () => {
-    if (!confirm('Are you sure you want to clear the new properties list?')) return;
-    
+    setShowConfirmDialog(false);
     try {
-      let userName = 'Admin';
-      try {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          userName = user.name || 'Admin';
-        }
-      } catch (e) {
-        console.error('Error parsing user data:', e);
-      }
-      
-      await databaseAPI.clearNew('properties', userName);
-      alert('New properties list cleared successfully');
-      fetchData();
+      await handleClearNewItems('properties', fetchData);
+      setToast({ message: 'New properties list cleared successfully', type: 'success', isVisible: true });
     } catch (error) {
-      console.error('Failed to clear new properties:', error);
-      alert('Failed to clear new properties list');
+      setToast({ message: 'Failed to clear new properties list', type: 'error', isVisible: true });
     }
   };
 
@@ -110,7 +95,7 @@ export default function PropertiesSection() {
 
         {showTable && (
           <div className="mt-4">
-            <DataTable data={properties} maxRows={10} />
+            <DataTable data={properties as unknown as Record<string, unknown>[]} maxRows={10} />
           </div>
         )}
       </div>
@@ -121,7 +106,7 @@ export default function PropertiesSection() {
           <h3 className="text-xl font-bold text-gray-900">⭐ Recently Added Properties (new-properties.json)</h3>
           {newProperties.length > 0 && (
             <button
-              onClick={handleClearNew}
+              onClick={() => setShowConfirmDialog(true)}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
             >
               🗑️ Clear New Properties List
@@ -167,6 +152,26 @@ export default function PropertiesSection() {
           </>
         )}
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        title="Clear New Properties"
+        message="Are you sure you want to clear the new properties list? This action cannot be undone."
+        onConfirm={handleClearNew}
+        onCancel={() => setShowConfirmDialog(false)}
+        confirmText="Clear"
+        cancelText="Cancel"
+        confirmStyle="danger"
+      />
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast({ ...toast, isVisible: false })}
+      />
     </div>
   );
 }

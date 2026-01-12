@@ -100,8 +100,13 @@ const SuperAdminPortal = () => {
 
       setCredentials({ email, password });
       setShowSuccess(true);
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to create agent account');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data
+        ? (error.response.data as { error: string }).error
+        : 'Failed to create agent account';
+      alert(errorMessage);
     }
   };
 

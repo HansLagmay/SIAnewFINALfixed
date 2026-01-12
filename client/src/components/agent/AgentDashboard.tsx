@@ -28,18 +28,18 @@ const AgentDashboard = ({ user }: AgentDashboardProps) => {
       const allInquiries = response.data;
       
       // Filter inquiries assigned to this agent
-      const myInquiries = allInquiries.filter((i: any) => i.assignedTo === user?.id);
+      const myInquiries = allInquiries.filter((i: Inquiry) => i.assignedTo === user?.id);
 
       setStats({
         totalInquiries: myInquiries.length,
-        pendingInquiries: myInquiries.filter((i: any) => i.status === 'new' || i.status === 'claimed' || i.status === 'assigned').length,
-        contactedInquiries: myInquiries.filter((i: any) => i.status === 'in-progress').length,
-        closedInquiries: myInquiries.filter((i: any) => i.status === 'closed' || i.status === 'successful').length
+        pendingInquiries: myInquiries.filter((i: Inquiry) => i.status === 'new' || i.status === 'claimed' || i.status === 'assigned').length,
+        contactedInquiries: myInquiries.filter((i: Inquiry) => i.status === 'in-progress').length,
+        closedInquiries: myInquiries.filter((i: Inquiry) => i.status === 'closed' || i.status === 'successful').length
       });
 
       setRecentInquiries(
         myInquiries
-          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .sort((a: Inquiry, b: Inquiry) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 5)
       );
     } catch (error) {

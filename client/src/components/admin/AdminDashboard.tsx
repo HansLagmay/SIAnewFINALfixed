@@ -25,7 +25,7 @@ const AdminDashboard = () => {
       ]);
 
       const inquiries = inquiriesRes.data;
-      const newCount = inquiries.filter((i: any) => i.status === 'new' || i.status === 'claimed').length;
+      const newCount = inquiries.filter((i: Inquiry) => i.status === 'new' || i.status === 'claimed').length;
 
       setStats({
         totalProperties: propertiesRes.data.length,
@@ -37,7 +37,7 @@ const AdminDashboard = () => {
       // Get 5 most recent inquiries
       setRecentInquiries(
         inquiries
-          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .sort((a: Inquiry, b: Inquiry) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 5)
       );
     } catch (error) {

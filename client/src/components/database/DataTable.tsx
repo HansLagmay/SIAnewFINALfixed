@@ -1,5 +1,5 @@
 interface DataTableProps {
-  data: any[];
+  data: Record<string, unknown>[];
   maxRows?: number;
 }
 
