@@ -8,6 +8,11 @@ import DataTable from './DataTable';
 import ConfirmDialog from '../shared/ConfirmDialog';
 import Toast, { ToastType } from '../shared/Toast';
 import type { FileMetadata, User } from '../../types';
+import { useDialog } from '../../hooks/useDialog';
+import { handleDatabaseExport, handleClearNewTracking, getUserFromStorage } from '../../utils/database';
+import type { TableRow } from '../../types/api';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import Toast from '../shared/Toast';
 
 export default function UsersSection() {
   const [metadata, setMetadata] = useState<FileMetadata | null>(null);
@@ -17,14 +22,15 @@ export default function UsersSection() {
   const [showTable, setShowTable] = useState(false);
   const [showNewAgents, setShowNewAgents] = useState(false);
   const [loading, setLoading] = useState(true);
-  
-  // Dialog and Toast states
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
-    message: '',
-    type: 'info',
-    isVisible: false
-  });
+  const {
+    dialogState,
+    toastState,
+    openConfirm,
+    showToast,
+    handleConfirm,
+    handleCancel,
+    closeToast
+  } = useDialog();
 
   useEffect(() => {
     fetchData();
@@ -52,21 +58,34 @@ export default function UsersSection() {
   };
 
   const handleExport = async (filename: string, format: 'csv' | 'json') => {
-    try {
-      await handleFileExport(filename, format);
-    } catch (error) {
-      setToast({ message: 'Failed to export file', type: 'error', isVisible: true });
-    }
+    await handleDatabaseExport(filename, format, () => {
+      showToast({ type: 'error', message: 'Failed to export file' });
+    });
   };
 
   const handleClearNew = async () => {
-    setShowConfirmDialog(false);
-    try {
-      await handleClearNewItems('agents', fetchData);
-      setToast({ message: 'New agents list cleared successfully', type: 'success', isVisible: true });
-    } catch (error) {
-      setToast({ message: 'Failed to clear new agents list', type: 'error', isVisible: true });
-    }
+    const confirmed = await openConfirm({
+      title: 'Clear New Agents',
+      message: 'Are you sure you want to clear the new agents list?',
+      confirmText: 'Clear',
+      cancelText: 'Cancel',
+      variant: 'warning'
+    });
+    
+    if (!confirmed) return;
+    
+    const user = getUserFromStorage();
+    await handleClearNewTracking(
+      'agents',
+      user.name,
+      () => {
+        showToast({ type: 'success', message: 'New agents list cleared successfully' });
+        fetchData();
+      },
+      () => {
+        showToast({ type: 'error', message: 'Failed to clear new agents list' });
+      }
+    );
   };
 
   const getRoleBreakdown = () => {
@@ -117,7 +136,7 @@ export default function UsersSection() {
 
         {showTable && (
           <div className="mt-4">
-            <DataTable data={users as unknown as Record<string, unknown>[]} maxRows={10} />
+            <DataTable data={users as unknown as TableRow[]} maxRows={10} />
           </div>
         )}
       </div>
@@ -179,26 +198,29 @@ export default function UsersSection() {
           </>
         )}
       </div>
-
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        isOpen={showConfirmDialog}
-        title="Clear New Agents"
-        message="Are you sure you want to clear the new agents list? This action cannot be undone."
-        onConfirm={handleClearNew}
-        onCancel={() => setShowConfirmDialog(false)}
-        confirmText="Clear"
-        cancelText="Cancel"
-        confirmStyle="danger"
-      />
-
-      {/* Toast Notification */}
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={() => setToast({ ...toast, isVisible: false })}
-      />
+      
+      {/* Dialogs */}
+      {dialogState.type === 'confirm' && dialogState.config && 'confirmText' in dialogState.config && (
+        <ConfirmDialog
+          isOpen={dialogState.isOpen}
+          title={dialogState.config.title}
+          message={dialogState.config.message}
+          confirmText={dialogState.config.confirmText}
+          cancelText={dialogState.config.cancelText}
+          variant={dialogState.config.variant}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
+      )}
+      
+      {toastState.isVisible && (
+        <Toast
+          message={toastState.message}
+          type={toastState.type}
+          duration={toastState.duration}
+          onClose={closeToast}
+        />
+      )}
     </div>
   );
 }

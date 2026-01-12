@@ -4,26 +4,28 @@ import ConfirmDialog from '../shared/ConfirmDialog';
 import PromptDialog from '../shared/PromptDialog';
 import Toast, { ToastType } from '../shared/Toast';
 import type { Property, User } from '../../types';
+import type { PropertyUpdateData } from '../../types/api';
+import { useDialog } from '../../hooks/useDialog';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import PromptDialog from '../shared/PromptDialog';
+import Toast from '../shared/Toast';
 
 const AdminProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [agents, setAgents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Dialog and Toast states
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showAgentPrompt, setShowAgentPrompt] = useState(false);
-  const [showPricePrompt, setShowPricePrompt] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
-    message: '',
-    type: 'info',
-    isVisible: false
-  });
-  
-  // State for property being edited
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [newStatus, setNewStatus] = useState<string>('');
-  const [selectedAgentId, setSelectedAgentId] = useState<string>('');
+  const {
+    dialogState,
+    toastState,
+    openConfirm,
+    openPrompt,
+    showToast,
+    handleConfirm,
+    handleCancel,
+    handlePromptSubmit,
+    handlePromptCancel,
+    closeToast
+  } = useDialog();
 
   useEffect(() => {
     loadData();
@@ -53,53 +55,12 @@ const AdminProperties = () => {
     }
   };
 
-  const handleStatusChange = async (property: Property, status: string) => {
-    setSelectedProperty(property);
-    setNewStatus(status);
-    
-    // If changing to "sold", show agent selection prompt
-    if (status === 'sold') {
-      setShowAgentPrompt(true);
-    } else {
-      // For other statuses, update immediately
-      await performStatusUpdate(property, status);
-    }
-  };
-
-  const handleAgentSelected = (agentId: string) => {
-    setShowAgentPrompt(false);
-    const selectedAgent = agents.find(a => a.id === agentId);
-    
-    if (!selectedAgent) {
-      setToast({ message: 'Invalid agent ID', type: 'error', isVisible: true });
-      return;
-    }
-    
-    setSelectedAgentId(agentId);
-    // Now show price prompt
-    setShowPricePrompt(true);
-  };
-
-  const handlePriceEntered = async (price: string) => {
-    setShowPricePrompt(false);
-    
-    if (!selectedProperty || !selectedAgentId) return;
-    
-    const finalPrice = price ? parseFloat(price) : selectedProperty.price;
-    await performStatusUpdate(selectedProperty, newStatus, selectedAgentId, finalPrice);
-  };
-
-  const performStatusUpdate = async (
-    property: Property, 
-    status: string, 
-    agentId?: string, 
-    finalSalePrice?: number
-  ) => {
+  const handleStatusChange = async (property: Property, newStatus: Property['status']) => {
     const admin = JSON.parse(localStorage.getItem('user') || '{}');
     
     try {
-      let updateData: Partial<Property> = {
-        status: status as Property['status'],
+      let updateData: PropertyUpdateData = {
+        status: newStatus,
         statusHistory: [
           ...(property.statusHistory || []),
           {
@@ -111,55 +72,80 @@ const AdminProperties = () => {
         ]
       };
       
-      // If changing to "sold", include agent and sale details
-      if (status === 'sold' && agentId && finalSalePrice !== undefined) {
-        const selectedAgent = agents.find(a => a.id === agentId);
-        if (selectedAgent) {
-          updateData = {
-            ...updateData,
-            soldBy: selectedAgent.name,
-            soldByAgentId: selectedAgent.id,
-            soldAt: new Date().toISOString(),
-            salePrice: finalSalePrice,
-            statusHistory: [
-              ...(property.statusHistory || []),
-              {
-                status: status,
-                changedBy: admin.id,
-                changedByName: admin.name,
-                changedAt: new Date().toISOString(),
-                reason: `Sold by ${selectedAgent.name} for ₱${finalSalePrice.toLocaleString()}`
-              }
-            ]
-          };
+      // If changing to "sold", require agent selection and sale details
+      if (newStatus === 'sold') {
+        const agentId = await openPrompt({
+          title: 'Select Agent',
+          message: `Enter agent ID who sold this property:`,
+          placeholder: `Available agents: ${agents.map(a => `${a.name} (${a.id})`).join(', ')}`
+        });
+        
+        if (!agentId) {
+          showToast({ type: 'error', message: 'Agent ID is required for sold properties' });
+          return;
         }
+        
+        const selectedAgent = agents.find(a => a.id === agentId);
+        if (!selectedAgent) {
+          showToast({ type: 'error', message: 'Invalid agent ID' });
+          return;
+        }
+        
+        const salePriceStr = await openPrompt({
+          title: 'Enter Sale Price',
+          message: `Enter final sale price (default: ₱${property.price.toLocaleString()}):`,
+          defaultValue: property.price.toString(),
+          inputType: 'number'
+        });
+        
+        const salePrice = salePriceStr ? parseFloat(salePriceStr) : property.price;
+        
+        updateData = {
+          ...updateData,
+          soldBy: selectedAgent.name,
+          soldByAgentId: selectedAgent.id,
+          soldAt: new Date().toISOString(),
+          salePrice: salePrice,
+          statusHistory: [
+            ...(property.statusHistory || []),
+            {
+              status: newStatus,
+              changedBy: admin.id,
+              changedByName: admin.name,
+              changedAt: new Date().toISOString(),
+              reason: `Sold by ${selectedAgent.name} for ₱${salePrice.toLocaleString()}`
+            }
+          ]
+        };
       }
       
       await propertiesAPI.update(property.id, updateData);
       await loadProperties();
-      setToast({ message: 'Property status updated successfully!', type: 'success', isVisible: true });
+      showToast({ type: 'success', message: 'Property status updated successfully!' });
     } catch (error) {
       console.error('Failed to update property status:', error);
-      setToast({ message: 'Failed to update property status', type: 'error', isVisible: true });
+      showToast({ type: 'error', message: 'Failed to update property status' });
     }
   };
 
   const handleDelete = async (id: string) => {
-    setSelectedProperty(properties.find(p => p.id === id) || null);
-    setShowConfirmDialog(true);
-  };
-
-  const confirmDelete = async () => {
-    setShowConfirmDialog(false);
-    if (!selectedProperty) return;
+    const confirmed = await openConfirm({
+      title: 'Delete Property',
+      message: 'Are you sure you want to delete this property?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger'
+    });
+    
+    if (!confirmed) return;
 
     try {
       await propertiesAPI.delete(selectedProperty.id);
       await loadProperties();
-      setToast({ message: 'Property deleted successfully', type: 'success', isVisible: true });
+      showToast({ type: 'success', message: 'Property deleted successfully' });
     } catch (error) {
       console.error('Failed to delete property:', error);
-      setToast({ message: 'Failed to delete property', type: 'error', isVisible: true });
+      showToast({ type: 'error', message: 'Failed to delete property' });
     }
   };
 
@@ -227,7 +213,7 @@ const AdminProperties = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <select
                     value={property.status}
-                    onChange={(e) => handleStatusChange(property, e.target.value)}
+                    onChange={(e) => handleStatusChange(property, e.target.value as Property['status'])}
                     className={`px-2 py-1 text-xs font-semibold rounded-full border-0 ${
                       property.status === 'available' ? 'bg-green-100 text-green-800' :
                       property.status === 'reserved' ? 'bg-yellow-100 text-yellow-800' :
@@ -266,61 +252,42 @@ const AdminProperties = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Confirm Dialog for Delete */}
-      <ConfirmDialog
-        isOpen={showConfirmDialog}
-        title="Delete Property"
-        message="Are you sure you want to delete this property? This action cannot be undone."
-        onConfirm={confirmDelete}
-        onCancel={() => setShowConfirmDialog(false)}
-        confirmText="Delete"
-        cancelText="Cancel"
-        confirmStyle="danger"
-      />
-
-      {/* Prompt Dialog for Agent Selection */}
-      <PromptDialog
-        isOpen={showAgentPrompt}
-        title="Select Agent"
-        message={`Enter agent ID who sold this property. Available agents: ${agents.map(a => `${a.name} (${a.id})`).join(', ')}`}
-        placeholder="Enter agent ID"
-        onConfirm={handleAgentSelected}
-        onCancel={() => setShowAgentPrompt(false)}
-        confirmText="Next"
-        cancelText="Cancel"
-        validator={(value) => {
-          if (!value) return 'Agent ID is required';
-          if (!agents.find(a => a.id === value)) return 'Invalid agent ID';
-          return null;
-        }}
-      />
-
-      {/* Prompt Dialog for Sale Price */}
-      <PromptDialog
-        isOpen={showPricePrompt}
-        title="Enter Sale Price"
-        message={`Enter final sale price for this property (default: ₱${selectedProperty?.price.toLocaleString()})`}
-        placeholder="Enter sale price"
-        defaultValue={selectedProperty?.price.toString() || ''}
-        onConfirm={handlePriceEntered}
-        onCancel={() => setShowPricePrompt(false)}
-        confirmText="Confirm"
-        cancelText="Cancel"
-        validator={(value) => {
-          const price = parseFloat(value);
-          if (value && (isNaN(price) || price <= 0)) return 'Please enter a valid price';
-          return null;
-        }}
-      />
-
-      {/* Toast Notification */}
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={() => setToast({ ...toast, isVisible: false })}
-      />
+      
+      {/* Dialogs */}
+      {dialogState.type === 'confirm' && dialogState.config && 'confirmText' in dialogState.config && (
+        <ConfirmDialog
+          isOpen={dialogState.isOpen}
+          title={dialogState.config.title}
+          message={dialogState.config.message}
+          confirmText={dialogState.config.confirmText}
+          cancelText={dialogState.config.cancelText}
+          variant={dialogState.config.variant}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
+      )}
+      
+      {dialogState.type === 'prompt' && dialogState.config && 'placeholder' in dialogState.config && (
+        <PromptDialog
+          isOpen={dialogState.isOpen}
+          title={dialogState.config.title}
+          message={dialogState.config.message}
+          placeholder={dialogState.config.placeholder}
+          defaultValue={dialogState.config.defaultValue}
+          inputType={dialogState.config.inputType}
+          onSubmit={handlePromptSubmit}
+          onCancel={handlePromptCancel}
+        />
+      )}
+      
+      {toastState.isVisible && (
+        <Toast
+          message={toastState.message}
+          type={toastState.type}
+          duration={toastState.duration}
+          onClose={closeToast}
+        />
+      )}
     </div>
   );
 };

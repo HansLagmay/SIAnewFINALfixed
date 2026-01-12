@@ -1,5 +1,7 @@
+import type { TableRow } from '../../types/api';
+
 interface DataTableProps {
-  data: Record<string, unknown>[];
+  data: TableRow[];
   maxRows?: number;
 }
 
