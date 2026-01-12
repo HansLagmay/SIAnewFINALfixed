@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const { migratePasswords } = require('./utils/migrate');
+const { migratePasswords } = require('./utils/migrate-passwords');
 const { apiLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
