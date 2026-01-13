@@ -1,407 +1,352 @@
-# 🏠 Real Estate Management System - v2.1.0
+# 🏠 TES Property System v2.1 - Real Estate Inquiry Management
 
-A comprehensive real estate property management system with advanced security features, built with Node.js, Express, and MongoDB.
+A complete professional real estate management system with **React + Express** architecture, using **JSON file-based database** for simplicity and portability.
 
-## 🚀 Version 2.1.0 - Security Enhanced Release
+## 🎯 Project Overview
 
-This release introduces comprehensive security implementations including JWT authentication, password hashing, input sanitization, and rate limiting.
+**No external database required!** This system uses JSON files for data storage, making it perfect for:
+- Development and testing
+- Portfolio demonstrations  
+- Quick deployments
+- Learning full-stack development
 
----
-
-## 📋 Table of Contents
-
-- [Features](#features)
-- [Security Features](#security-features)
-- [Technology Stack](#technology-stack)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Environment Variables](#environment-variables)
-- [Running the Application](#running-the-application)
-- [API Endpoints](#api-endpoints)
-- [Test Credentials](#test-credentials)
-- [Security Testing](#security-testing)
-- [Production Deployment Considerations](#production-deployment-considerations)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
+All you need is **VS Code** and **Node.js**.
 
 ---
 
-## ✨ Features
+## 🔒 Security Features (Version 2.1)
 
-### Core Functionality
-- **User Management**: Multi-role support (Admin/Agent) with secure authentication
-- **Property Listings**: Complete CRUD operations for property management
-- **Inquiry System**: Track and manage customer inquiries
-- **Dashboard Analytics**: Real-time statistics and insights
-- **Responsive Design**: Mobile-friendly interface
-
-### Business Features
-- Property search and filtering
-- Image upload and management
-- Agent assignment to properties
-- Inquiry tracking and management
-- Activity monitoring and audit logs
-
----
-
-## 🔒 Security Features
-
-### Authentication & Authorization
-- **JWT Authentication**: Secure token-based authentication with 8-hour session expiration
-- **Role-Based Access Control (RBAC)**: Granular permissions for admin and agent roles
-- **Secure Session Management**: HTTP-only cookies with automatic token refresh
-
-### Password Security
-- **Bcrypt Password Hashing**: Industry-standard hashing with 10 salt rounds
-- **Automatic Password Migration**: Utility to convert legacy plain-text passwords to hashed format
-- **Password Complexity**: Enforced strong password requirements
-
-### Input Validation & Sanitization
-- **Express-Validator Integration**: Comprehensive input sanitization middleware
-- **XSS Protection**: Automatic escaping and sanitization of user inputs
-- **SQL Injection Prevention**: Parameterized queries and input validation
-
-### Rate Limiting
-- **Login Attempt Limiting**: Maximum 5 login attempts per 15 minutes per IP
-- **Inquiry Submission Limiting**: Maximum 3 inquiries per hour per IP
-- **DDoS Protection**: Prevents automated abuse and brute force attacks
-
-### Additional Security Measures
-- **CORS Configuration**: Restricted cross-origin resource sharing
-- **Helmet.js Integration**: Security headers and best practices
-- **Password Field Protection**: Automatic exclusion from API responses
-- **Audit Logging**: Track security-relevant events and access attempts
+### ✅ Implemented Security
+- **Password Hashing** - bcrypt with 10 salt rounds
+- **JWT Authentication** - 8-hour session tokens
+- **Input Sanitization** - XSS protection on all user inputs
+- **Rate Limiting** - Brute force protection (5 login attempts/15min)
+- **Session Management** - Auto-logout on token expiration
+- **File Locking** - Race condition prevention with proper-lockfile
+- **Automatic Backups** - Timestamped backups before every write (keep last 10)
+- **Duplicate Prevention** - 409 status for duplicate inquiries
+- **Audit Trail** - Track all changes with user, timestamp, old/new values
+- **Image Upload** - Multer with 5MB limit, 10 images max
+- **Pagination** - Server-side pagination on all endpoints
+- **Error Handling** - User-friendly messages with retry options
 
 ---
 
-## 🛠 Technology Stack
-
-### Backend
-- **Node.js** (v14+) - JavaScript runtime
-- **Express.js** (v4.18+) - Web application framework
-- **MongoDB** (v5+) - NoSQL database
-- **Mongoose** (v7+) - MongoDB object modeling
-
-### Security Packages
-- **jsonwebtoken** (v9.0+) - JWT authentication
-- **bcryptjs** (v2.4+) - Password hashing
-- **express-validator** (v7.0+) - Input validation and sanitization
-- **express-rate-limit** (v6.0+) - Rate limiting middleware
-- **helmet** (v7.0+) - Security headers
-- **cors** - Cross-origin resource sharing
+## 🛠️ Tech Stack
 
 ### Frontend
-- **EJS** - Template engine
-- **Bootstrap 5** - CSS framework
-- **JavaScript (ES6+)** - Client-side scripting
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **React** | 18.2+ | UI library |
+| **TypeScript** | 5.3+ | Type-safe JavaScript |
+| **React Router** | 6.22+ | Client-side routing |
+| **Vite** | 5.1+ | Fast build tool |
+| **Tailwind CSS** | 3.4+ | Utility-first CSS |
+| **Axios** | 1.6+ | HTTP client |
 
-### Development Tools
-- **Nodemon** - Auto-restart development server
-- **dotenv** - Environment variable management
+### Backend
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Node.js** | 18+ | JavaScript runtime |
+| **Express.js** | 4.18+ | REST API framework |
+| **bcrypt** | Latest | Password hashing |
+| **jsonwebtoken** | Latest | JWT authentication |
+| **express-rate-limit** | Latest | Rate limiting |
+| **validator** | Latest | Input sanitization |
+| **multer** | Latest | File upload handling |
+| **proper-lockfile** | Latest | File locking |
+
+### Database
+| Technology | Purpose |
+|------------|---------|
+| **JSON Files** | Data storage (no external DB needed!) |
+| **fs-extra** | Enhanced file operations |
 
 ---
 
 ## 📦 Prerequisites
 
-Before you begin, ensure you have the following installed:
+- **Node.js** (v18.0.0 or higher)
+- **npm** or **yarn**
+- **VS Code** (recommended)
+- **Git**
 
-- **Node.js** (v14.0.0 or higher)
-- **MongoDB** (v5.0 or higher)
-- **npm** or **yarn** package manager
-- **Git** for version control
+**No MongoDB, MySQL, or external database required!**
 
 ---
 
-## 🔧 Installation
+## 🚀 Quick Start
 
 ### 1. Clone the Repository
-
 ```bash
 git clone https://github.com/HansLagmay/SIAfrontendonlyFINAL.git
 cd SIAfrontendonlyFINAL
 ```
 
-### 2. Install Dependencies
-
+### 2. Install All Dependencies
 ```bash
 npm install
 ```
+
+This installs dependencies for root, client, and server.
 
 ### 3. Set Up Environment Variables
 
 Create a `.env` file in the root directory:
 
 ```env
+# Backend Server Configuration
 PORT=3000
-MONGODB_URI=mongodb://localhost:27017/real-estate-db
-JWT_SECRET=your-super-secure-jwt-secret-key-min-32-characters
 NODE_ENV=development
+
+# Frontend Configuration
+VITE_API_URL=http://localhost:3000/api
+
+# CORS Configuration
+CORS_ORIGIN=http://localhost:5173
+
+# JWT Secret (Change this to a random string!)
+JWT_SECRET=your-super-secure-secret-key-minimum-32-characters-long
 ```
 
-### 4. Initialize Database
-
-Start MongoDB service:
-
-```bash
-# On Windows
-net start MongoDB
-
-# On macOS/Linux
-sudo systemctl start mongod
-```
-
-### 5. Run Password Migration (If Upgrading from v2.0)
-
-If you're upgrading from a previous version with plain-text passwords:
-
-```bash
-node utils/migrate-passwords.js
-```
-
-This utility will:
-- Identify all users with plain-text passwords
-- Hash passwords using bcrypt with 10 salt rounds
-- Update database records
-- Provide migration report
-
----
-
-## 🌍 Environment Variables
-
-### Required Variables
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `PORT` | Server port number | `3000` |
-| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/real-estate-db` |
-| `JWT_SECRET` | Secret key for JWT signing (min 32 chars) | `your-super-secure-secret-key-here` |
-| `NODE_ENV` | Environment mode | `development` or `production` |
-
-### Optional Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `JWT_EXPIRES_IN` | JWT token expiration time | `8h` |
-| `BCRYPT_ROUNDS` | Bcrypt salt rounds | `10` |
-| `LOGIN_RATE_LIMIT` | Max login attempts per window | `5` |
-| `LOGIN_RATE_WINDOW` | Login rate limit window (ms) | `900000` (15 min) |
-| `INQUIRY_RATE_LIMIT` | Max inquiries per window | `3` |
-| `INQUIRY_RATE_WINDOW` | Inquiry rate limit window (ms) | `3600000` (1 hour) |
-
-### Security Best Practices for Environment Variables
-
-⚠️ **IMPORTANT**:
-- Never commit `.env` files to version control
-- Use strong, randomly generated JWT_SECRET (minimum 32 characters)
-- Rotate JWT_SECRET periodically in production
-- Use different secrets for development and production
-- Consider using environment-specific secret management tools (AWS Secrets Manager, Azure Key Vault, etc.)
-
----
-
-## ▶️ Running the Application
-
-### Development Mode
+### 4. Start the Application
 
 ```bash
 npm run dev
 ```
 
-This starts the server with nodemon for auto-reloading on file changes.
+This starts both:
+- **Backend**: `http://localhost:3000`
+- **Frontend**: `http://localhost:5173`
 
-### Production Mode
+### 5. Access the Portals
 
-```bash
-npm start
-```
-
-The application will be available at: `http://localhost:3000`
+| Portal | URL | Login Required? | Test Account |
+|--------|-----|-----------------|--------------|
+| **Customer Portal** | `http://localhost:5173/` | ❌ No | N/A - Public |
+| **Login Page** | `http://localhost:5173/login` | - | See below |
+| **Admin Portal** | `http://localhost:5173/admin` | ✅ Yes | admin@tesproperty.com / admin123 |
+| **Agent Portal** | `http://localhost:5173/agent` | ✅ Yes | maria@tesproperty.com / agent123 |
+| **Super Admin Portal** | `http://localhost:5173/superadmin` | ✅ Yes | Use admin credentials |
+| **Database Portal** | `http://localhost:5173/database` | ✅ Yes | Use admin credentials |
 
 ---
 
-## 🔌 API Endpoints
+## 🗄️ JSON File Database Structure
 
-### Authentication Endpoints (Public)
+Your data is stored in `server/data/*.json` files:
 
-| Method | Endpoint | Description | Rate Limited |
-|--------|----------|-------------|--------------|
-| POST | `/api/auth/login` | User login | ✅ 5/15min |
-| POST | `/api/auth/register` | User registration | ❌ |
-| POST | `/api/auth/logout` | User logout | ❌ |
+```
+server/data/
+├── properties.json          # All property listings
+├── inquiries.json           # Customer inquiries
+├── users.json               # Admin and agent accounts
+├── calendar-events.json     # Viewing schedules
+├── activity-log.json        # System activity tracking
+├── new-properties.json      # Recently added properties
+├── new-inquiries.json       # Recent inquiries
+└── new-agents.json          # Recently added agents
+```
 
-### User Endpoints (Protected - JWT Required)
-
-| Method | Endpoint | Description | Roles |
-|--------|----------|-------------|-------|
-| GET | `/api/users` | Get all users | Admin |
-| GET | `/api/users/:id` | Get user by ID | Admin |
-| PUT | `/api/users/:id` | Update user | Admin |
-| DELETE | `/api/users/:id` | Delete user | Admin |
-| GET | `/api/users/profile` | Get current user profile | All |
-
-### Property Endpoints (Protected - JWT Required)
-
-| Method | Endpoint | Description | Roles |
-|--------|----------|-------------|-------|
-| GET | `/api/properties` | Get all properties | All |
-| GET | `/api/properties/:id` | Get property by ID | All |
-| POST | `/api/properties` | Create property | Admin, Agent |
-| PUT | `/api/properties/:id` | Update property | Admin, Agent (own) |
-| DELETE | `/api/properties/:id` | Delete property | Admin |
-
-### Inquiry Endpoints
-
-| Method | Endpoint | Description | Rate Limited | Auth |
-|--------|----------|-------------|--------------|------|
-| POST | `/api/inquiries` | Submit inquiry | ✅ 3/hour | ❌ |
-| GET | `/api/inquiries` | Get all inquiries | ❌ | ✅ Admin |
-| GET | `/api/inquiries/:id` | Get inquiry by ID | ❌ | ✅ Admin |
-| PUT | `/api/inquiries/:id` | Update inquiry status | ❌ | ✅ Admin |
-
-### Dashboard Endpoints (Protected - Admin Only)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/dashboard/stats` | Get dashboard statistics |
-| GET | `/api/dashboard/recent-activities` | Get recent activities |
+### Data Backup System
+- Automatic backups created before every write operation
+- Stored in `server/data/backups/`
+- Format: `[filename]-backup-[timestamp].json`
+- Keeps last 10 backups per file
+- Manual restore: Copy backup file to main `data/` folder
 
 ---
 
 ## 🔑 Test Credentials
 
 ### Admin Account
-- **Email**: `admin@realestate.com`
-- **Password**: `Admin123!` (hashed in database)
-- **Role**: Admin
-- **Permissions**: Full system access
+- **Email**: `admin@tesproperty.com`
+- **Password**: `admin123`
+- **Access**: All features (properties, inquiries, agents, database, reports)
 
 ### Agent Account
-- **Email**: `agent@realestate.com`
-- **Password**: `Agent123!` (hashed in database)
-- **Role**: Agent
-- **Permissions**: Property management, view inquiries
+- **Email**: `maria@tesproperty.com`
+- **Password**: `agent123`
+- **Access**: Own inquiries, calendar, available properties
 
-### Security Notes
-- ⚠️ All passwords are now **hashed** using bcrypt with 10 salt rounds
-- Plain-text passwords are no longer stored in the database
-- Passwords must meet complexity requirements (8+ chars, uppercase, lowercase, number, special char)
-- Failed login attempts are tracked and rate-limited
-- Change default passwords immediately in production
+⚠️ **Password Security**: 
+- All passwords are **hashed** using bcrypt (not stored as plain text)
+- Change default passwords before production deployment
+- Minimum 8 characters required for new passwords
 
 ---
 
-## 🧪 Security Testing
+## 📋 Available Scripts
 
-### Testing Authentication
-
-```bash
-# Test login with valid credentials
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@realestate.com","password":"Admin123!"}'
-
-# Test protected endpoint with JWT token
-curl -X GET http://localhost:3000/api/users \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-### Testing Rate Limiting
+### Root Level Commands
 
 ```bash
-# Test login rate limiting (should block after 5 attempts)
-for i in {1..6}; do
-  curl -X POST http://localhost:3000/api/auth/login \
-    -H "Content-Type: application/json" \
-    -d '{"email":"test@test.com","password":"wrong"}'
-done
+# Start both frontend and backend concurrently
+npm run dev
+
+# Install all dependencies (root + client + server)
+npm install
+
+# Build frontend for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-### Testing Input Sanitization
+### Backend Commands (from root or server directory)
 
 ```bash
-# Test XSS protection
-curl -X POST http://localhost:3000/api/inquiries \
-  -H "Content-Type: application/json" \
-  -d '{"name":"<script>alert(\"XSS\")</script>","email":"test@test.com"}'
+# Start backend only
+cd server && npm run dev
+
+# Start backend (production mode)
+cd server && npm start
+
+# Run password migration utility
+cd server && node utils/migrate.js
 ```
 
-### Security Audit Checklist
+### Frontend Commands (from root or client directory)
 
-- [ ] JWT tokens expire after 8 hours
-- [ ] Passwords are hashed (not stored in plain text)
-- [ ] Rate limiting is active on login and inquiry endpoints
-- [ ] Input sanitization prevents XSS attacks
-- [ ] Protected routes require valid JWT tokens
-- [ ] Role-based access control is enforced
-- [ ] Security headers are present (Helmet.js)
-- [ ] CORS is properly configured
-- [ ] Environment variables are secured
+```bash
+# Start frontend only
+cd client && npm run dev
+
+# Build frontend
+cd client && npm run build
+
+# Preview production build
+cd client && npm run preview
+```
 
 ---
 
-## 🚀 Production Deployment Considerations
+## 🔌 API Endpoints
 
-### Security Hardening
+### Authentication (Public)
 
-1. **Environment Configuration**
-   - Use strong, randomly generated JWT_SECRET (minimum 32 characters)
-   - Set `NODE_ENV=production`
-   - Enable HTTPS/TLS encryption
-   - Configure proper CORS whitelist
+| Method | Endpoint | Description | Rate Limited |
+|--------|----------|-------------|--------------|
+| POST | `/api/login` | User login | ✅ 5/15min |
 
-2. **Database Security**
-   - Enable MongoDB authentication
-   - Use connection string with credentials
-   - Implement database backups
-   - Enable MongoDB encryption at rest
-   - Restrict database network access
+### Properties
 
-3. **Rate Limiting Adjustments**
-   - Consider stricter rate limits for production
-   - Implement IP whitelisting for admin access
-   - Use Redis for distributed rate limiting (multi-server deployments)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/properties` | Get all properties | ❌ Public |
+| GET | `/api/properties/:id` | Get single property | ❌ Public |
+| POST | `/api/properties` | Create property | ✅ Admin |
+| PUT | `/api/properties/:id` | Update property | ✅ Admin |
+| DELETE | `/api/properties/:id` | Delete property | ✅ Admin |
+| POST | `/api/properties/upload` | Upload images | ✅ Admin |
 
-4. **Monitoring & Logging**
-   - Implement centralized logging (Winston, Bunyan)
-   - Set up security event monitoring
-   - Configure alerts for suspicious activities
-   - Enable audit trails for sensitive operations
+### Inquiries
 
-5. **Infrastructure Security**
-   - Use reverse proxy (Nginx, Apache)
-   - Implement firewall rules
-   - Enable intrusion detection systems
-   - Regular security patches and updates
+| Method | Endpoint | Description | Auth Required | Rate Limited |
+|--------|----------|-------------|---------------|--------------|
+| POST | `/api/inquiries` | Submit inquiry | ❌ Public | ✅ 3/hour |
+| GET | `/api/inquiries` | Get all inquiries | ✅ Admin/Agent | ❌ |
+| GET | `/api/inquiries/:id` | Get single inquiry | ✅ Admin/Agent | ❌ |
+| PUT | `/api/inquiries/:id` | Update inquiry | ✅ Admin/Agent | ❌ |
+| POST | `/api/inquiries/:id/claim` | Agent claims inquiry | ✅ Agent | ❌ |
+| POST | `/api/inquiries/:id/assign` | Admin assigns inquiry | ✅ Admin | ❌ |
 
-### Performance Optimization
+### Users
 
-- Enable response compression (gzip)
-- Implement caching strategies (Redis)
-- Use CDN for static assets
-- Database indexing for frequently queried fields
-- Connection pooling for database
-- Load balancing for horizontal scaling
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/users` | Get all users | ✅ Admin |
+| GET | `/api/users/agents` | Get all agents | ✅ Admin |
+| POST | `/api/users` | Create agent | ✅ Admin |
+| DELETE | `/api/users/:id` | Delete user | ✅ Admin |
 
-### Deployment Platforms
+### Calendar
 
-- **Docker**: Containerize the application
-- **Cloud Platforms**: AWS, Azure, Google Cloud
-- **PaaS**: Heroku, DigitalOcean App Platform
-- **Kubernetes**: For orchestration at scale
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/calendar` | Get all events | ✅ Admin/Agent |
+| GET | `/api/calendar/agent/:id` | Get agent events | ✅ Agent |
+| POST | `/api/calendar` | Create event | ✅ Admin/Agent |
+| PUT | `/api/calendar/:id` | Update event | ✅ Admin/Agent |
+| DELETE | `/api/calendar/:id` | Delete event | ✅ Admin/Agent |
 
-### Pre-Deployment Checklist
+### Database Portal
 
-- [ ] All environment variables configured
-- [ ] Database migrations completed
-- [ ] Passwords migrated to bcrypt
-- [ ] SSL/TLS certificates installed
-- [ ] Security headers verified
-- [ ] Rate limiting tested
-- [ ] Backup strategy implemented
-- [ ] Monitoring and alerts configured
-- [ ] Load testing completed
-- [ ] Security audit performed
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/database/overview` | Get database stats | ✅ Admin |
+| GET | `/api/database/file-metadata/:filename` | Get file metadata | ✅ Admin |
+| GET | `/api/database/file/:filename` | Get file contents | ✅ Admin |
+| GET | `/api/database/recent/:type` | Get recent items | ✅ Admin |
+| POST | `/api/database/clear-new/:type` | Clear tracking list | ✅ Admin |
+| GET | `/api/database/export/:filename/csv` | Export as CSV | ✅ Admin |
+| GET | `/api/database/export/:filename/json` | Export as JSON | ✅ Admin |
+
+### Activity Log
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/activity-log` | Get activity logs | ✅ Admin |
+
+---
+
+## 🧪 Testing the System
+
+### 1. Test Customer Portal (Public Access)
+```bash
+# Open browser
+http://localhost:5173/
+
+# Expected: See property listings without login
+# Actions: Browse properties, submit inquiry
+```
+
+### 2. Test Admin Login
+```bash
+# Navigate to login
+http://localhost:5173/login
+
+# Credentials:
+Email: admin@tesproperty.com
+Password: admin123
+
+# Expected: Redirect to /admin/dashboard
+# Verify: Dashboard shows statistics
+```
+
+### 3. Test Security Features
+
+**Password Hashing:**
+```bash
+# Check users.json file
+cat server/data/users.json
+
+# Verify passwords start with $2b$ (bcrypt hash)
+```
+
+**Rate Limiting:**
+```bash
+# Try 6 failed login attempts
+# Expected: "Too many login attempts" after 5th attempt
+```
+
+**JWT Authentication:**
+```bash
+# Try accessing protected route without token
+curl http://localhost:3000/api/users
+
+# Expected: 401 Unauthorized
+```
+
+### 4. Test Database Portal
+```bash
+# Login as admin
+# Navigate to: http://localhost:5173/database
+
+# Expected: See database overview dashboard
+# Actions: View files, export data, clear tracking lists
+```
 
 ---
 
@@ -409,116 +354,208 @@ curl -X POST http://localhost:3000/api/inquiries \
 
 ```
 SIAfrontendonlyFINAL/
-├── config/
-│   ├── database.js          # MongoDB connection configuration
-│   └── auth.js              # JWT and authentication config
-├── middleware/
-│   ├── auth.js              # JWT authentication middleware
-│   ├── roleCheck.js         # Role-based access control
-│   ├── rateLimiter.js       # Rate limiting configuration
-│   └── validator.js         # Input validation and sanitization
-├── models/
-│   ├── User.js              # User model with bcrypt hashing
-│   ├── Property.js          # Property model
-│   └── Inquiry.js           # Inquiry model
-├── routes/
-│   ├── auth.js              # Authentication routes
-│   ├── users.js             # User management routes
-│   ├── properties.js        # Property routes
-│   ├── inquiries.js         # Inquiry routes
-│   └── dashboard.js         # Dashboard routes
-├── controllers/
-│   ├── authController.js    # Authentication logic
-│   ├── userController.js    # User CRUD operations
-│   ├── propertyController.js # Property CRUD operations
-│   └── inquiryController.js # Inquiry handling
-├── utils/
-│   ├── migrate-passwords.js # Password migration utility
-│   └── tokenUtils.js        # JWT helper functions
-├── views/
-│   ├── login.ejs
-│   ├── dashboard.ejs
-│   └── ...
-├── public/
-│   ├── css/
-│   ├── js/
-│   └── images/
-├── .env.example             # Example environment variables
+├── client/                       # Frontend React application
+│   ├── src/
+│   │   ├── components/          # React components
+│   │   │   ├── admin/          # Admin portal components
+│   │   │   ├── agent/          # Agent portal components
+│   │   │   ├── customer/       # Customer portal components
+│   │   │   ├── database/       # Database portal components
+│   │   │   └── shared/         # Shared components
+│   │   ├── pages/              # Page components
+│   │   ├── services/           # API services (Axios)
+│   │   ├── types/              # TypeScript type definitions
+│   │   ├── utils/              # Utility functions
+│   │   ├── App.tsx             # Main app component
+│   │   └── main.tsx            # Entry point
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── server/                       # Backend Express application
+│   ├── data/                    # JSON file database
+│   │   ├── backups/            # Automatic backups
+│   │   ├── properties.json
+│   │   ├── inquiries.json
+│   │   ├── users.json
+│   │   ├── calendar-events.json
+│   │   ├── activity-log.json
+│   │   ├── new-properties.json
+│   │   ├── new-inquiries.json
+│   │   └── new-agents.json
+│   ├── middleware/
+│   │   ├── auth.js             # JWT authentication
+│   │   ├── logger.js           # Activity logging
+│   │   ├── rateLimiter.js      # Rate limiting
+│   │   └── sanitize.js         # Input sanitization
+│   ├── routes/
+│   │   ├── auth.js             # Authentication routes
+│   │   ├── properties.js       # Property endpoints
+│   │   ├── inquiries.js        # Inquiry endpoints
+│   │   ├── users.js            # User management
+│   │   ├── calendar.js         # Calendar events
+│   │   ├── activity-log.js     # Activity logs
+│   │   └── database.js         # Database portal API
+│   ├── uploads/                 # Uploaded property images
+│   │   └── properties/
+│   ├── utils/
+│   │   ├── fileOperations.js   # JSON file read/write
+│   │   ├── migrate.js          # Password migration
+│   │   └── sanitize.js         # Input sanitization utilities
+│   ├── server.js               # Express server entry point
+│   └── package.json
+│
+├── .env.example                 # Environment variables template
 ├── .gitignore
-├── package.json
-├── server.js                # Application entry point
-├── SECURITY_IMPLEMENTATION_COMPLETE.md  # Security documentation
-└── README.md                # This file
+├── package.json                 # Root package.json
+├── README.md                    # This file
+├── TESTING_IMPROVEMENTS.md      # Testing documentation
+├── SECURITY_SUMMARY.md          # Security features documentation
+└── IMPLEMENTATION_COMPLETE.md   # Implementation details
 ```
+
+---
+
+## 🔒 Security Best Practices
+
+### For Development
+1. ✅ Never commit `.env` file to Git
+2. ✅ Use strong JWT_SECRET (minimum 32 characters)
+3. ✅ Keep `node_modules/` in `.gitignore`
+4. ✅ Regularly backup `server/data/` folder
+5. ✅ Test rate limiting with multiple failed attempts
+
+### For Production Deployment
+1. 🔐 Change all default passwords
+2. 🔐 Generate new JWT_SECRET
+3. 🔐 Set NODE_ENV=production
+4. 🔐 Enable HTTPS/SSL
+5. 🔐 Configure proper CORS origins
+6. 🔐 Set up automated backups
+7. 🔐 Implement external database (MongoDB/PostgreSQL) for scalability
+8. 🔐 Use environment-specific secrets management
+
+---
+
+## 🚨 Common Issues & Solutions
+
+### Issue: "Port 3000 already in use"
+**Solution:**
+```bash
+# Windows
+netstat -ano | findstr :3000
+taskkill /PID [PID_NUMBER] /F
+
+# Mac/Linux
+lsof -ti:3000 | xargs kill -9
+```
+
+### Issue: "Cannot find module 'xyz'"
+**Solution:**
+```bash
+# Reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
+
+# Or install specific package
+npm install xyz
+```
+
+### Issue: "JWT token expired"
+**Solution:**
+- Login again to get new token
+- Token expires after 8 hours (configurable in `server/middleware/auth.js`)
+
+### Issue: "Rate limit exceeded"
+**Solution:**
+- Wait 15 minutes for login rate limit to reset
+- Wait 1 hour for inquiry rate limit to reset
+- Clear tracking in `node_modules/express-rate-limit/` (dev only)
+
+### Issue: "Data not persisting"
+**Solution:**
+- Check file permissions on `server/data/` folder
+- Verify `server/utils/fileOperations.js` is working
+- Check `server/data/backups/` for recent backups
+
+---
+
+## 📚 Additional Documentation
+
+- **[TESTING_IMPROVEMENTS.md](./TESTING_IMPROVEMENTS.md)** - Comprehensive testing guide
+- **[SECURITY_SUMMARY.md](./SECURITY_SUMMARY.md)** - Security implementation details
+- **[IMPLEMENTATION_COMPLETE.md](./IMPLEMENTATION_COMPLETE.md)** - Feature implementation checklist
+
+---
+
+## 🎯 Features Roadmap
+
+### ✅ Completed (v2.1)
+- JWT authentication
+- Password hashing (bcrypt)
+- Input sanitization
+- Rate limiting
+- File-based database with backups
+- Multi-role system (Admin/Agent)
+- Image upload
+- Activity logging
+- Database portal
+
+### 🔄 In Progress
+- Email notifications
+- Advanced search filters
+- Property comparison feature
+
+### 📋 Planned (v2.2)
+- Two-factor authentication (2FA)
+- Real-time notifications (WebSockets)
+- Advanced analytics dashboard
+- Mobile responsive improvements
+- Dark mode theme
+
+### 🚀 Future (v3.0)
+- Migration to PostgreSQL/MongoDB
+- GraphQL API
+- Mobile app (React Native)
+- Multi-language support
+- AI-powered property recommendations
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these guidelines:
-
+Contributions welcome! Please:
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-### Security Contributions
-
-If you discover a security vulnerability:
-1. **DO NOT** open a public issue
-2. Email security concerns to: [your-email@example.com]
-3. Allow 48 hours for initial response
-4. Provide detailed information about the vulnerability
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ---
 
 ## 📞 Support
 
-For questions or support:
-- **GitHub Issues**: [Open an issue](https://github.com/HansLagmay/SIAfrontendonlyFINAL/issues)
-- **Email**: support@realestate.com
-- **Documentation**: [Wiki](https://github.com/HansLagmay/SIAfrontendonlyFINAL/wiki)
+- **GitHub Issues**: [Report a bug](https://github.com/HansLagmay/SIAfrontendonlyFINAL/issues)
+- **Discussions**: [Ask questions](https://github.com/HansLagmay/SIAfrontendonlyFINAL/discussions)
 
 ---
 
-## 🎯 Roadmap
-
-### v2.2.0 (Planned)
-- Two-factor authentication (2FA)
-- OAuth integration (Google, Facebook)
-- Advanced audit logging
-- Email notification system
-- Real-time chat support
-
-### v2.3.0 (Future)
-- GraphQL API
-- Mobile application (React Native)
-- Advanced analytics dashboard
-- Property valuation ML model
-- Multi-language support
+**Version:** 2.1.0  
+**Last Updated:** January 13, 2026  
+**Maintained by:** HansLagmay
 
 ---
 
-## 🙏 Acknowledgments
+⭐ **Star this repo if you find it helpful!**
 
-- MongoDB team for excellent database documentation
-- Express.js community for middleware packages
-- JWT.io for authentication best practices
-- OWASP for security guidelines
-
----
-
-**Version**: 2.1.0  
-**Last Updated**: January 13, 2026  
-**Maintained by**: HansLagmay
-
----
-
-⭐ If you find this project helpful, please consider giving it a star on GitHub!
+🎓 **Perfect for:**
+- Full-stack development learning
+- Portfolio projects
+- Real estate management systems
+- Understanding JWT authentication
+- File-based database implementation
