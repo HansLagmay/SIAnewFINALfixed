@@ -8,6 +8,7 @@ const { paginate } = require('../utils/paginate');
 const { recordChange } = require('../utils/auditTrail');
 const { upload } = require('../middleware/upload');
 const logActivity = require('../middleware/logger');
+const { validateStatusUpdate } = require('../utils/propertyWorkflow');
 
 // GET all properties (public, paginated)
 router.get('/', async (req, res) => {
@@ -83,7 +84,7 @@ router.post('/', authenticateToken, requireRole(['admin']), sanitizeBody, proper
   }
 });
 
-// PUT update property (protected, admin only, with audit trail)
+// PUT update property (protected, admin only, with audit trail and workflow validation)
 router.put('/:id', authenticateToken, requireRole(['admin']), sanitizeBody, async (req, res) => {
   try {
     const properties = await readJSONFile('properties.json');
@@ -94,6 +95,23 @@ router.put('/:id', authenticateToken, requireRole(['admin']), sanitizeBody, asyn
     }
     
     const oldProperty = { ...properties[index] };
+    
+    // Validate status transition if status is being changed
+    if (req.body.status && req.body.status !== oldProperty.status) {
+      const updatedPropertyData = { ...oldProperty, ...req.body };
+      const validation = validateStatusUpdate(
+        oldProperty.status, 
+        req.body.status, 
+        updatedPropertyData
+      );
+      
+      if (!validation.valid) {
+        return res.status(400).json({ 
+          error: validation.error,
+          missingFields: validation.missingFields
+        });
+      }
+    }
     
     // Track important changes for audit trail
     if (req.body.price && req.body.price !== oldProperty.price) {
