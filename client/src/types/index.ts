@@ -46,6 +46,15 @@ export interface Property {
   soldAt?: string; // timestamp
   salePrice?: number; // final closing price
   
+  // Commission tracking
+  commission?: {
+    rate: number; // percentage (e.g., 3 for 3%)
+    amount: number; // calculated commission amount
+    status: 'pending' | 'paid';
+    paidAt?: string;
+    paidBy?: string; // admin who marked as paid
+  };
+  
   // Reservation info
   reservedBy?: string; // agent name
   reservedAt?: string;

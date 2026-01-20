@@ -97,12 +97,30 @@ const AdminProperties = () => {
         
         const salePrice = salePriceStr ? parseFloat(salePriceStr) : property.price;
         
+        // Get commission rate
+        const commissionRateStr = await openPrompt({
+          title: 'Enter Commission Rate',
+          message: 'Enter commission rate percentage (e.g., 3 for 3%):',
+          defaultValue: '3',
+          inputType: 'number'
+        });
+        
+        const commissionRate = commissionRateStr ? parseFloat(commissionRateStr) : 3;
+        const commissionAmount = (salePrice * commissionRate) / 100;
+        
         updateData = {
           ...updateData,
           soldBy: selectedAgent.name,
           soldByAgentId: selectedAgent.id,
           soldAt: new Date().toISOString(),
           salePrice: salePrice,
+          commission: {
+            rate: commissionRate,
+            amount: commissionAmount,
+            status: 'pending',
+            paidAt: undefined,
+            paidBy: undefined
+          },
           statusHistory: [
             ...(property.statusHistory || []),
             {
@@ -110,7 +128,7 @@ const AdminProperties = () => {
               changedBy: admin.id,
               changedByName: admin.name,
               changedAt: new Date().toISOString(),
-              reason: `Sold by ${selectedAgent.name} for ₱${salePrice.toLocaleString()}`
+              reason: `Sold by ${selectedAgent.name} for ₱${salePrice.toLocaleString()} (Commission: ${commissionRate}% = ₱${commissionAmount.toLocaleString()})`
             }
           ]
         };
@@ -122,6 +140,43 @@ const AdminProperties = () => {
     } catch (error) {
       console.error('Failed to update property status:', error);
       showToast({ type: 'error', message: 'Failed to update property status' });
+    }
+  };
+
+  const handleMarkCommissionPaid = async (property: Property) => {
+    if (!property.commission || property.commission.status === 'paid') {
+      showToast({ type: 'error', message: 'Commission already paid or not available' });
+      return;
+    }
+
+    const confirmed = await openConfirm({
+      title: 'Mark Commission as Paid',
+      message: `Mark commission of ₱${property.commission.amount.toLocaleString()} for ${property.title} as paid?`,
+      confirmText: 'Mark as Paid',
+      cancelText: 'Cancel',
+      variant: 'default'
+    });
+    
+    if (!confirmed) return;
+
+    const admin = JSON.parse(localStorage.getItem('user') || '{}');
+
+    try {
+      const updateData: PropertyUpdateData = {
+        commission: {
+          ...property.commission,
+          status: 'paid',
+          paidAt: new Date().toISOString(),
+          paidBy: admin.name
+        }
+      };
+
+      await propertiesAPI.update(property.id, updateData);
+      await loadProperties();
+      showToast({ type: 'success', message: 'Commission marked as paid successfully!' });
+    } catch (error) {
+      console.error('Failed to mark commission as paid:', error);
+      showToast({ type: 'error', message: 'Failed to update commission status' });
     }
   };
 
@@ -231,15 +286,35 @@ const AdminProperties = () => {
                     <option value="off-market">Off Market</option>
                   </select>
                   {property.soldBy && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Sold by: {property.soldBy}
-                    </p>
+                    <div className="mt-1">
+                      <p className="text-xs text-gray-500">
+                        Sold by: {property.soldBy}
+                      </p>
+                      {property.commission && (
+                        <p className="text-xs text-gray-500">
+                          Commission: ₱{property.commission.amount.toLocaleString()} ({property.commission.rate}%)
+                          {' - '}
+                          <span className={property.commission.status === 'paid' ? 'text-green-600' : 'text-yellow-600'}>
+                            {property.commission.status === 'paid' ? 'Paid' : 'Pending'}
+                          </span>
+                        </p>
+                      )}
+                    </div>
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  {property.commission && property.commission.status === 'pending' && (
+                    <button
+                      onClick={() => handleMarkCommissionPaid(property)}
+                      className="text-green-600 hover:text-green-900 mr-4"
+                      title="Mark commission as paid"
+                    >
+                      Pay Commission
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDelete(property.id)}
-                    className="text-red-600 hover:text-red-900 ml-4"
+                    className="text-red-600 hover:text-red-900"
                   >
                     Delete
                   </button>
