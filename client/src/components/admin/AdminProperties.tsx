@@ -6,9 +6,6 @@ import Toast, { ToastType } from '../shared/Toast';
 import type { Property, User } from '../../types';
 import type { PropertyUpdateData } from '../../types/api';
 import { useDialog } from '../../hooks/useDialog';
-import ConfirmDialog from '../shared/ConfirmDialog';
-import PromptDialog from '../shared/PromptDialog';
-import Toast from '../shared/Toast';
 
 const AdminProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);

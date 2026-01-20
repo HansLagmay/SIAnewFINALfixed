@@ -3,6 +3,7 @@ const router = express.Router();
 const { readJSONFile, writeJSONFile, generateId } = require('../utils/fileOperations');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { sanitizeBody, validateEmail } = require('../middleware/sanitize');
+const { containsMaliciousContent } = require('../utils/sanitize');
 const { inquiryLimiter } = require('../middleware/rateLimiter');
 const { paginate } = require('../utils/paginate');
 const { recordChange } = require('../utils/auditTrail');
@@ -66,6 +67,13 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // POST new inquiry (public with rate limiting and sanitization)
 router.post('/', sanitizeBody, inquiryLimiter, async (req, res) => {
   try {
+    // Check for XSS content
+    const fieldsToCheck = [req.body.name, req.body.message];
+    if (fieldsToCheck.some(field => containsMaliciousContent(field))) {
+      await logActivity('XSS_ATTEMPT', `XSS attempt detected in inquiry from ${req.body.email}`, 'System');
+      return res.status(400).json({ error: 'Invalid content detected. Please remove any script tags or event handlers.' });
+    }
+    
     // Validate email
     if (!validateEmail(req.body.email)) {
       return res.status(400).json({ error: 'Invalid email format' });

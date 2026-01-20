@@ -1,6 +1,23 @@
 const validator = require('validator');
 
 /**
+ * Check if string contains malicious content
+ * @param {string} str - String to check
+ * @returns {boolean} - True if malicious content detected
+ */
+const containsMaliciousContent = (str) => {
+  if (typeof str !== 'string') return false;
+  
+  const patterns = [
+    /<script[^>]*>.*?<\/script>/gi,
+    /on\w+\s*=\s*["'][^"']*["']/gi,
+    /<iframe/gi,
+    /javascript:/gi
+  ];
+  return patterns.some(pattern => pattern.test(str));
+};
+
+/**
  * Sanitize a general string input
  * - Trims whitespace
  * - Escapes HTML special characters to prevent XSS
@@ -102,5 +119,6 @@ module.exports = {
   sanitizeString,
   sanitizeEmail,
   sanitizePhone,
-  sanitizeMessage
+  sanitizeMessage,
+  containsMaliciousContent
 };

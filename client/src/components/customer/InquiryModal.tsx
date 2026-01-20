@@ -46,10 +46,12 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
   const checkDuplicateInquiry = async (email: string, propertyId: string) => {
     try {
       const response = await inquiriesAPI.getAll();
+      const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
       
       const existingInquiry = response.data.find((inq: any) => 
         inq.email.toLowerCase() === email.toLowerCase() && 
         inq.propertyId === propertyId &&
+        new Date(inq.createdAt).getTime() > sevenDaysAgo &&
         inq.status !== 'closed' && 
         inq.status !== 'cancelled'
       );

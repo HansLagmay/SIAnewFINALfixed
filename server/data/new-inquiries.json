@@ -12,33 +12,5 @@
     "name": "Maria Test Customer",
     "propertyTitle": "Luxury Condo in BGC",
     "createdAt": "2026-01-10T14:04:05.972Z"
-  },
-  {
-    "id": "mk8dm9mw5dm4irzwtmh",
-    "ticketNumber": "INQ-2026-003",
-    "name": "John Test Customer",
-    "propertyTitle": "Modern Family Home in Manila",
-    "createdAt": "2026-01-10T14:04:20.168Z"
-  },
-  {
-    "id": "mk9i21c7f3guh90pcnv",
-    "ticketNumber": "INQ-2026-004",
-    "name": "&lt;script&gt;alert(1)&lt;&#x2F;script&gt;",
-    "propertyTitle": null,
-    "createdAt": "2026-01-11T08:56:20.551Z"
-  },
-  {
-    "id": "mk9i7i53nfwdpxrbsle",
-    "ticketNumber": "INQ-2026-005",
-    "name": "&lt;script&gt;alert(1)&lt;&#x2F;script&gt;Test",
-    "propertyTitle": null,
-    "createdAt": "2026-01-11T09:00:35.607Z"
-  },
-  {
-    "id": "mk9i7i6p9d2ksge9419",
-    "ticketNumber": "INQ-2026-006",
-    "name": "Public Test",
-    "propertyTitle": null,
-    "createdAt": "2026-01-11T09:00:35.665Z"
   }
 ]
