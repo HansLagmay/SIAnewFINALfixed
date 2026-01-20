@@ -180,6 +180,65 @@ const AdminProperties = () => {
     }
   };
 
+  const handleSetReservation = async (property: Property) => {
+    if (property.status !== 'available') {
+      showToast({ type: 'error', message: 'Only available properties can be reserved' });
+      return;
+    }
+
+    const agentId = await openPrompt({
+      title: 'Reserve Property',
+      message: `Select agent to reserve this property for:`,
+      placeholder: `Available agents: ${agents.map(a => `${a.name} (${a.id})`).join(', ')}`
+    });
+    
+    if (!agentId) return;
+    
+    const selectedAgent = agents.find(a => a.id === agentId);
+    if (!selectedAgent) {
+      showToast({ type: 'error', message: 'Invalid agent ID' });
+      return;
+    }
+
+    const hoursStr = await openPrompt({
+      title: 'Reservation Duration',
+      message: 'How many hours should this reservation last?',
+      defaultValue: '24',
+      inputType: 'number'
+    });
+
+    const hours = hoursStr ? parseInt(hoursStr) : 24;
+    const reservedUntil = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+
+    const admin = JSON.parse(localStorage.getItem('user') || '{}');
+
+    try {
+      const updateData: PropertyUpdateData = {
+        status: 'reserved',
+        reservedBy: selectedAgent.name,
+        reservedAt: new Date().toISOString(),
+        reservedUntil: reservedUntil,
+        statusHistory: [
+          ...(property.statusHistory || []),
+          {
+            status: 'reserved',
+            changedBy: admin.id,
+            changedByName: admin.name,
+            changedAt: new Date().toISOString(),
+            reason: `Reserved for ${selectedAgent.name} for ${hours} hours`
+          }
+        ]
+      };
+
+      await propertiesAPI.update(property.id, updateData);
+      await loadProperties();
+      showToast({ type: 'success', message: `Property reserved for ${selectedAgent.name} until ${new Date(reservedUntil).toLocaleString()}` });
+    } catch (error) {
+      console.error('Failed to set reservation:', error);
+      showToast({ type: 'error', message: 'Failed to set reservation' });
+    }
+  };
+
   const handleDelete = async (id: string) => {
     const confirmed = await openConfirm({
       title: 'Delete Property',
@@ -285,6 +344,18 @@ const AdminProperties = () => {
                     <option value="withdrawn">Withdrawn</option>
                     <option value="off-market">Off Market</option>
                   </select>
+                  {property.reservedBy && property.status === 'reserved' && (
+                    <div className="mt-1">
+                      <p className="text-xs text-gray-500">
+                        Reserved by: {property.reservedBy}
+                      </p>
+                      {property.reservedUntil && (
+                        <p className="text-xs text-gray-500">
+                          Until: {new Date(property.reservedUntil).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   {property.soldBy && (
                     <div className="mt-1">
                       <p className="text-xs text-gray-500">
@@ -303,6 +374,15 @@ const AdminProperties = () => {
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  {property.status === 'available' && (
+                    <button
+                      onClick={() => handleSetReservation(property)}
+                      className="text-blue-600 hover:text-blue-900 mr-4"
+                      title="Reserve property for an agent"
+                    >
+                      Reserve
+                    </button>
+                  )}
                   {property.commission && property.commission.status === 'pending' && (
                     <button
                       onClick={() => handleMarkCommissionPaid(property)}

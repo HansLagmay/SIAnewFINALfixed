@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { migratePasswords } = require('./utils/migrate');
 const { apiLimiter } = require('./middleware/rateLimiter');
+const { startReservationChecker } = require('./utils/reservationChecker');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -72,6 +73,10 @@ const startServer = async () => {
     console.log('🔐 Running password migration...');
     await migratePasswords();
     
+    // Start reservation checker
+    console.log('⏰ Starting reservation checker...');
+    startReservationChecker(); // Check every hour by default
+    
     // Start listening
     app.listen(PORT, () => {
       console.log('╔════════════════════════════════════════════╗');
@@ -88,6 +93,11 @@ const startServer = async () => {
       console.log('  ✅ Rate limiting');
       console.log('  ✅ File locking for data integrity');
       console.log('  ✅ Automatic backups');
+      console.log('');
+      console.log('🏢 Business Features:');
+      console.log('  ✅ Commission tracking system');
+      console.log('  ✅ Property workflow validation');
+      console.log('  ✅ Auto-expiring reservations');
       console.log('');
       console.log('Available routes:');
       console.log('  - GET  /api/health (public)');
