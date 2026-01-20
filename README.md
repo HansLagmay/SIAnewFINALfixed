@@ -232,21 +232,21 @@ cd client && npm run preview
 
 ### Properties
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/properties` | Get all properties | ❌ Public |
-| GET | `/api/properties/:id` | Get single property | ❌ Public |
-| POST | `/api/properties` | Create property | ✅ Admin |
-| PUT | `/api/properties/:id` | Update property | ✅ Admin |
-| DELETE | `/api/properties/:id` | Delete property | ✅ Admin |
-| POST | `/api/properties/upload` | Upload images | ✅ Admin |
+| Method | Endpoint | Description | Auth Required | Rate Limited |
+|--------|----------|-------------|---------------|--------------|
+| GET | `/api/properties` | Get all properties (paginated) | ❌ Public | ❌ |
+| GET | `/api/properties/:id` | Get single property | ❌ Public | ❌ |
+| POST | `/api/properties` | Create property | ✅ Admin | ✅ 10/hour |
+| PUT | `/api/properties/:id` | Update property (with workflow validation) | ✅ Admin | ❌ |
+| DELETE | `/api/properties/:id` | Delete property | ✅ Admin | ❌ |
+| POST | `/api/properties/upload` | Upload images (max 10, 5MB each) | ✅ Admin | ❌ |
 
 ### Inquiries
 
 | Method | Endpoint | Description | Auth Required | Rate Limited |
 |--------|----------|-------------|---------------|--------------|
-| POST | `/api/inquiries` | Submit inquiry | ❌ Public | ✅ 3/hour |
-| GET | `/api/inquiries` | Get all inquiries | ✅ Admin/Agent | ❌ |
+| POST | `/api/inquiries` | Submit inquiry (with XSS protection) | ❌ Public | ✅ 3/hour |
+| GET | `/api/inquiries` | Get all inquiries (paginated) | ✅ Admin/Agent | ❌ |
 | GET | `/api/inquiries/:id` | Get single inquiry | ✅ Admin/Agent | ❌ |
 | PUT | `/api/inquiries/:id` | Update inquiry | ✅ Admin/Agent | ❌ |
 | POST | `/api/inquiries/:id/claim` | Agent claims inquiry | ✅ Agent | ❌ |
@@ -288,6 +288,158 @@ cd client && npm run preview
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | GET | `/api/activity-log` | Get activity logs | ✅ Admin |
+
+---
+
+## 💼 Commission System
+
+The system includes a complete commission tracking system for managing agent commissions on sold properties.
+
+### Features
+- **Automatic Calculation**: Commission is automatically calculated when a property is marked as sold
+- **Configurable Rates**: Each sale can have a custom commission rate (default: 3%)
+- **Payment Tracking**: Track commission status (pending/paid) with payment dates
+- **Agent Dashboard**: Agents can view their commission earnings and payment status
+- **Admin Controls**: Admins can mark commissions as paid
+
+### How It Works
+
+1. **When Property is Sold**:
+   - Admin marks property status as "sold"
+   - System prompts for: agent ID, sale price, and commission rate
+   - Commission amount is automatically calculated: `(sale price × rate) / 100`
+   - Commission record is created with status: "pending"
+
+2. **Commission Payment**:
+   - Admin can mark commission as "paid" from Properties page
+   - System records payment date and admin who processed it
+   - Status changes from "pending" to "paid"
+
+3. **Agent View**:
+   - Agents access `/agent/commissions` to view their earnings
+   - See total, paid, and pending commissions
+   - View detailed breakdown by property
+
+### Commission Data Structure
+```typescript
+commission: {
+  rate: number;        // Percentage (e.g., 3 for 3%)
+  amount: number;      // Calculated amount in PHP
+  status: 'pending' | 'paid';
+  paidAt?: string;     // ISO timestamp
+  paidBy?: string;     // Admin name
+}
+```
+
+---
+
+## 🔄 Property Workflow System
+
+The system enforces strict workflow rules for property status transitions to maintain data integrity.
+
+### Status Transition Rules
+
+```
+draft → available, withdrawn
+available → reserved, viewing-scheduled, under-contract, withdrawn, off-market
+reserved → under-contract, available, withdrawn
+viewing-scheduled → available, reserved, withdrawn
+under-contract → sold, available, withdrawn
+sold → [terminal state - no transitions]
+withdrawn → available
+off-market → available
+```
+
+### Status Requirements
+
+Each status requires specific fields to be present:
+
+| Status | Required Fields |
+|--------|----------------|
+| `available` | title, price, location, description |
+| `reserved` | reservedBy, reservedAt, reservedUntil |
+| `sold` | soldBy, soldByAgentId, soldAt, salePrice, commission |
+| `draft`, `withdrawn`, `off-market` | No additional requirements |
+
+### Workflow Diagram
+
+```
+┌─────────┐
+│  Draft  │
+└────┬────┘
+     ↓
+┌─────────────┐      ┌──────────┐
+│  Available  │ ←──→ │ Reserved │
+└──────┬──────┘      └────┬─────┘
+       ↓                  ↓
+┌──────────────────┐      │
+│ Under Contract   │ ←────┘
+└────────┬─────────┘
+         ↓
+    ┌────────┐
+    │  Sold  │ [Terminal]
+    └────────┘
+    
+    ↓ (Any status can be)
+┌──────────┐
+│Withdrawn │
+└──────────┘
+```
+
+### Validation
+
+- **Server-Side**: All status changes are validated in `server/utils/propertyWorkflow.js`
+- **Automatic Rejection**: Invalid transitions return 400 error with clear message
+- **Missing Fields**: System checks for required fields before allowing status change
+
+---
+
+## ⏰ Reservation Auto-Expiry System
+
+Properties can be reserved for agents with automatic expiry functionality.
+
+### Features
+- **Time-Limited Reservations**: Set reservation duration in hours (default: 24 hours)
+- **Automatic Expiry**: Background checker runs hourly to expire old reservations
+- **Status History**: All reservation changes are logged with reasons
+- **Admin Controls**: Admins can manually reserve properties for agents
+
+### How It Works
+
+1. **Creating Reservation**:
+   ```javascript
+   // Admin reserves property for agent
+   status: 'reserved'
+   reservedBy: 'Agent Name'
+   reservedAt: '2026-01-20T10:00:00Z'
+   reservedUntil: '2026-01-21T10:00:00Z'  // 24 hours later
+   ```
+
+2. **Automatic Expiry**:
+   - Background checker runs every hour
+   - Checks all reserved properties for expired reservations
+   - If `current time > reservedUntil`:
+     - Status changes to 'available'
+     - Reservation fields are cleared
+     - Status history is updated
+     - Activity log records the expiry
+
+3. **Manual Management**:
+   - Admins can change status from reserved to available manually
+   - Admins can extend reservations by updating `reservedUntil` field
+
+### Configuration
+
+The reservation checker starts automatically on server boot:
+```javascript
+// In server/server.js
+startReservationChecker(); // Runs every 60 minutes (3600000ms)
+```
+
+To change the interval, pass milliseconds:
+```javascript
+startReservationChecker(30 * 60 * 1000); // Check every 30 minutes
+```
 
 ---
 
@@ -358,13 +510,35 @@ SIAfrontendonlyFINAL/
 │   ├── src/
 │   │   ├── components/          # React components
 │   │   │   ├── admin/          # Admin portal components
+│   │   │   │   ├── AdminAgents.tsx
+│   │   │   │   ├── AdminDashboard.tsx
+│   │   │   │   ├── AdminInquiries.tsx
+│   │   │   │   ├── AdminProperties.tsx (with commission & reservation UI)
+│   │   │   │   ├── AdminReports.tsx
+│   │   │   │   ├── AdminSidebar.tsx
+│   │   │   │   └── AssignAgentModal.tsx
 │   │   │   ├── agent/          # Agent portal components
+│   │   │   │   ├── AgentCalendar.tsx
+│   │   │   │   ├── AgentCommissions.tsx (commission tracking dashboard)
+│   │   │   │   ├── AgentDashboard.tsx
+│   │   │   │   ├── AgentInquiries.tsx
+│   │   │   │   ├── AgentProperties.tsx
+│   │   │   │   ├── AgentSidebar.tsx
+│   │   │   │   └── ScheduleViewingModal.tsx
 │   │   │   ├── customer/       # Customer portal components
 │   │   │   ├── database/       # Database portal components
 │   │   │   └── shared/         # Shared components
+│   │   │       ├── AgentSelectModal.tsx (agent search & selection)
+│   │   │       ├── ConfirmDialog.tsx
+│   │   │       ├── PromptDialog.tsx
+│   │   │       └── Toast.tsx
+│   │   ├── hooks/              # Custom React hooks
 │   │   ├── pages/              # Page components
 │   │   ├── services/           # API services (Axios)
 │   │   ├── types/              # TypeScript type definitions
+│   │   │   ├── api.ts
+│   │   │   ├── forms.ts
+│   │   │   └── index.ts (includes Commission type)
 │   │   ├── utils/              # Utility functions
 │   │   ├── App.tsx             # Main app component
 │   │   └── main.tsx            # Entry point
@@ -398,10 +572,16 @@ SIAfrontendonlyFINAL/
 │   ├── uploads/                 # Uploaded property images
 │   │   └── properties/
 │   ├── utils/
-│   │   ├── fileOperations.js   # JSON file read/write
-│   │   ├── migrate.js          # Password migration
-│   │   └── sanitize.js         # Input sanitization utilities
-│   ├── server.js               # Express server entry point
+│   │   ├── auditTrail.js        # Audit logging
+│   │   ├── backup.js            # Automatic backups
+│   │   ├── fileOperations.js   # JSON file read/write with locking
+│   │   ├── migrate.js           # Password migration
+│   │   ├── paginate.js          # Pagination utility
+│   │   ├── passwordHash.js      # Password hashing
+│   │   ├── propertyWorkflow.js  # Property status workflow validation
+│   │   ├── reservationChecker.js # Auto-expiry for reservations
+│   │   └── sanitize.js          # Input sanitization & XSS detection
+│   ├── server.js                # Express server entry point
 │   └── package.json
 │
 ├── .env.example                 # Environment variables template
@@ -487,17 +667,138 @@ npm install xyz
 
 ---
 
+## 🧪 Testing Guide for New Features
+
+### Testing Commission System
+
+1. **As Admin - Mark Property as Sold**:
+   ```bash
+   # Login as admin
+   # Navigate to Properties page
+   # Change property status to "Sold"
+   # Enter agent ID, sale price, and commission rate
+   # Verify commission is calculated and displayed
+   ```
+
+2. **As Admin - Pay Commission**:
+   ```bash
+   # Find property with pending commission
+   # Click "Pay Commission" button
+   # Verify status changes to "Paid"
+   # Check payment date and admin name are recorded
+   ```
+
+3. **As Agent - View Commissions**:
+   ```bash
+   # Login as agent (maria@tesproperty.com)
+   # Navigate to Commissions page
+   # Verify summary cards show: Total, Paid, Pending
+   # Check detailed table shows all sold properties
+   ```
+
+### Testing Property Workflow
+
+1. **Valid Transition**:
+   ```bash
+   # Try: available → reserved → under-contract → sold
+   # Expected: All transitions succeed
+   ```
+
+2. **Invalid Transition**:
+   ```bash
+   # Try: available → sold (skipping required steps)
+   # Expected: Error message about invalid transition
+   ```
+
+3. **Missing Required Fields**:
+   ```bash
+   # Try: Change to "sold" without commission data
+   # Expected: Error about missing required fields
+   ```
+
+### Testing Reservation System
+
+1. **Create Reservation**:
+   ```bash
+   # As Admin, select available property
+   # Click "Reserve" button
+   # Select agent and set duration (e.g., 24 hours)
+   # Verify status changes to "reserved"
+   # Check reservation details are displayed
+   ```
+
+2. **Auto-Expiry**:
+   ```bash
+   # Create reservation with 1-hour duration
+   # Wait 1+ hours
+   # Check server logs for expiry message
+   # Verify property status reverted to "available"
+   # Check activity log for expiry event
+   ```
+
+3. **Manual Expiry**:
+   ```bash
+   # Change reserved property back to available
+   # Verify reservation fields are cleared
+   ```
+
+### Testing Security Fixes
+
+1. **XSS Protection**:
+   ```bash
+   # Try submitting inquiry with: <script>alert(1)</script>
+   # Expected: Error "Invalid content detected"
+   # Verify inquiry is not saved
+   ```
+
+2. **Duplicate Check (7-day)**:
+   ```bash
+   # Submit inquiry for property
+   # Try submitting again within 7 days
+   # Expected: 409 error with ticket number
+   # Wait 8 days and try again
+   # Expected: New inquiry created successfully
+   ```
+
+### Integration Testing
+
+Run the full system test:
+```bash
+# 1. Start server
+npm run dev
+
+# 2. Check startup logs for:
+#    - Password migration
+#    - Reservation checker started
+#    - Business features listed
+
+# 3. Test complete workflow:
+#    - Customer submits inquiry
+#    - Agent claims inquiry
+#    - Agent schedules viewing
+#    - Admin marks property as sold with commission
+#    - Agent views commission
+#    - Admin pays commission
+```
+
+---
+
 ## 🎯 Features Roadmap
 
-### ✅ Completed (v2.1)
+### ✅ Completed (v2.2)
 - JWT authentication
 - Password hashing (bcrypt)
-- Input sanitization
+- Input sanitization with XSS rejection
 - Rate limiting
 - File-based database with backups
 - Multi-role system (Admin/Agent)
 - Image upload
 - Activity logging
+- Database portal
+- **Commission tracking system**
+- **Property workflow validation**
+- **Auto-expiring reservations**
+- **Enhanced security (XSS protection, 7-day duplicate check)**
 - Database portal
 
 ### 🔄 In Progress
@@ -545,8 +846,8 @@ This project is licensed under the MIT License.
 
 ---
 
-**Version:** 2.1.0  
-**Last Updated:** January 13, 2026  
+**Version:** 2.2.0  
+**Last Updated:** January 20, 2026  
 **Maintained by:** HansLagmay
 
 ---
