@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropertyList from '../components/customer/PropertyList';
 import PropertyDetailModal from '../components/customer/PropertyDetailModal';
 import InquiryModal from '../components/customer/InquiryModal';
+import AppointmentModal from '../components/customer/AppointmentModal';
 import CustomerNavbar from '../components/customer/CustomerNavbar';
 import type { Property } from '../types';
 import { propertiesAPI } from '../services/api';
@@ -11,6 +12,7 @@ const CustomerPortal = () => {
   const [loading, setLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
 
@@ -41,7 +43,6 @@ const CustomerPortal = () => {
       <CustomerNavbar />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
             Find Your Dream Property
@@ -51,7 +52,6 @@ const CustomerPortal = () => {
           </p>
         </div>
 
-        {/* Search and Filter */}
         <div className="mb-8 flex flex-col md:flex-row gap-4">
           <input
             type="text"
@@ -73,42 +73,218 @@ const CustomerPortal = () => {
           </select>
         </div>
 
-        {/* Property List */}
+        <section id="how-to-inquire" className="py-16 bg-blue-50">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">📋 How to Inquire About a Property</h2>
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="bg-white rounded-lg shadow p-6 text-center">
+                <div className="text-3xl mb-2">🔍</div>
+                <h3 className="text-lg font-semibold mb-2">Browse Properties</h3>
+                <p className="text-gray-600">Explore our available properties using search and filters</p>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6 text-center">
+                <div className="text-3xl mb-2">📸</div>
+                <h3 className="text-lg font-semibold mb-2">View Details</h3>
+                <p className="text-gray-600">Click on any property to see full information and photos</p>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6 text-center">
+                <div className="text-3xl mb-2">✉️</div>
+                <h3 className="text-lg font-semibold mb-2">Submit Inquiry</h3>
+                <p className="text-gray-600">Click Inquire and fill out the contact form</p>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6 text-center">
+                <div className="text-3xl mb-2">📞</div>
+                <h3 className="text-lg font-semibold mb-2">Get Contacted</h3>
+                <p className="text-gray-600">Our agents will contact you within 24 hours</p>
+              </div>
+            </div>
+            <div className="text-center mt-8">
+              <p className="text-gray-700 text-lg">
+                Need immediate assistance?
+                <a href="tel:+6328123456789" className="text-blue-600 font-semibold ml-2">📞 Call (02) 8123-4567</a>
+              </p>
+            </div>
+          </div>
+        </section>
+
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             <p className="mt-4 text-gray-600">Loading properties...</p>
           </div>
         ) : (
-          <PropertyList
-            properties={filteredProperties}
-            onViewDetails={setSelectedProperty}
-            onInquire={(property) => {
-              setSelectedProperty(property);
-              setShowInquiryModal(true);
+          <section id="properties">
+            <PropertyList
+              properties={filteredProperties}
+              onViewDetails={(property) => setSelectedProperty(property)}
+              onInquire={(property) => {
+                setSelectedProperty(property);
+                setShowInquiryModal(true);
+              }}
+            />
+          </section>
+        )}
+
+        {selectedProperty && !showInquiryModal && !showAppointmentModal && (
+          <PropertyDetailModal
+            property={selectedProperty}
+            onClose={() => setSelectedProperty(null)}
+            onInquire={() => setShowInquiryModal(true)}
+            onBookAppointment={() => setShowAppointmentModal(true)}
+          />
+        )}
+
+        {showInquiryModal && selectedProperty && (
+          <InquiryModal
+            property={selectedProperty}
+            onClose={() => {
+              setShowInquiryModal(false);
+              setSelectedProperty(null);
             }}
           />
         )}
+
+        {showAppointmentModal && selectedProperty && (
+          <AppointmentModal
+            property={selectedProperty}
+            onClose={() => {
+              setShowAppointmentModal(false);
+              setSelectedProperty(null);
+            }}
+          />
+        )}
+      
+        <section id="about" className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">🏢 About TES Property</h2>
+            <div className="grid md:grid-cols-2 gap-12">
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Who We Are</h3>
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  TES Property has been serving the Philippine real estate market for over 15 years. We specialize in premium residential and commercial properties across Metro Manila and surrounding areas.
+                </p>
+                <p className="text-gray-700 leading-relaxed">
+                  Our team of experienced agents is committed to helping you find your dream property with personalized service and expert guidance.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Our Mission</h3>
+                <p className="text-gray-700 leading-relaxed mb-6">
+                  To provide exceptional real estate services through innovation, integrity, and customer satisfaction.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                    <div className="text-2xl font-bold">15+</div>
+                    <div className="text-sm text-gray-600">Years Experience</div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                    <div className="text-2xl font-bold">500+</div>
+                    <div className="text-sm text-gray-600">Properties Sold</div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                    <div className="text-2xl font-bold">1000+</div>
+                    <div className="text-sm text-gray-600">Happy Clients</div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                    <div className="text-2xl font-bold">20+</div>
+                    <div className="text-sm text-gray-600">Expert Agents</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      
+        <section id="contact" className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">📍 Contact Us</h2>
+            <div className="grid md:grid-cols-2 gap-12">
+              <div>
+                <h3 className="text-2xl font-semibold mb-6">Get in Touch</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="text-xl">📍</div>
+                    <div>
+                      <div className="font-semibold">Office Address</div>
+                      <div className="text-gray-700">123 Ayala Avenue, Makati City, Metro Manila 1226</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="text-xl">📞</div>
+                    <div>
+                      <div className="font-semibold">Phone</div>
+                      <a href="tel:+6328123456789" className="text-blue-600">(02) 8123-4567</a>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="text-xl">📱</div>
+                    <div>
+                      <div className="font-semibold">Mobile</div>
+                      <a href="tel:+639171234567" className="text-blue-600">+63 917 123 4567</a>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="text-xl">✉️</div>
+                    <div>
+                      <div className="font-semibold">Email</div>
+                      <a href="mailto:info@tesproperty.com" className="text-blue-600">info@tesproperty.com</a>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="text-xl">🕒</div>
+                    <div>
+                      <div className="font-semibold">Business Hours</div>
+                      <div className="text-gray-700">Mon-Fri: 9:00 AM - 6:00 PM | Sat: 10:00 AM - 4:00 PM</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
+                  <p className="text-gray-500">🗺️ Google Maps Embed Here</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      
+        <footer className="bg-gray-800 text-white py-12">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-4 gap-8">
+              <div>
+                <h4 className="text-lg font-bold mb-4">TES Property</h4>
+                <p className="text-gray-400 text-sm">Your trusted partner in finding the perfect property.</p>
+              </div>
+              <div>
+                <h4 className="text-lg font-bold mb-4">Quick Links</h4>
+                <ul className="space-y-2 text-sm">
+                  <li><a href="#properties" className="text-gray-400 hover:text-white">Properties</a></li>
+                  <li><a href="#about" className="text-gray-400 hover:text-white">About Us</a></li>
+                  <li><a href="#contact" className="text-gray-400 hover:text-white">Contact</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-lg font-bold mb-4">Legal</h4>
+                <ul className="space-y-2 text-sm">
+                  <li><a href="/privacy" className="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                  <li><a href="/terms" className="text-gray-400 hover:text-white">Terms of Service</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-lg font-bold mb-4">Follow Us</h4>
+                <div className="flex space-x-4">
+                  <a href="#" className="text-gray-400 hover:text-white">Facebook</a>
+                  <a href="#" className="text-gray-400 hover:text-white">Twitter</a>
+                  <a href="#" className="text-gray-400 hover:text-white">Instagram</a>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
+              © 2026 TES Property System. All rights reserved.
+            </div>
+          </div>
+        </footer>
       </div>
-
-      {/* Modals */}
-      {selectedProperty && !showInquiryModal && (
-        <PropertyDetailModal
-          property={selectedProperty}
-          onClose={() => setSelectedProperty(null)}
-          onInquire={() => setShowInquiryModal(true)}
-        />
-      )}
-
-      {showInquiryModal && selectedProperty && (
-        <InquiryModal
-          property={selectedProperty}
-          onClose={() => {
-            setShowInquiryModal(false);
-            setSelectedProperty(null);
-          }}
-        />
-      )}
     </div>
   );
 };

@@ -12,7 +12,8 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
     name: '',
     email: '',
     phone: '',
-    message: ''
+    message: '',
+    contactMethod: 'email'
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -161,6 +162,12 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
             <p className="text-sm text-gray-600">{property.location}</p>
           </div>
 
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-blue-800">
+              📝 Please fill out this form to inquire about this property. Our agents will contact you within 24 hours via your preferred method.
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -212,6 +219,44 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Preferred Contact Method *
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="contactMethod"
+                    value="email"
+                    checked={formData.contactMethod === 'email'}
+                    onChange={(e) => setFormData({ ...formData, contactMethod: e.target.value })}
+                  />
+                  <span>📧 Email</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="contactMethod"
+                    value="phone"
+                    checked={formData.contactMethod === 'phone'}
+                    onChange={(e) => setFormData({ ...formData, contactMethod: e.target.value })}
+                  />
+                  <span>📞 Phone</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="contactMethod"
+                    value="sms"
+                    checked={formData.contactMethod === 'sms'}
+                    onChange={(e) => setFormData({ ...formData, contactMethod: e.target.value })}
+                  />
+                  <span>📱 SMS</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Message (minimum 20 characters) *
               </label>
               <textarea
@@ -224,8 +269,12 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
                 placeholder="I'm interested in this property... (Please provide at least 20 characters)"
               />
               <p className="text-xs text-gray-500 mt-1">
-                {formData.message.length}/20 characters minimum
+                {formData.message.length}/5000 characters (minimum 20)
               </p>
+            </div>
+
+            <div className="bg-gray-50 border p-3 text-xs text-gray-600">
+              🔒 Your information is secure and will not be shared with third parties.
             </div>
 
             <div className="flex gap-4 pt-4">

@@ -6,9 +6,10 @@ interface PropertyDetailModalProps {
   property: Property;
   onClose: () => void;
   onInquire: () => void;
+  onBookAppointment: () => void;
 }
 
-const PropertyDetailModal = ({ property, onClose, onInquire }: PropertyDetailModalProps) => {
+const PropertyDetailModal = ({ property, onClose, onInquire, onBookAppointment }: PropertyDetailModalProps) => {
   // Increment view count when modal opens
   useEffect(() => {
     const incrementViewCount = async () => {
@@ -141,7 +142,13 @@ const PropertyDetailModal = ({ property, onClose, onInquire }: PropertyDetailMod
               onClick={onInquire}
               className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold"
             >
-              Send Inquiry
+              ✉️ Send Inquiry
+            </button>
+            <button
+              onClick={onBookAppointment}
+              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
+            >
+              📅 Book Viewing
             </button>
           </div>
         </div>
