@@ -13,7 +13,11 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
     email: '',
     phone: '',
     message: '',
-    contactMethod: 'email'
+    contactMethods: {
+      email: true,
+      phone: false,
+      sms: false
+    }
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -94,9 +98,21 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
         return;
       }
 
+      const preferred = [
+        formData.contactMethods.email ? 'Email' : null,
+        formData.contactMethods.phone ? 'Phone' : null,
+        formData.contactMethods.sms ? 'SMS' : null,
+      ].filter(Boolean).join(', ');
+      const messageWithPreferences = preferred
+        ? `${formData.message}\n\nPreferred contact methods: ${preferred}`
+        : formData.message;
+
       // Submit inquiry with complete data structure
       const response = await inquiriesAPI.create({
-        ...formData,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: messageWithPreferences,
         propertyId: property.id,
         propertyTitle: property.title,
         propertyPrice: property.price,
@@ -219,36 +235,39 @@ const InquiryModal = ({ property, onClose }: InquiryModalProps) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Preferred Contact Method *
+                Preferred Contact Methods *
               </label>
-              <div className="flex gap-4">
+              <div className="flex gap-6">
                 <label className="flex items-center gap-2">
                   <input
-                    type="radio"
-                    name="contactMethod"
-                    value="email"
-                    checked={formData.contactMethod === 'email'}
-                    onChange={(e) => setFormData({ ...formData, contactMethod: e.target.value })}
+                    type="checkbox"
+                    checked={formData.contactMethods.email}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      contactMethods: { ...formData.contactMethods, email: e.target.checked }
+                    })}
                   />
                   <span>📧 Email</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
-                    type="radio"
-                    name="contactMethod"
-                    value="phone"
-                    checked={formData.contactMethod === 'phone'}
-                    onChange={(e) => setFormData({ ...formData, contactMethod: e.target.value })}
+                    type="checkbox"
+                    checked={formData.contactMethods.phone}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      contactMethods: { ...formData.contactMethods, phone: e.target.checked }
+                    })}
                   />
                   <span>📞 Phone</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
-                    type="radio"
-                    name="contactMethod"
-                    value="sms"
-                    checked={formData.contactMethod === 'sms'}
-                    onChange={(e) => setFormData({ ...formData, contactMethod: e.target.value })}
+                    type="checkbox"
+                    checked={formData.contactMethods.sms}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      contactMethods: { ...formData.contactMethods, sms: e.target.checked }
+                    })}
                   />
                   <span>📱 SMS</span>
                 </label>
