@@ -14,13 +14,9 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = [
-      CORS_ORIGIN,
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:5175'
-    ].filter(Boolean);
-    if (!origin || allowedOrigins.includes(origin)) {
+    const allowedRegex = /^http:\/\/localhost:517\d$/;
+    const explicitAllowed = [CORS_ORIGIN].filter(Boolean);
+    if (!origin || allowedRegex.test(origin) || explicitAllowed.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
