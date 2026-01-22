@@ -138,5 +138,12 @@
     "action": "LOGIN_FAILED",
     "details": "Failed login attempt: nobody@test.com",
     "user": "Unknown"
+  },
+  {
+    "id": "1769041818014",
+    "timestamp": "2026-01-22T00:30:18.014Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
   }
 ]

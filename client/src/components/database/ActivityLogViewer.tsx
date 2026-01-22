@@ -3,7 +3,8 @@ import { databaseAPI } from '../../services/api';
 import { handleFileExport } from '../../utils/exportHelper';
 import FileMetadataComponent from './FileMetadata';
 import ExportButtons from './ExportButtons';
-import Toast, { ToastType } from '../shared/Toast';
+import Toast from '../shared/Toast';
+import type { ToastProps } from '../shared/Toast';
 import type { FileMetadata, ActivityLog } from '../../types';
 
 export default function ActivityLogViewer() {
@@ -14,7 +15,7 @@ export default function ActivityLogViewer() {
   const [showAll, setShowAll] = useState(false);
   
   // Toast state
-  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
+  const [toast, setToast] = useState<{ message: string; type: ToastProps['type']; isVisible: boolean }>({
     message: '',
     type: 'info',
     isVisible: false
@@ -145,12 +146,13 @@ export default function ActivityLogViewer() {
       </div>
 
       {/* Toast Notification */}
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={() => setToast({ ...toast, isVisible: false })}
-      />
+      {toast.isVisible && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, isVisible: false })}
+        />
+      )}
     </div>
   );
 }

@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { propertiesAPI, usersAPI } from '../../services/api';
 import ConfirmDialog from '../shared/ConfirmDialog';
 import PromptDialog from '../shared/PromptDialog';
-import AgentSelectModal from '../shared/AgentSelectModal';
-import Toast, { ToastType } from '../shared/Toast';
+import Toast from '../shared/Toast';
 import type { Property, User } from '../../types';
 import type { PropertyUpdateData } from '../../types/api';
 import { useDialog } from '../../hooks/useDialog';
@@ -12,16 +11,6 @@ const AdminProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [agents, setAgents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [agentSelectModalState, setAgentSelectModalState] = useState<{
-    isOpen: boolean;
-    title: string;
-    message?: string;
-    onSelect: (agentId: string) => void;
-  }>({
-    isOpen: false,
-    title: '',
-    onSelect: () => {}
-  });
   const {
     dialogState,
     toastState,
@@ -72,7 +61,7 @@ const AdminProperties = () => {
         statusHistory: [
           ...(property.statusHistory || []),
           {
-            status: status,
+            status: newStatus,
             changedBy: admin.id,
             changedByName: admin.name,
             changedAt: new Date().toISOString()
@@ -165,7 +154,7 @@ const AdminProperties = () => {
       message: `Mark commission of ₱${property.commission.amount.toLocaleString()} for ${property.title} as paid?`,
       confirmText: 'Mark as Paid',
       cancelText: 'Cancel',
-      variant: 'default'
+      variant: 'info'
     });
     
     if (!confirmed) return;
@@ -262,7 +251,7 @@ const AdminProperties = () => {
     if (!confirmed) return;
 
     try {
-      await propertiesAPI.delete(selectedProperty.id);
+      await propertiesAPI.delete(id);
       await loadProperties();
       showToast({ type: 'success', message: 'Property deleted successfully' });
     } catch (error) {
