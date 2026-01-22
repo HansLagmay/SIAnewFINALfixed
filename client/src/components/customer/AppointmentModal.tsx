@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Property } from '../../types';
+import { inquiriesAPI } from '../../services/api';
 
 interface AppointmentModalProps {
   property: Property;
@@ -15,10 +16,34 @@ const AppointmentModal = ({ property, onClose }: AppointmentModalProps) => {
     preferredTime: '',
     notes: ''
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onClose();
+    setError('');
+    setSubmitting(true);
+    try {
+      const message = `Viewing request for ${property.title} on ${formData.preferredDate} at ${formData.preferredTime}. ` +
+        `Contact: ${formData.email} / ${formData.phone}. ` +
+        `${formData.notes ? `Notes: ${formData.notes}` : ''}`.trim();
+      const payload = {
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        message,
+        propertyId: property.id,
+        propertyTitle: property.title,
+        propertyPrice: property.price,
+        propertyLocation: property.location
+      };
+      await inquiriesAPI.create(payload);
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to submit appointment request');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -32,6 +57,11 @@ const AppointmentModal = ({ property, onClose }: AppointmentModalProps) => {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
           <input
             type="text"
             placeholder="Full Name *"
@@ -101,9 +131,10 @@ const AppointmentModal = ({ property, onClose }: AppointmentModalProps) => {
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg"
+              disabled={submitting}
+              className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg disabled:bg-green-300"
             >
-              📅 Request Appointment
+              {submitting ? 'Submitting...' : '📅 Request Appointment'}
             </button>
           </div>
         </form>
