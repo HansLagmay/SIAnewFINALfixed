@@ -154,6 +154,96 @@ const CustomerPortal = () => {
           />
         )}
       
+        <section id="services" className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">🛠️ Our Services</h2>
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="bg-gray-50 rounded-lg shadow p-6 text-center">
+                <div className="text-3xl mb-2">🏡</div>
+                <h3 className="text-lg font-semibold mb-2">Buying Assistance</h3>
+                <p className="text-gray-600">End-to-end support from property selection to closing</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg shadow p-6 text-center">
+                <div className="text-3xl mb-2">📈</div>
+                <h3 className="text-lg font-semibold mb-2">Selling Support</h3>
+                <p className="text-gray-600">Professional marketing to sell your property faster</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg shadow p-6 text-center">
+                <div className="text-3xl mb-2">💳</div>
+                <h3 className="text-lg font-semibold mb-2">Mortgage Guidance</h3>
+                <p className="text-gray-600">Financing options and bank liaison assistance</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg shadow p-6 text-center">
+                <div className="text-3xl mb-2">🔧</div>
+                <h3 className="text-lg font-semibold mb-2">Property Management</h3>
+                <p className="text-gray-600">Tenant screening and maintenance coordination</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="testimonials" className="py-16 bg-blue-50">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">💬 What Our Clients Say</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">A</div>
+                  <div>
+                    <div className="font-semibold">Ana Santos</div>
+                    <div className="text-sm text-gray-500">Manila</div>
+                  </div>
+                </div>
+                <p className="text-gray-700">“TES Property helped us find the perfect home. Smooth process and very professional service.”</p>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">M</div>
+                  <div>
+                    <div className="font-semibold">Mark Dela Cruz</div>
+                    <div className="text-sm text-gray-500">Taguig</div>
+                  </div>
+                </div>
+                <p className="text-gray-700">“Great guidance with financing options. We closed on our condo in record time.”</p>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">J</div>
+                  <div>
+                    <div className="font-semibold">Jessa Ramirez</div>
+                    <div className="text-sm text-gray-500">Batangas</div>
+                  </div>
+                </div>
+                <p className="text-gray-700">“Highly recommended! The viewing schedule and negotiations were handled perfectly.”</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="faq" className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">❓ Frequently Asked Questions</h2>
+            <div className="max-w-4xl mx-auto space-y-4">
+              <div className="border rounded-lg p-4">
+                <div className="font-semibold mb-2">Do I need to create an account to inquire?</div>
+                <div className="text-gray-700">No. The customer portal is public. You can submit an inquiry without logging in.</div>
+              </div>
+              <div className="border rounded-lg p-4">
+                <div className="font-semibold mb-2">How long before an agent contacts me?</div>
+                <div className="text-gray-700">Within 24 hours via your preferred contact methods (Email/Phone/SMS).</div>
+              </div>
+              <div className="border rounded-lg p-4">
+                <div className="font-semibold mb-2">Can I book a viewing date online?</div>
+                <div className="text-gray-700">Yes. Use “Book Viewing” to send your preferred date/time. Agents will confirm via SMS or email.</div>
+              </div>
+              <div className="border rounded-lg p-4">
+                <div className="font-semibold mb-2">Do you offer mortgage assistance?</div>
+                <div className="text-gray-700">Yes. We provide guidance and help coordinate with banks.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="about" className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">🏢 About TES Property</h2>
