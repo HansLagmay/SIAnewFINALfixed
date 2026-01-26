@@ -36,6 +36,7 @@ export interface Property {
   features: string[];
   status: 'draft' | 'available' | 'reserved' | 'under-contract' | 'sold' | 'withdrawn' | 'off-market';
   imageUrl: string;
+  createdBy?: string;
   
   // Status History
   statusHistory: PropertyStatusHistory[];

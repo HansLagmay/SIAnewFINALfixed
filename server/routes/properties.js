@@ -84,6 +84,43 @@ router.post('/', authenticateToken, requireRole(['admin']), sanitizeBody, proper
   }
 });
 
+// POST new draft property (protected, agent only)
+router.post('/draft', authenticateToken, requireRole(['agent']), sanitizeBody, async (req, res) => {
+  try {
+    const properties = await readJSONFile('properties.json');
+    const newProperty = {
+      id: generateId(),
+      title: req.body.title || 'Untitled Property',
+      type: req.body.type || 'House',
+      price: req.body.price || 0,
+      location: req.body.location || '',
+      bedrooms: req.body.bedrooms || 0,
+      bathrooms: req.body.bathrooms || 0,
+      area: req.body.area || 0,
+      description: req.body.description || '',
+      features: Array.isArray(req.body.features) ? req.body.features : [],
+      status: 'draft',
+      imageUrl: req.body.imageUrl || '',
+      statusHistory: [],
+      viewCount: 0,
+      viewHistory: [],
+      createdBy: req.user.name,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      changeHistory: []
+    };
+    
+    properties.push(newProperty);
+    await writeJSONFile('properties.json', properties);
+    
+    await logActivity('CREATE_PROPERTY_DRAFT', `Draft property created: ${newProperty.title}`, req.user.name);
+    
+    res.status(201).json(newProperty);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create property draft' });
+  }
+});
+
 // PUT update property (protected, admin only, with audit trail and workflow validation)
 router.put('/:id', authenticateToken, requireRole(['admin']), sanitizeBody, async (req, res) => {
   try {

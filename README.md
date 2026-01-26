@@ -595,6 +595,23 @@ SIAfrontendonlyFINAL/
 
 ---
 
+## 🗓️ Update Log
+
+### 2026-01-27
+- Inline HR registration validations added across 7 sections (real-time checks for birthdate ≥18, email format, PH phone, salary, manual password strength and match)
+- Added option to generate secure password or set manual password; post-registration success screen shows email + plain password once for secure sharing
+- Customer Portal improved with Services, Testimonials, FAQ, About, and Contact sections; navbar anchors link to each section
+- Database Portal enhanced with robust loading and friendly empty states for files and tables; export and “clear new” flows verified
+- Agent draft property creation workflow implemented (agent-only); Admin live property creation retained with upload support
+- Property type extended with createdBy; statusHistory/viewCount/viewHistory maintained on create/update
+- Confirmed bcrypt hashing on server; login compares hash; migration utility runs on server start
+- Verified protected routes and role access for Admin/Agent/Super Admin/Database portals
+- Build and typecheck succeeded; dev server auto-fallback when default ports are used
+- Port guidance: Backend defaults to 3000; Frontend defaults to 5173 (auto-fallback to next available). If 3000 is busy, set `PORT=3001` and `VITE_API_URL=http://localhost:3001/api` in `.env`
+
+
+---
+
 ## 🔒 Security Best Practices
 
 ### For Development

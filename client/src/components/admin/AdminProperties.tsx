@@ -5,12 +5,27 @@ import PromptDialog from '../shared/PromptDialog';
 import Toast from '../shared/Toast';
 import type { Property, User } from '../../types';
 import type { PropertyUpdateData } from '../../types/api';
+import { PropertyFormData } from '../../types/forms';
 import { useDialog } from '../../hooks/useDialog';
 
 const AdminProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [agents, setAgents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [createForm, setCreateForm] = useState<PropertyFormData>({
+    title: '',
+    type: 'House',
+    price: 0,
+    location: '',
+    bedrooms: 0,
+    bathrooms: 0,
+    area: 0,
+    description: '',
+    features: [],
+    status: 'available',
+    imageUrl: ''
+  });
   const {
     dialogState,
     toastState,
@@ -49,6 +64,56 @@ const AdminProperties = () => {
       setProperties(response.data);
     } catch (error) {
       console.error('Failed to load properties:', error);
+    }
+  };
+
+  const handleCreateProperty = async () => {
+    try {
+      if (!createForm.title || !createForm.price || !createForm.location || !createForm.description) {
+        showToast({ type: 'error', message: 'Title, price, location, and description are required' });
+        return;
+      }
+      const payload: Partial<Property> = {
+        title: createForm.title,
+        type: createForm.type,
+        price: createForm.price,
+        location: createForm.location,
+        bedrooms: createForm.bedrooms,
+        bathrooms: createForm.bathrooms,
+        area: createForm.area,
+        description: createForm.description,
+        features: createForm.features,
+        status: 'available',
+        imageUrl: createForm.imageUrl,
+        statusHistory: [],
+        viewCount: 0,
+        viewHistory: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        soldBy: undefined,
+        soldByAgentId: undefined,
+        soldAt: undefined
+      };
+      await propertiesAPI.create(payload);
+      await loadProperties();
+      setShowCreate(false);
+      setCreateForm({
+        title: '',
+        type: 'House',
+        price: 0,
+        location: '',
+        bedrooms: 0,
+        bathrooms: 0,
+        area: 0,
+        description: '',
+        features: [],
+        status: 'available',
+        imageUrl: ''
+      });
+      showToast({ type: 'success', message: 'Property created successfully!' });
+    } catch (error) {
+      console.error('Failed to create property:', error);
+      showToast({ type: 'error', message: 'Failed to create property' });
     }
   };
 
@@ -268,7 +333,100 @@ const AdminProperties = () => {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Properties</h1>
+        <button
+          onClick={() => setShowCreate(s => !s)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+        >
+          {showCreate ? 'Close' : 'Add Property'}
+        </button>
       </div>
+      
+      {showCreate && (
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              value={createForm.title}
+              onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
+              placeholder="Title *"
+              className="px-4 py-2 border rounded-lg"
+            />
+            <select
+              value={createForm.type}
+              onChange={(e) => setCreateForm({ ...createForm, type: e.target.value })}
+              className="px-4 py-2 border rounded-lg"
+            >
+              <option value="House">House</option>
+              <option value="Condominium">Condominium</option>
+              <option value="Villa">Villa</option>
+              <option value="Apartment">Apartment</option>
+            </select>
+            <input
+              type="number"
+              value={createForm.price}
+              onChange={(e) => setCreateForm({ ...createForm, price: Number(e.target.value) })}
+              placeholder="Price (PHP) *"
+              className="px-4 py-2 border rounded-lg"
+            />
+            <input
+              type="text"
+              value={createForm.location}
+              onChange={(e) => setCreateForm({ ...createForm, location: e.target.value })}
+              placeholder="Location *"
+              className="px-4 py-2 border rounded-lg"
+            />
+            <input
+              type="number"
+              value={createForm.bedrooms}
+              onChange={(e) => setCreateForm({ ...createForm, bedrooms: Number(e.target.value) })}
+              placeholder="Bedrooms"
+              className="px-4 py-2 border rounded-lg"
+            />
+            <input
+              type="number"
+              value={createForm.bathrooms}
+              onChange={(e) => setCreateForm({ ...createForm, bathrooms: Number(e.target.value) })}
+              placeholder="Bathrooms"
+              className="px-4 py-2 border rounded-lg"
+            />
+            <input
+              type="number"
+              value={createForm.area}
+              onChange={(e) => setCreateForm({ ...createForm, area: Number(e.target.value) })}
+              placeholder="Area (sqm)"
+              className="px-4 py-2 border rounded-lg"
+            />
+            <input
+              type="text"
+              value={createForm.imageUrl}
+              onChange={(e) => setCreateForm({ ...createForm, imageUrl: e.target.value })}
+              placeholder="Image URL"
+              className="px-4 py-2 border rounded-lg"
+            />
+            <textarea
+              value={createForm.description}
+              onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
+              placeholder="Description *"
+              className="md:col-span-2 px-4 py-2 border rounded-lg"
+              rows={4}
+            />
+          </div>
+          <div className="mt-4 flex gap-3">
+            <button
+              onClick={handleCreateProperty}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
+            >
+              Create Property
+            </button>
+            <button
+              onClick={() => setShowCreate(false)}
+              className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">

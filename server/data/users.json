@@ -14,5 +14,30 @@
     "role": "agent",
     "name": "Maria Santos",
     "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "mkvsob4fynmm2w121qn",
+    "email": "hzglagmay@addu.edu.ph",
+    "password": "$2b$10$N8OqPCj0kxFG5.udZGf7pOv20Bngiy5exOyxRVQcoIKbGJfDDDpJ2",
+    "role": "agent",
+    "name": "Hans Lagmay",
+    "phone": "09994418618",
+    "employmentData": {
+      "position": "Real Estate Agent",
+      "department": "Sales",
+      "startDate": "2026-01-27",
+      "salary": 20000,
+      "benefits": [
+        "Health Insurance",
+        "Life Insurance",
+        "Retirement Plan"
+      ],
+      "emergencyContact": {
+        "name": "mother",
+        "relationship": "mother",
+        "phone": "121212"
+      }
+    },
+    "createdAt": "2026-01-26T23:24:31.695Z"
   }
 ]

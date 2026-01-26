@@ -82,6 +82,7 @@ export const propertiesAPI = {
     api.get<PaginatedResponse<Property>>('/properties', { params: { page, limit } }),
   getById: (id: string) => api.get<Property>(`/properties/${id}`),
   create: (property: Partial<Property>) => api.post<Property>('/properties', property),
+  createDraft: (property: Partial<Property>) => api.post<Property>('/properties/draft', property),
   update: (id: string, property: Partial<Property>) => api.put<Property>(`/properties/${id}`, property),
   delete: (id: string) => api.delete(`/properties/${id}`),
   uploadImages: (formData: FormData) => 

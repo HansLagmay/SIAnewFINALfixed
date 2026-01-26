@@ -7,6 +7,7 @@ const SuperAdminPortal = () => {
   const [currentSection, setCurrentSection] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     // Section 1: Personal Information
@@ -44,7 +45,9 @@ const SuperAdminPortal = () => {
     emergencyPhone: '',
     
     // Section 7: Account Setup
-    generatePassword: true
+    generatePassword: true,
+    manualPassword: '',
+    manualPasswordConfirm: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -53,6 +56,7 @@ const SuperAdminPortal = () => {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
+    validateField(name, type === 'checkbox' ? ((e.target as HTMLInputElement).checked ? 'true' : 'false') : value);
   };
 
   const generateRandomPassword = () => {
@@ -64,10 +68,97 @@ const SuperAdminPortal = () => {
     return password;
   };
 
+  const validateField = (name: string, value: string) => {
+    let message = '';
+    if (name === 'firstName' || name === 'lastName') {
+      if (!value || value.trim().length < 2) message = 'Required, min 2 characters';
+    }
+    if (name === 'dateOfBirth') {
+      if (!value) message = 'Birthdate is required';
+      else {
+        const dob = new Date(value);
+        const minAgeDate = new Date();
+        minAgeDate.setFullYear(minAgeDate.getFullYear() - 18);
+        if (dob > minAgeDate) message = 'Must be at least 18 years old';
+      }
+    }
+    if (name === 'gender') {
+      if (!value) message = 'Gender is required';
+    }
+    if (name === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) message = 'Invalid email format';
+    }
+    if (name === 'phone') {
+      const phoneRegex = /^(09|\+639)\d{9}$/;
+      const clean = value.replace(/[-\s]/g, '');
+      if (!phoneRegex.test(clean)) message = 'Invalid Philippine phone format';
+    }
+    if (name === 'address') {
+      if (!value || value.trim().length < 5) message = 'Address is required';
+    }
+    if (name === 'city') {
+      if (!value) message = 'City is required';
+    }
+    if (name === 'position' || name === 'department') {
+      if (!value) message = 'Required';
+    }
+    if (name === 'startDate') {
+      if (!value) message = 'Start date is required';
+    }
+    if (name === 'salary') {
+      const num = Number(value);
+      if (isNaN(num) || num <= 0) message = 'Enter a valid positive amount';
+    }
+    if (name === 'paymentMethod') {
+      if (!value) message = 'Payment method is required';
+    }
+    if (name === 'emergencyName' || name === 'emergencyRelationship') {
+      if (!value) message = 'Required';
+    }
+    if (name === 'emergencyPhone') {
+      const phoneRegex = /^(09|\+639)\d{9}$/;
+      const clean = value.replace(/[-\s]/g, '');
+      if (!phoneRegex.test(clean)) message = 'Invalid Philippine phone format';
+    }
+    if (name === 'manualPassword' || name === 'manualPasswordConfirm') {
+      if (!formData.generatePassword) {
+        const pw = name === 'manualPassword' ? value : formData.manualPassword;
+        const confirm = name === 'manualPasswordConfirm' ? value : formData.manualPasswordConfirm;
+        const strong = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\\-]{8,}$/;
+        if (!strong.test(pw)) message = 'Min 8 chars, include letters and numbers';
+        else if (confirm && pw !== confirm) message = 'Passwords do not match';
+      }
+    }
+    setErrors(prev => ({ ...prev, [name]: message }));
+    return message === '';
+  };
+
+  const validateSection = (section: number) => {
+    const fieldsBySection: Record<number, string[]> = {
+      1: ['firstName', 'lastName', 'dateOfBirth', 'gender'],
+      2: ['email', 'phone', 'address', 'city'],
+      3: ['position', 'department', 'startDate'],
+      4: ['salary', 'paymentMethod'],
+      5: [],
+      6: ['emergencyName', 'emergencyRelationship', 'emergencyPhone'],
+      7: formData.generatePassword ? [] : ['manualPassword', 'manualPasswordConfirm']
+    };
+    const fields = fieldsBySection[section] || [];
+    let valid = true;
+    for (const f of fields) {
+      const v = (formData as any)[f] as string;
+      const ok = validateField(f, v || '');
+      if (!ok) valid = false;
+    }
+    return valid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const password = generateRandomPassword();
+    if (!validateSection(7)) return;
+    const password = formData.generatePassword ? generateRandomPassword() : formData.manualPassword;
     const fullName = `${formData.firstName} ${formData.lastName}`;
     const email = formData.email;
 
@@ -126,6 +217,7 @@ const SuperAdminPortal = () => {
                 required
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
+              {errors.firstName && <div className="text-red-600 text-xs">{errors.firstName}</div>}
               <input
                 type="text"
                 name="lastName"
@@ -135,6 +227,7 @@ const SuperAdminPortal = () => {
                 required
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
+              {errors.lastName && <div className="text-red-600 text-xs">{errors.lastName}</div>}
               <input
                 type="text"
                 name="middleName"
@@ -151,6 +244,7 @@ const SuperAdminPortal = () => {
                 required
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
+              {errors.dateOfBirth && <div className="text-red-600 text-xs">{errors.dateOfBirth}</div>}
               <select
                 name="gender"
                 value={formData.gender}
@@ -163,6 +257,7 @@ const SuperAdminPortal = () => {
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </select>
+              {errors.gender && <div className="text-red-600 text-xs">{errors.gender}</div>}
             </div>
           </div>
         );
@@ -180,6 +275,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.email && <div className="text-red-600 text-xs">{errors.email}</div>}
             <input
               type="tel"
               name="phone"
@@ -189,6 +285,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.phone && <div className="text-red-600 text-xs">{errors.phone}</div>}
             <input
               type="text"
               name="address"
@@ -197,6 +294,7 @@ const SuperAdminPortal = () => {
               placeholder="Street Address"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.address && <div className="text-red-600 text-xs">{errors.address}</div>}
             <input
               type="text"
               name="city"
@@ -205,6 +303,7 @@ const SuperAdminPortal = () => {
               placeholder="City"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.city && <div className="text-red-600 text-xs">{errors.city}</div>}
           </div>
         );
       
@@ -221,6 +320,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.position && <div className="text-red-600 text-xs">{errors.position}</div>}
             <input
               type="text"
               name="department"
@@ -230,6 +330,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.department && <div className="text-red-600 text-xs">{errors.department}</div>}
             <input
               type="date"
               name="startDate"
@@ -239,6 +340,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.startDate && <div className="text-red-600 text-xs">{errors.startDate}</div>}
             <select
               name="employmentType"
               value={formData.employmentType}
@@ -265,6 +367,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.salary && <div className="text-red-600 text-xs">{errors.salary}</div>}
             <select
               name="paymentMethod"
               value={formData.paymentMethod}
@@ -275,6 +378,7 @@ const SuperAdminPortal = () => {
               <option value="Cash">Cash</option>
               <option value="Check">Check</option>
             </select>
+            {errors.paymentMethod && <div className="text-red-600 text-xs">{errors.paymentMethod}</div>}
           </div>
         );
       
@@ -338,6 +442,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.emergencyName && <div className="text-red-600 text-xs">{errors.emergencyName}</div>}
             <input
               type="text"
               name="emergencyRelationship"
@@ -347,6 +452,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.emergencyRelationship && <div className="text-red-600 text-xs">{errors.emergencyRelationship}</div>}
             <input
               type="tel"
               name="emergencyPhone"
@@ -356,6 +462,7 @@ const SuperAdminPortal = () => {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            {errors.emergencyPhone && <div className="text-red-600 text-xs">{errors.emergencyPhone}</div>}
           </div>
         );
       
@@ -373,9 +480,44 @@ const SuperAdminPortal = () => {
               <p><strong>Salary:</strong> ₱{formData.salary ? parseFloat(formData.salary).toLocaleString() : '0'}</p>
             </div>
             <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-800">
-                ✅ A secure password will be automatically generated for this agent account.
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-blue-800">
+                  {formData.generatePassword ? 'A secure password will be generated.' : 'Use custom password.'}
+                </p>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={!formData.generatePassword}
+                    onChange={(e) => setFormData(prev => ({ ...prev, generatePassword: !e.target.checked }))}
+                  />
+                  <span>Set custom password</span>
+                </label>
+              </div>
+              {!formData.generatePassword && (
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  <input
+                    type="password"
+                    name="manualPassword"
+                    value={formData.manualPassword}
+                    onChange={handleInputChange}
+                    placeholder="Password *"
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input
+                    type="password"
+                    name="manualPasswordConfirm"
+                    value={formData.manualPasswordConfirm}
+                    onChange={handleInputChange}
+                    placeholder="Confirm Password *"
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                  {(errors.manualPassword || errors.manualPasswordConfirm) && (
+                    <div className="col-span-2 text-red-600 text-xs">
+                      {errors.manualPassword || errors.manualPasswordConfirm}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -435,7 +577,9 @@ const SuperAdminPortal = () => {
                   salary: '', paymentMethod: 'Bank Transfer',
                   healthInsurance: false, lifeInsurance: false, retirement: false, paidLeave: false,
                   emergencyName: '', emergencyRelationship: '', emergencyPhone: '',
-                  generatePassword: true
+                    generatePassword: true,
+                    manualPassword: '',
+                    manualPasswordConfirm: ''
                 });
               }}
               className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
@@ -497,7 +641,11 @@ const SuperAdminPortal = () => {
               {currentSection < 7 ? (
                 <button
                   type="button"
-                  onClick={() => setCurrentSection(s => s + 1)}
+                  onClick={() => {
+                    if (validateSection(currentSection)) {
+                      setCurrentSection(s => s + 1);
+                    }
+                  }}
                   className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
                 >
                   Next →

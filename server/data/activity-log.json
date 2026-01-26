@@ -145,5 +145,54 @@
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Admin User",
     "user": "Admin User"
+  },
+  {
+    "id": "1769469517717",
+    "timestamp": "2026-01-26T23:18:37.717Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1769469567931",
+    "timestamp": "2026-01-26T23:19:27.931Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1769469671834",
+    "timestamp": "2026-01-26T23:21:11.834Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1769469871719",
+    "timestamp": "2026-01-26T23:24:31.719Z",
+    "action": "CREATE_AGENT",
+    "details": "Created new agent: Hans Lagmay",
+    "user": "Admin"
+  },
+  {
+    "id": "1769470015043",
+    "timestamp": "2026-01-26T23:26:55.043Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1769470065406",
+    "timestamp": "2026-01-26T23:27:45.406Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1769470246536",
+    "timestamp": "2026-01-26T23:30:46.537Z",
+    "action": "LOGIN_FAILED",
+    "details": "Failed login attempt: hzglagmay@addu.edu.ph",
+    "user": "Unknown"
   }
 ]
