@@ -194,5 +194,68 @@
     "action": "LOGIN_FAILED",
     "details": "Failed login attempt: hzglagmay@addu.edu.ph",
     "user": "Unknown"
+  },
+  {
+    "id": "1769642741736",
+    "timestamp": "2026-01-28T23:25:41.736Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1769642867050",
+    "timestamp": "2026-01-28T23:27:47.050Z",
+    "action": "CREATE_AGENT",
+    "details": "Created new agent: Luigi Geralde",
+    "user": "Admin"
+  },
+  {
+    "id": "1769642874134",
+    "timestamp": "2026-01-28T23:27:54.134Z",
+    "action": "DELETE_USER",
+    "details": "Deleted user: Luigi Geralde",
+    "user": "Admin User"
+  },
+  {
+    "id": "1769642875862",
+    "timestamp": "2026-01-28T23:27:55.862Z",
+    "action": "DELETE_USER",
+    "details": "Deleted user: Hans Lagmay",
+    "user": "Admin User"
+  },
+  {
+    "id": "1769642925827",
+    "timestamp": "2026-01-28T23:28:45.827Z",
+    "action": "LOGIN_FAILED",
+    "details": "Failed login attempt: maria@tesproperty.com",
+    "user": "Unknown"
+  },
+  {
+    "id": "1769642933655",
+    "timestamp": "2026-01-28T23:28:53.655Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1769643073220",
+    "timestamp": "2026-01-28T23:31:13.220Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1769643273417",
+    "timestamp": "2026-01-28T23:34:33.417Z",
+    "action": "CREATE_AGENT",
+    "details": "Created new agent: luigi geralde",
+    "user": "Admin"
+  },
+  {
+    "id": "1769643350670",
+    "timestamp": "2026-01-28T23:35:50.671Z",
+    "action": "DELETE_USER",
+    "details": "Deleted user: luigi geralde",
+    "user": "Admin User"
   }
 ]

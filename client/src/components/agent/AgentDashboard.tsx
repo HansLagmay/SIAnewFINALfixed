@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { inquiriesAPI } from '../../services/api';
 import type { Inquiry, User } from '../../types';
+import { getUser } from '../../utils/session';
 
 interface AgentDashboardProps {
   user: User | null;
@@ -15,20 +16,28 @@ const AgentDashboard = ({ user }: AgentDashboardProps) => {
   });
   const [recentInquiries, setRecentInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+  const [effectiveUser, setEffectiveUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (user) {
-      loadDashboardData();
-    }
+    const u = user || getUser();
+    setEffectiveUser(u);
   }, [user]);
 
-  const loadDashboardData = async () => {
+  useEffect(() => {
+    if (effectiveUser) {
+      loadDashboardData(effectiveUser);
+    } else {
+      setLoading(false);
+    }
+  }, [effectiveUser]);
+
+  const loadDashboardData = async (u: User) => {
     try {
       const response = await inquiriesAPI.getAll();
       const allInquiries = response.data;
       
-      // Filter inquiries assigned to this agent
-      const myInquiries = allInquiries.filter((i: Inquiry) => i.assignedTo === user?.id);
+      const myInquiries = allInquiries.filter((i: Inquiry) => i.assignedTo === u.id);
 
       setStats({
         totalInquiries: myInquiries.length,
@@ -44,6 +53,7 @@ const AgentDashboard = ({ user }: AgentDashboardProps) => {
       );
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
+      setError('Failed to load dashboard data. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -55,7 +65,12 @@ const AgentDashboard = ({ user }: AgentDashboardProps) => {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome, {user?.name}!</h1>
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+      <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome, {effectiveUser?.name || 'Agent'}!</h1>
       <p className="text-gray-600 mb-8">Here's your inquiry overview</p>
 
       {/* Stats Grid */}

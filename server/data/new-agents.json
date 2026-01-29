@@ -23,5 +23,57 @@
       }
     },
     "createdAt": "2026-01-26T23:24:31.695Z"
+  },
+  {
+    "id": "mkyno75oyd4jzrcnt2q",
+    "email": "hzglagmay12@addu.edu.ph",
+    "password": "$2b$10$MzUpx2.R5TFyioXN08wb2uMbRryAPrqUEfEi7jnvef.FKPrzyM4HC",
+    "role": "agent",
+    "name": "Luigi Geralde",
+    "phone": "09994418618",
+    "employmentData": {
+      "position": "Real Estate Agent",
+      "department": "Sales",
+      "startDate": "2026-01-15",
+      "salary": 100000,
+      "benefits": [
+        "Health Insurance",
+        "Life Insurance",
+        "Retirement Plan",
+        "Paid Leave"
+      ],
+      "emergencyContact": {
+        "name": "hans lagmay",
+        "relationship": "cousin",
+        "phone": "09994418617"
+      }
+    },
+    "createdAt": "2026-01-28T23:27:47.004Z"
+  },
+  {
+    "id": "mkynwwq3aws183kmgw",
+    "email": "hzglagmay@addu.edu.ph",
+    "password": "$2b$10$26pq7lKqjXWp5rw5xeazJuhsmMCmnqxiuiqKJLw8F87uvItW1Vefe",
+    "role": "agent",
+    "name": "luigi geralde",
+    "phone": "09994418618",
+    "employmentData": {
+      "position": "Real Estate Agent",
+      "department": "Sales",
+      "startDate": "2026-01-06",
+      "salary": 1000000,
+      "benefits": [
+        "Health Insurance",
+        "Life Insurance",
+        "Retirement Plan",
+        "Paid Leave"
+      ],
+      "emergencyContact": {
+        "name": "hasn lagmay",
+        "relationship": "couisng",
+        "phone": "09994418618"
+      }
+    },
+    "createdAt": "2026-01-28T23:34:33.387Z"
   }
 ]

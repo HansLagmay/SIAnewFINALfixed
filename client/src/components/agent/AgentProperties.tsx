@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { propertiesAPI } from '../../services/api';
 import type { Property, User } from '../../types';
 import { PropertyFormData } from '../../types/forms';
+  import { getUser } from '../../utils/session';
 
 const AgentProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -23,10 +24,8 @@ const AgentProperties = () => {
   });
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      setUser(JSON.parse(userStr));
-    }
+    const u = getUser();
+    if (u) setUser(u);
     loadProperties();
   }, []);
 
@@ -105,6 +104,7 @@ const AgentProperties = () => {
       {showCreate && (
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label className="text-sm font-semibold text-gray-700">Title *</label>
             <input
               type="text"
               value={draftForm.title}
@@ -112,6 +112,7 @@ const AgentProperties = () => {
               placeholder="Title *"
               className="px-4 py-2 border rounded-lg"
             />
+            <label className="text-sm font-semibold text-gray-700">Type</label>
             <select
               value={draftForm.type}
               onChange={(e) => setDraftForm({ ...draftForm, type: e.target.value })}
@@ -122,6 +123,7 @@ const AgentProperties = () => {
               <option value="Villa">Villa</option>
               <option value="Apartment">Apartment</option>
             </select>
+            <label className="text-sm font-semibold text-gray-700">Price (PHP)</label>
             <input
               type="number"
               value={draftForm.price}
@@ -129,6 +131,7 @@ const AgentProperties = () => {
               placeholder="Price (PHP)"
               className="px-4 py-2 border rounded-lg"
             />
+            <label className="text-sm font-semibold text-gray-700">Location</label>
             <input
               type="text"
               value={draftForm.location}
@@ -136,6 +139,7 @@ const AgentProperties = () => {
               placeholder="Location"
               className="px-4 py-2 border rounded-lg"
             />
+            <label className="text-sm font-semibold text-gray-700">Bedrooms</label>
             <input
               type="number"
               value={draftForm.bedrooms}
@@ -143,6 +147,7 @@ const AgentProperties = () => {
               placeholder="Bedrooms"
               className="px-4 py-2 border rounded-lg"
             />
+            <label className="text-sm font-semibold text-gray-700">Bathrooms</label>
             <input
               type="number"
               value={draftForm.bathrooms}
@@ -150,6 +155,7 @@ const AgentProperties = () => {
               placeholder="Bathrooms"
               className="px-4 py-2 border rounded-lg"
             />
+            <label className="text-sm font-semibold text-gray-700">Area (sqm)</label>
             <input
               type="number"
               value={draftForm.area}
@@ -157,6 +163,7 @@ const AgentProperties = () => {
               placeholder="Area (sqm)"
               className="px-4 py-2 border rounded-lg"
             />
+            <label className="text-sm font-semibold text-gray-700">Image URL</label>
             <input
               type="text"
               value={draftForm.imageUrl}
@@ -164,6 +171,7 @@ const AgentProperties = () => {
               placeholder="Image URL"
               className="px-4 py-2 border rounded-lg"
             />
+            <label className="text-sm font-semibold text-gray-700 md:col-span-2">Description</label>
             <textarea
               value={draftForm.description}
               onChange={(e) => setDraftForm({ ...draftForm, description: e.target.value })}

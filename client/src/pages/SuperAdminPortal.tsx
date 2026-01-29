@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usersAPI } from '../services/api';
 
@@ -8,6 +8,7 @@ const SuperAdminPortal = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+    const emailCheckTimer = useRef<number | null>(null);
 
   const [formData, setFormData] = useState({
     // Section 1: Personal Information
@@ -29,23 +30,13 @@ const SuperAdminPortal = () => {
     startDate: '',
     employmentType: 'Full-time',
     
-    // Section 4: Compensation
-    salary: '',
-    paymentMethod: 'Bank Transfer',
-    
-    // Section 5: Benefits
-    healthInsurance: false,
-    lifeInsurance: false,
-    retirement: false,
-    paidLeave: false,
-    
-    // Section 6: Emergency Contact
+    // Section 4: Emergency Contact
     emergencyName: '',
     emergencyRelationship: '',
     emergencyPhone: '',
     
-    // Section 7: Account Setup
-    generatePassword: true,
+    // Section 5: Account Setup
+    generatePassword: false,
     manualPassword: '',
     manualPasswordConfirm: ''
   });
@@ -57,15 +48,23 @@ const SuperAdminPortal = () => {
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
     validateField(name, type === 'checkbox' ? ((e.target as HTMLInputElement).checked ? 'true' : 'false') : value);
+    if (name === 'email') {
+      if (emailCheckTimer.current) {
+        clearTimeout(emailCheckTimer.current);
+      }
+      emailCheckTimer.current = window.setTimeout(() => {
+        checkEmailDuplicate(value);
+      }, 500);
+    }
   };
 
-  const generateRandomPassword = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-    let password = '';
-    for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+  const checkEmailDuplicate = async (email: string) => {
+    try {
+      const res = await usersAPI.getAll();
+      const exists = res.data.some((u: any) => (u.email || '').toLowerCase() === email.toLowerCase());
+      setErrors(prev => ({ ...prev, email: exists ? 'Email already exists' : prev.email && prev.email !== 'Email already exists' ? prev.email : '' }));
+    } catch {
     }
-    return password;
   };
 
   const validateField = (name: string, value: string) => {
@@ -106,13 +105,6 @@ const SuperAdminPortal = () => {
     if (name === 'startDate') {
       if (!value) message = 'Start date is required';
     }
-    if (name === 'salary') {
-      const num = Number(value);
-      if (isNaN(num) || num <= 0) message = 'Enter a valid positive amount';
-    }
-    if (name === 'paymentMethod') {
-      if (!value) message = 'Payment method is required';
-    }
     if (name === 'emergencyName' || name === 'emergencyRelationship') {
       if (!value) message = 'Required';
     }
@@ -122,13 +114,11 @@ const SuperAdminPortal = () => {
       if (!phoneRegex.test(clean)) message = 'Invalid Philippine phone format';
     }
     if (name === 'manualPassword' || name === 'manualPasswordConfirm') {
-      if (!formData.generatePassword) {
-        const pw = name === 'manualPassword' ? value : formData.manualPassword;
-        const confirm = name === 'manualPasswordConfirm' ? value : formData.manualPasswordConfirm;
-        const strong = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\\-]{8,}$/;
-        if (!strong.test(pw)) message = 'Min 8 chars, include letters and numbers';
-        else if (confirm && pw !== confirm) message = 'Passwords do not match';
-      }
+      const pw = name === 'manualPassword' ? value : formData.manualPassword;
+      const confirm = name === 'manualPasswordConfirm' ? value : formData.manualPasswordConfirm;
+      const strong = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-]{8,}$/;
+      if (!strong.test(pw)) message = 'Min 8 chars, include letters and numbers';
+      else if (confirm && pw !== confirm) message = 'Passwords do not match';
     }
     setErrors(prev => ({ ...prev, [name]: message }));
     return message === '';
@@ -139,10 +129,8 @@ const SuperAdminPortal = () => {
       1: ['firstName', 'lastName', 'dateOfBirth', 'gender'],
       2: ['email', 'phone', 'address', 'city'],
       3: ['position', 'department', 'startDate'],
-      4: ['salary', 'paymentMethod'],
-      5: [],
-      6: ['emergencyName', 'emergencyRelationship', 'emergencyPhone'],
-      7: formData.generatePassword ? [] : ['manualPassword', 'manualPasswordConfirm']
+      4: ['emergencyName', 'emergencyRelationship', 'emergencyPhone'],
+      5: ['manualPassword', 'manualPasswordConfirm']
     };
     const fields = fieldsBySection[section] || [];
     let valid = true;
@@ -157,16 +145,10 @@ const SuperAdminPortal = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateSection(7)) return;
-    const password = formData.generatePassword ? generateRandomPassword() : formData.manualPassword;
+    if (!validateSection(5)) return;
+    const password = formData.manualPassword;
     const fullName = `${formData.firstName} ${formData.lastName}`;
     const email = formData.email;
-
-    const benefits = [];
-    if (formData.healthInsurance) benefits.push('Health Insurance');
-    if (formData.lifeInsurance) benefits.push('Life Insurance');
-    if (formData.retirement) benefits.push('Retirement Plan');
-    if (formData.paidLeave) benefits.push('Paid Leave');
 
     try {
       await usersAPI.create({
@@ -178,8 +160,6 @@ const SuperAdminPortal = () => {
           position: formData.position,
           department: formData.department,
           startDate: formData.startDate,
-          salary: parseFloat(formData.salary),
-          benefits: benefits,
           emergencyContact: {
             name: formData.emergencyName,
             relationship: formData.emergencyRelationship,
@@ -208,6 +188,7 @@ const SuperAdminPortal = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Section 1: Personal Information</h3>
             <div className="grid grid-cols-2 gap-4">
+              <label className="text-sm font-semibold text-gray-700">First Name *</label>
               <input
                 type="text"
                 name="firstName"
@@ -218,6 +199,7 @@ const SuperAdminPortal = () => {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
               {errors.firstName && <div className="text-red-600 text-xs">{errors.firstName}</div>}
+              <label className="text-sm font-semibold text-gray-700">Last Name *</label>
               <input
                 type="text"
                 name="lastName"
@@ -228,6 +210,7 @@ const SuperAdminPortal = () => {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
               {errors.lastName && <div className="text-red-600 text-xs">{errors.lastName}</div>}
+              <label className="text-sm font-semibold text-gray-700">Middle Name</label>
               <input
                 type="text"
                 name="middleName"
@@ -236,6 +219,7 @@ const SuperAdminPortal = () => {
                 placeholder="Middle Name"
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
+              <label className="text-sm font-semibold text-gray-700">Birthdate *</label>
               <input
                 type="date"
                 name="dateOfBirth"
@@ -245,6 +229,7 @@ const SuperAdminPortal = () => {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
               {errors.dateOfBirth && <div className="text-red-600 text-xs">{errors.dateOfBirth}</div>}
+              <label className="text-sm font-semibold text-gray-700">Gender *</label>
               <select
                 name="gender"
                 value={formData.gender}
@@ -266,6 +251,7 @@ const SuperAdminPortal = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Section 2: Contact Information</h3>
+            <label className="text-sm font-semibold text-gray-700">Email Address *</label>
             <input
               type="email"
               name="email"
@@ -276,6 +262,7 @@ const SuperAdminPortal = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
             {errors.email && <div className="text-red-600 text-xs">{errors.email}</div>}
+            <label className="text-sm font-semibold text-gray-700">Phone Number *</label>
             <input
               type="tel"
               name="phone"
@@ -286,6 +273,7 @@ const SuperAdminPortal = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
             {errors.phone && <div className="text-red-600 text-xs">{errors.phone}</div>}
+            <label className="text-sm font-semibold text-gray-700">Street Address</label>
             <input
               type="text"
               name="address"
@@ -295,6 +283,7 @@ const SuperAdminPortal = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
             {errors.address && <div className="text-red-600 text-xs">{errors.address}</div>}
+            <label className="text-sm font-semibold text-gray-700">City</label>
             <input
               type="text"
               name="city"
@@ -311,6 +300,7 @@ const SuperAdminPortal = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Section 3: Employment Details</h3>
+            <label className="text-sm font-semibold text-gray-700">Position *</label>
             <input
               type="text"
               name="position"
@@ -321,6 +311,7 @@ const SuperAdminPortal = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
             {errors.position && <div className="text-red-600 text-xs">{errors.position}</div>}
+            <label className="text-sm font-semibold text-gray-700">Department *</label>
             <input
               type="text"
               name="department"
@@ -331,6 +322,7 @@ const SuperAdminPortal = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
             {errors.department && <div className="text-red-600 text-xs">{errors.department}</div>}
+            <label className="text-sm font-semibold text-gray-700">Start Date *</label>
             <input
               type="date"
               name="startDate"
@@ -353,86 +345,11 @@ const SuperAdminPortal = () => {
             </select>
           </div>
         );
-      
       case 4:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Section 4: Compensation</h3>
-            <input
-              type="number"
-              name="salary"
-              value={formData.salary}
-              onChange={handleInputChange}
-              placeholder="Monthly Salary (PHP) *"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.salary && <div className="text-red-600 text-xs">{errors.salary}</div>}
-            <select
-              name="paymentMethod"
-              value={formData.paymentMethod}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Cash">Cash</option>
-              <option value="Check">Check</option>
-            </select>
-            {errors.paymentMethod && <div className="text-red-600 text-xs">{errors.paymentMethod}</div>}
-          </div>
-        );
-      
-      case 5:
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Section 5: Benefits</h3>
-            <label className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                name="healthInsurance"
-                checked={formData.healthInsurance}
-                onChange={handleInputChange}
-                className="w-5 h-5 text-blue-600 rounded"
-              />
-              <span>Health Insurance</span>
-            </label>
-            <label className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                name="lifeInsurance"
-                checked={formData.lifeInsurance}
-                onChange={handleInputChange}
-                className="w-5 h-5 text-blue-600 rounded"
-              />
-              <span>Life Insurance</span>
-            </label>
-            <label className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                name="retirement"
-                checked={formData.retirement}
-                onChange={handleInputChange}
-                className="w-5 h-5 text-blue-600 rounded"
-              />
-              <span>Retirement Plan</span>
-            </label>
-            <label className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                name="paidLeave"
-                checked={formData.paidLeave}
-                onChange={handleInputChange}
-                className="w-5 h-5 text-blue-600 rounded"
-              />
-              <span>Paid Leave</span>
-            </label>
-          </div>
-        );
-      
-      case 6:
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Section 6: Emergency Contact</h3>
+            <h3 className="text-lg font-semibold text-gray-800">Section 4: Emergency Contact</h3>
+            <label className="text-sm font-semibold text-gray-700">Emergency Contact Name *</label>
             <input
               type="text"
               name="emergencyName"
@@ -443,6 +360,7 @@ const SuperAdminPortal = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
             {errors.emergencyName && <div className="text-red-600 text-xs">{errors.emergencyName}</div>}
+            <label className="text-sm font-semibold text-gray-700">Relationship *</label>
             <input
               type="text"
               name="emergencyRelationship"
@@ -453,6 +371,7 @@ const SuperAdminPortal = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
             {errors.emergencyRelationship && <div className="text-red-600 text-xs">{errors.emergencyRelationship}</div>}
+            <label className="text-sm font-semibold text-gray-700">Emergency Phone Number *</label>
             <input
               type="tel"
               name="emergencyPhone"
@@ -466,10 +385,10 @@ const SuperAdminPortal = () => {
           </div>
         );
       
-      case 7:
+      case 5:
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Section 7: Review & Submit</h3>
+            <h3 className="text-lg font-semibold text-gray-800">Section 5: Review & Submit</h3>
             <div className="bg-gray-50 p-6 rounded-lg space-y-2 text-sm">
               <p><strong>Name:</strong> {formData.firstName} {formData.lastName}</p>
               <p><strong>Email:</strong> {formData.email}</p>
@@ -477,47 +396,33 @@ const SuperAdminPortal = () => {
               <p><strong>Position:</strong> {formData.position}</p>
               <p><strong>Department:</strong> {formData.department}</p>
               <p><strong>Start Date:</strong> {formData.startDate}</p>
-              <p><strong>Salary:</strong> ₱{formData.salary ? parseFloat(formData.salary).toLocaleString() : '0'}</p>
             </div>
             <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-blue-800">
-                  {formData.generatePassword ? 'A secure password will be generated.' : 'Use custom password.'}
-                </p>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={!formData.generatePassword}
-                    onChange={(e) => setFormData(prev => ({ ...prev, generatePassword: !e.target.checked }))}
-                  />
-                  <span>Set custom password</span>
-                </label>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <label className="text-sm font-semibold text-gray-700">Password *</label>
+                <input
+                  type="password"
+                  name="manualPassword"
+                  value={formData.manualPassword}
+                  onChange={handleInputChange}
+                  placeholder="Password *"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <label className="text-sm font-semibold text-gray-700">Confirm Password *</label>
+                <input
+                  type="password"
+                  name="manualPasswordConfirm"
+                  value={formData.manualPasswordConfirm}
+                  onChange={handleInputChange}
+                  placeholder="Confirm Password *"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                {(errors.manualPassword || errors.manualPasswordConfirm) && (
+                  <div className="col-span-2 text-red-600 text-xs">
+                    {errors.manualPassword || errors.manualPasswordConfirm}
+                  </div>
+                )}
               </div>
-              {!formData.generatePassword && (
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <input
-                    type="password"
-                    name="manualPassword"
-                    value={formData.manualPassword}
-                    onChange={handleInputChange}
-                    placeholder="Password *"
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input
-                    type="password"
-                    name="manualPasswordConfirm"
-                    value={formData.manualPasswordConfirm}
-                    onChange={handleInputChange}
-                    placeholder="Confirm Password *"
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                  {(errors.manualPassword || errors.manualPasswordConfirm) && (
-                    <div className="col-span-2 text-red-600 text-xs">
-                      {errors.manualPassword || errors.manualPasswordConfirm}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         );
@@ -574,12 +479,10 @@ const SuperAdminPortal = () => {
                   firstName: '', lastName: '', middleName: '', dateOfBirth: '', gender: '',
                   email: '', phone: '', address: '', city: '',
                   position: 'Real Estate Agent', department: 'Sales', startDate: '', employmentType: 'Full-time',
-                  salary: '', paymentMethod: 'Bank Transfer',
-                  healthInsurance: false, lifeInsurance: false, retirement: false, paidLeave: false,
                   emergencyName: '', emergencyRelationship: '', emergencyPhone: '',
-                    generatePassword: true,
-                    manualPassword: '',
-                    manualPasswordConfirm: ''
+                  generatePassword: false,
+                  manualPassword: '',
+                  manualPasswordConfirm: ''
                 });
               }}
               className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition font-semibold"
@@ -604,13 +507,13 @@ const SuperAdminPortal = () => {
               ← Back to Admin Portal
             </button>
             <h1 className="text-3xl font-bold text-white">HR Portal - Agent Registration</h1>
-            <p className="text-blue-100 mt-2">Complete all 7 sections to register a new agent</p>
+            <p className="text-blue-100 mt-2">Complete all 5 sections to register a new agent</p>
           </div>
 
           {/* Progress Bar */}
           <div className="bg-gray-50 p-4">
             <div className="flex items-center justify-between mb-2">
-              {[1, 2, 3, 4, 5, 6, 7].map((section) => (
+              {[1, 2, 3, 4, 5].map((section) => (
                 <div
                   key={section}
                   className={`flex-1 h-2 mx-1 rounded-full ${
@@ -620,7 +523,7 @@ const SuperAdminPortal = () => {
               ))}
             </div>
             <p className="text-sm text-gray-600 text-center">
-              Section {currentSection} of 7
+              Section {currentSection} of 5
             </p>
           </div>
 
@@ -638,7 +541,7 @@ const SuperAdminPortal = () => {
                 </button>
               )}
               
-              {currentSection < 7 ? (
+              {currentSection < 5 ? (
                 <button
                   type="button"
                   onClick={() => {

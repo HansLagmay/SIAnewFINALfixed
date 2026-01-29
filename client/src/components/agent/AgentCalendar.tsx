@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { calendarAPI } from '../../services/api';
 import type { CalendarEvent, User } from '../../types';
 import ScheduleViewingModal from './ScheduleViewingModal';
+import { getUser } from '../../utils/session';
 
 interface AgentCalendarProps {
   user: User | null;
@@ -10,22 +11,31 @@ interface AgentCalendarProps {
 const AgentCalendar = ({ user }: AgentCalendarProps) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [effectiveUser, setEffectiveUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (user) {
-      loadEvents();
-    }
+    const u = user || getUser();
+    setEffectiveUser(u);
   }, [user]);
 
-  const loadEvents = async () => {
+  useEffect(() => {
+    if (effectiveUser) {
+      loadEvents(effectiveUser);
+    } else {
+      setLoading(false);
+    }
+  }, [effectiveUser]);
+
+  const loadEvents = async (u: User) => {
     try {
       const response = await calendarAPI.getAll();
-      // Filter events for this agent
-      const myEvents = response.data.filter((e: any) => e.agentId === user?.id);
+      const myEvents = response.data.filter((e: any) => e.agentId === u.id);
       setEvents(myEvents);
     } catch (error) {
       console.error('Failed to load calendar events:', error);
+      setError('Failed to load calendar events. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -37,6 +47,11 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
 
   return (
     <div className="p-8">
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 text-red-700 rounded">
+          {error}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">My Calendar</h1>
         <button
@@ -89,12 +104,14 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
         </p>
       </div>
 
-      {showScheduleModal && user && (
+      {showScheduleModal && effectiveUser && (
         <ScheduleViewingModal
-          user={user}
+          user={effectiveUser}
           onClose={() => setShowScheduleModal(false)}
           onSuccess={() => {
-            loadEvents();
+            if (effectiveUser) {
+              loadEvents(effectiveUser);
+            }
           }}
         />
       )}

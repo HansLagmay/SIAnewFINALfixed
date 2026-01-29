@@ -6,18 +6,26 @@ import AgentInquiries from '../components/agent/AgentInquiries';
 import AgentCalendar from '../components/agent/AgentCalendar';
 import AgentProperties from '../components/agent/AgentProperties';
 import type { User } from '../types';
+import { getUser, clearSession } from '../utils/session';
 
 const AgentPortal = () => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      setUser(JSON.parse(userStr));
+    const sessionUser = getUser();
+    if (sessionUser) {
+      setUser(sessionUser);
+      localStorage.setItem('user', JSON.stringify(sessionUser));
+    } else {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        setUser(JSON.parse(userStr));
+      }
     }
   }, []);
 
   const handleLogout = () => {
+    clearSession();
     localStorage.removeItem('user');
     window.location.href = '/login';
   };

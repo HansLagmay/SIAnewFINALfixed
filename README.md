@@ -79,8 +79,8 @@ All you need is **VS Code** and **Node.js**.
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/HansLagmay/SIAfrontendonlyFINAL.git
-cd SIAfrontendonlyFINAL
+git clone https://github.com/HansLagmay/SIAnewFINALfixed.git
+cd SIAnewFINALfixed
 ```
 
 ### 2. Install All Dependencies
@@ -505,7 +505,7 @@ curl http://localhost:3000/api/users
 ## 📁 Project Structure
 
 ```
-SIAfrontendonlyFINAL/
+SIAnewFINALfixed/
 ├── client/                       # Frontend React application
 │   ├── src/
 │   │   ├── components/          # React components
@@ -596,6 +596,12 @@ SIAfrontendonlyFINAL/
 ---
 
 ## 🗓️ Update Log
+
+### 2026-01-29
+- Agent Portal: fixed infinite loading by using session-based user detection across dashboard and calendar; user-friendly error banners added
+- HR Portal: enforced manual password creation with strength validation; removed auto-generate path; added debounced inline email duplicate validation
+- Agent Properties: added clear labels and hints for draft property form; session-aware filter for “My Drafts”
+- Docs: updated clone instructions to SIAnewFINALfixed and project structure name; build verified
 
 ### 2026-01-27
 - Inline HR registration validations added across 7 sections (real-time checks for birthdate ≥18, email format, PH phone, salary, manual password strength and match)
