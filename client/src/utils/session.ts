@@ -6,52 +6,74 @@ export interface Session {
   expiresAt: number;
 }
 
+const SESSION_KEYS: Record<User['role'], string> = {
+  admin: 'session_admin',
+  agent: 'session_agent',
+  superadmin: 'session_superadmin'
+};
+
+const getRoleFromPath = (): User['role'] | null => {
+  const p = typeof window !== 'undefined' ? window.location.pathname : '';
+  if (p.startsWith('/agent')) return 'agent';
+  if (p.startsWith('/admin') || p.startsWith('/database')) return 'admin';
+  if (p.startsWith('/superadmin')) return 'superadmin';
+  return null;
+};
+
+const getKeyForRole = (role: User['role']): string => SESSION_KEYS[role];
+
 export const setSession = (user: User, token: string): void => {
   const session: Session = {
     user,
     token,
     expiresAt: Date.now() + (8 * 60 * 60 * 1000) // 8 hours
   };
-  localStorage.setItem('session', JSON.stringify(session));
+  localStorage.setItem(getKeyForRole(user.role), JSON.stringify(session));
 };
 
-export const getSession = (): Session | null => {
-  const sessionStr = localStorage.getItem('session');
+export const getSession = (role?: User['role']): Session | null => {
+  const resolvedRole = role || getRoleFromPath();
+  const key = resolvedRole ? getKeyForRole(resolvedRole) : null;
+  const sessionStr = key ? localStorage.getItem(key) : null;
   if (!sessionStr) return null;
   
   try {
     const session: Session = JSON.parse(sessionStr);
     
-    // Check if session has expired
     if (Date.now() > session.expiresAt) {
-      clearSession();
+      clearSession(resolvedRole || undefined);
       return null;
     }
     
     return session;
   } catch (error) {
     console.error('Error parsing session:', error);
-    clearSession();
+    clearSession(resolvedRole || undefined);
     return null;
   }
 };
 
-export const clearSession = (): void => {
-  localStorage.removeItem('session');
-  // Also clear old user data if it exists
+export const clearSession = (role?: User['role']): void => {
+  const resolvedRole = role || getRoleFromPath();
+  if (resolvedRole) {
+    localStorage.removeItem(getKeyForRole(resolvedRole));
+  } else {
+    // Fallback: clear all known sessions
+    Object.values(SESSION_KEYS).forEach(k => localStorage.removeItem(k));
+  }
   localStorage.removeItem('user');
 };
 
-export const isSessionValid = (): boolean => {
-  return getSession() !== null;
+export const isSessionValid = (role?: User['role']): boolean => {
+  return getSession(role) !== null;
 };
 
-export const getToken = (): string | null => {
-  const session = getSession();
+export const getToken = (role?: User['role']): string | null => {
+  const session = getSession(role);
   return session ? session.token : null;
 };
 
-export const getUser = (): Session['user'] | null => {
-  const session = getSession();
+export const getUser = (role?: User['role']): Session['user'] | null => {
+  const session = getSession(role);
   return session ? session.user : null;
 };
