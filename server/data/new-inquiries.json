@@ -12,5 +12,19 @@
     "name": "Maria Test Customer",
     "propertyTitle": "Luxury Condo in BGC",
     "createdAt": "2026-01-10T14:04:05.972Z"
+  },
+  {
+    "id": "ml8oy8k23n7q97u2jhe",
+    "ticketNumber": "INQ-2026-001",
+    "name": "qwqw",
+    "propertyTitle": "Modern Family Home in Manila",
+    "createdAt": "2026-02-05T00:01:16.754Z"
+  },
+  {
+    "id": "ml8ozbq1imn9nyywpvq",
+    "ticketNumber": "INQ-2026-002",
+    "name": "sasa",
+    "propertyTitle": "Luxury Condo in BGC",
+    "createdAt": "2026-02-05T00:02:07.513Z"
   }
 ]

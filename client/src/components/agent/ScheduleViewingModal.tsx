@@ -1,23 +1,51 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { calendarAPI, inquiriesAPI } from '../../services/api';
-import type { Inquiry, User } from '../../types';
+import type { CalendarEvent, Inquiry, User } from '../../types';
 
 interface ScheduleViewingModalProps {
   user: User;
   inquiry?: Inquiry;
+  event?: CalendarEvent;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const ScheduleViewingModal = ({ user, inquiry, onClose, onSuccess }: ScheduleViewingModalProps) => {
+const ScheduleViewingModal = ({ user, inquiry, event, onClose, onSuccess }: ScheduleViewingModalProps) => {
+  const isEdit = Boolean(event);
+  const initialStart = event ? new Date(event.start) : null;
+  const initialEnd = event ? new Date(event.end) : null;
   const [formData, setFormData] = useState({
-    date: '',
-    time: '',
-    duration: '60', // minutes
-    notes: ''
+    date: initialStart ? initialStart.toISOString().slice(0, 10) : '',
+    time: initialStart ? initialStart.toTimeString().slice(0, 5) : '',
+    duration: initialStart && initialEnd ? Math.round((initialEnd.getTime() - initialStart.getTime()) / 60000).toString() : '60',
+    notes: event?.description?.split('\n').slice(1).join('\n') || ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [selectedInquiryId, setSelectedInquiryId] = useState<string>(inquiry?.id || event?.inquiryId || '');
+  const selectedInquiry = useMemo(() => inquiries.find(i => i.id === selectedInquiryId) || inquiry, [inquiries, selectedInquiryId, inquiry]);
+  const [manualCustomer, setManualCustomer] = useState({
+    name: '',
+    propertyTitle: ''
+  });
+
+  useEffect(() => {
+    const loadInquiries = async () => {
+      try {
+        const res = await inquiriesAPI.getAll();
+        const mine = res.data.filter((i: Inquiry) =>
+          (i.assignedTo === user.id || i.claimedBy === user.id) &&
+          (i.status === 'assigned' || i.status === 'claimed' || i.status === 'in-progress' || i.status === 'viewing-scheduled')
+        );
+        // Sort: newest first
+        setInquiries(mine.sort((a: Inquiry, b: Inquiry) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      } catch (err) {
+        console.error('Failed to load inquiries for scheduling:', err);
+      }
+    };
+    loadInquiries();
+  }, [user.id]);
 
   const validateSchedule = () => {
     const newErrors: Record<string, string> = {};
@@ -46,6 +74,11 @@ const ScheduleViewingModal = ({ user, inquiry, onClose, onSuccess }: ScheduleVie
       }
     }
     
+    // Require either an inquiry selection or manual details
+    if (!selectedInquiry && (!manualCustomer.name || !manualCustomer.propertyTitle)) {
+      newErrors.customer = 'Select a ticket or provide customer and property details';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -60,25 +93,31 @@ const ScheduleViewingModal = ({ user, inquiry, onClose, onSuccess }: ScheduleVie
       const startDateTime = new Date(`${formData.date}T${formData.time}`);
       const endDateTime = new Date(startDateTime.getTime() + parseInt(formData.duration) * 60000);
       
-      // Create calendar event
-      const eventData = {
-        title: `Property Viewing - ${inquiry?.propertyTitle || 'TBD'}`,
-        description: `Customer: ${inquiry?.name || 'TBD'}\n${formData.notes}`,
+      // Build event payload
+      const customerName = selectedInquiry?.name || manualCustomer.name;
+      const propTitle = selectedInquiry?.propertyTitle || manualCustomer.propertyTitle || 'Property';
+      const eventData: Partial<CalendarEvent> = {
+        title: `Property Viewing - ${propTitle}`,
+        description: `Customer: ${customerName}${selectedInquiry?.ticketNumber ? `\nTicket: ${selectedInquiry.ticketNumber}` : ''}${formData.notes ? `\n${formData.notes}` : ''}`,
         start: startDateTime.toISOString(),
         end: endDateTime.toISOString(),
         agentId: user.id,
-        inquiryId: inquiry?.id || undefined,
+        inquiryId: selectedInquiry?.id || undefined,
         type: 'viewing' as const
       };
       
-      await calendarAPI.create(eventData);
+      if (isEdit && event) {
+        await calendarAPI.update(event.id, eventData);
+      } else {
+        await calendarAPI.create(eventData);
+      }
       
       // Update inquiry status if linked
-      if (inquiry) {
-        await inquiriesAPI.update(inquiry.id, {
+      if (selectedInquiry) {
+        await inquiriesAPI.update(selectedInquiry.id, {
           status: 'viewing-scheduled',
           notes: [
-            ...(inquiry.notes || []),
+            ...(selectedInquiry.notes || []),
             {
               id: Date.now().toString(),
               agentId: user.id,
@@ -90,7 +129,7 @@ const ScheduleViewingModal = ({ user, inquiry, onClose, onSuccess }: ScheduleVie
         });
       }
       
-      alert('Viewing scheduled successfully!');
+      alert(isEdit ? 'Viewing updated successfully!' : 'Viewing scheduled successfully!');
       onSuccess();
       onClose();
     } catch (error: any) {
@@ -99,7 +138,7 @@ const ScheduleViewingModal = ({ user, inquiry, onClose, onSuccess }: ScheduleVie
       if (error.response?.status === 409) {
         alert('Conflict detected: You have another event scheduled within 30 minutes of this time.');
       } else {
-        alert('Failed to schedule viewing');
+        alert(isEdit ? 'Failed to update viewing' : 'Failed to schedule viewing');
       }
     } finally {
       setSubmitting(false);
@@ -111,12 +150,53 @@ const ScheduleViewingModal = ({ user, inquiry, onClose, onSuccess }: ScheduleVie
       <div className="bg-white rounded-lg p-8 max-w-md w-full">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Schedule Property Viewing</h2>
         
-        {inquiry && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Customer: <span className="font-semibold">{inquiry.name}</span></p>
-            <p className="text-sm text-gray-600">Property: <span className="font-semibold">{inquiry.propertyTitle}</span></p>
-          </div>
-        )}
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Link to Ticket</label>
+          <select
+            value={selectedInquiryId}
+            onChange={(e) => setSelectedInquiryId(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">— Select from assigned or claimed tickets —</option>
+            {inquiries.map((i) => (
+              <option key={i.id} value={i.id}>
+                {i.ticketNumber} · {i.name} · {i.propertyTitle} · {i.status}
+              </option>
+            ))}
+          </select>
+          {!selectedInquiry && (
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                <input
+                  type="text"
+                  value={manualCustomer.name}
+                  onChange={(e) => setManualCustomer({ ...manualCustomer, name: e.target.value })}
+                  placeholder="Customer Name"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Property Title</label>
+                <input
+                  type="text"
+                  value={manualCustomer.propertyTitle}
+                  onChange={(e) => setManualCustomer({ ...manualCustomer, propertyTitle: e.target.value })}
+                  placeholder="Property Title"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          )}
+          {errors.customer && <p className="text-red-600 text-sm mt-2">{errors.customer}</p>}
+          {selectedInquiry && (
+            <div className="mt-4 text-sm text-gray-600">
+              <p>Selected Ticket: <span className="font-semibold">{selectedInquiry.ticketNumber}</span></p>
+              <p>Customer: <span className="font-semibold">{selectedInquiry.name}</span></p>
+              <p>Property: <span className="font-semibold">{selectedInquiry.propertyTitle}</span></p>
+            </div>
+          )}
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -185,7 +265,7 @@ const ScheduleViewingModal = ({ user, inquiry, onClose, onSuccess }: ScheduleVie
               disabled={submitting}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {submitting ? 'Scheduling...' : 'Schedule Viewing'}
+              {submitting ? (isEdit ? 'Updating...' : 'Scheduling...') : (isEdit ? 'Update Viewing' : 'Schedule Viewing')}
             </button>
           </div>
         </form>

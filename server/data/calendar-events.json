@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "ml8oua0w9idwpmxcbt9",
+    "title": "Property Viewing - TBD",
+    "description": "Customer: TBD",
+    "start": "2026-02-20T05:01:00.000Z",
+    "end": "2026-02-20T06:01:00.000Z",
+    "agentId": "user002",
+    "type": "viewing",
+    "createdBy": "Maria Santos",
+    "createdAt": "2026-02-04T23:58:12.032Z"
+  },
+  {
+    "id": "ml8p01xxv699ppk2sw",
+    "title": "Property Viewing - TBD",
+    "description": "Customer: TBD",
+    "start": "2026-02-18T00:04:00.000Z",
+    "end": "2026-02-18T01:04:00.000Z",
+    "agentId": "user002",
+    "type": "viewing",
+    "createdBy": "Admin User",
+    "createdAt": "2026-02-05T00:02:41.493Z"
+  }
+]

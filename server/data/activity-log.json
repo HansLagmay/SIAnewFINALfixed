@@ -257,5 +257,103 @@
     "action": "DELETE_USER",
     "details": "Deleted user: luigi geralde",
     "user": "Admin User"
+  },
+  {
+    "id": "1770249441641",
+    "timestamp": "2026-02-04T23:57:21.641Z",
+    "action": "LOGIN_FAILED",
+    "details": "Failed login attempt: admin@tesproperty.com",
+    "user": "Unknown"
+  },
+  {
+    "id": "1770249454922",
+    "timestamp": "2026-02-04T23:57:34.922Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1770249465671",
+    "timestamp": "2026-02-04T23:57:45.671Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1770249492046",
+    "timestamp": "2026-02-04T23:58:12.046Z",
+    "action": "CREATE_EVENT",
+    "details": "Created calendar event: Property Viewing - TBD",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1770249586017",
+    "timestamp": "2026-02-04T23:59:46.017Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1770249604325",
+    "timestamp": "2026-02-05T00:00:04.325Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1770249676781",
+    "timestamp": "2026-02-05T00:01:16.781Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: qwqw (INQ-2026-001)",
+    "user": "Customer"
+  },
+  {
+    "id": "1770249690749",
+    "timestamp": "2026-02-05T00:01:30.749Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1770249695624",
+    "timestamp": "2026-02-05T00:01:35.624Z",
+    "action": "ASSIGN_INQUIRY",
+    "details": "Admin Admin User assigned inquiry INQ-2026-001 to Maria Santos",
+    "user": "Admin User"
+  },
+  {
+    "id": "1770249727547",
+    "timestamp": "2026-02-05T00:02:07.547Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: sasa (INQ-2026-002)",
+    "user": "Customer"
+  },
+  {
+    "id": "1770249746293",
+    "timestamp": "2026-02-05T00:02:26.293Z",
+    "action": "UPDATE_INQUIRY",
+    "details": "Updated inquiry: INQ-2026-001",
+    "user": "Admin User"
+  },
+  {
+    "id": "1770249748532",
+    "timestamp": "2026-02-05T00:02:28.532Z",
+    "action": "UPDATE_INQUIRY",
+    "details": "Updated inquiry: INQ-2026-001",
+    "user": "Admin User"
+  },
+  {
+    "id": "1770249750057",
+    "timestamp": "2026-02-05T00:02:30.057Z",
+    "action": "UPDATE_INQUIRY",
+    "details": "Updated inquiry: INQ-2026-001",
+    "user": "Admin User"
+  },
+  {
+    "id": "1770249761508",
+    "timestamp": "2026-02-05T00:02:41.508Z",
+    "action": "CREATE_EVENT",
+    "details": "Created calendar event: Property Viewing - TBD",
+    "user": "Admin User"
   }
 ]
