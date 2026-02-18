@@ -22,6 +22,31 @@ const getRoleFromPath = (): User['role'] | null => {
 
 const getKeyForRole = (role: User['role']): string => SESSION_KEYS[role];
 
+const readSession = (role: User['role']): Session | null => {
+  const sessionStr = localStorage.getItem(getKeyForRole(role));
+  if (!sessionStr) return null;
+  try {
+    const session: Session = JSON.parse(sessionStr);
+    if (Date.now() > session.expiresAt) {
+      localStorage.removeItem(getKeyForRole(role));
+      return null;
+    }
+    return session;
+  } catch (error) {
+    console.error('Error parsing session:', error);
+    localStorage.removeItem(getKeyForRole(role));
+    return null;
+  }
+};
+
+const rolesForPath = (): User['role'][] => {
+  const role = getRoleFromPath();
+  if (role === 'superadmin') return ['superadmin', 'admin'];
+  if (role === 'admin') return ['admin'];
+  if (role === 'agent') return ['agent'];
+  return [];
+};
+
 export const setSession = (user: User, token: string): void => {
   const session: Session = {
     user,
@@ -32,29 +57,27 @@ export const setSession = (user: User, token: string): void => {
 };
 
 export const getSession = (role?: User['role']): Session | null => {
-  const resolvedRole = role || getRoleFromPath();
-  const key = resolvedRole ? getKeyForRole(resolvedRole) : null;
-  const sessionStr = key ? localStorage.getItem(key) : null;
-  if (!sessionStr) return null;
-  
-  try {
-    const session: Session = JSON.parse(sessionStr);
-    
-    if (Date.now() > session.expiresAt) {
-      clearSession(resolvedRole || undefined);
-      return null;
-    }
-    
-    return session;
-  } catch (error) {
-    console.error('Error parsing session:', error);
-    clearSession(resolvedRole || undefined);
-    return null;
+  if (role) {
+    return readSession(role);
   }
+  const candidates = rolesForPath();
+  for (const r of candidates) {
+    const session = readSession(r);
+    if (session) return session;
+  }
+  return null;
+};
+
+export const getSessionForRoles = (roles: User['role'][]): Session | null => {
+  for (const r of roles) {
+    const session = readSession(r);
+    if (session) return session;
+  }
+  return null;
 };
 
 export const clearSession = (role?: User['role']): void => {
-  const resolvedRole = role || getRoleFromPath();
+  const resolvedRole = role || rolesForPath()[0] || null;
   if (resolvedRole) {
     localStorage.removeItem(getKeyForRole(resolvedRole));
   } else {

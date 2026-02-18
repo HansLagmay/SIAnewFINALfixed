@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { getSession, clearSession } from '../../utils/session';
+import { getSessionForRoles, clearSession } from '../../utils/session';
+import type { User } from '../../types';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-  const session = getSession();
+  const session = getSessionForRoles(allowedRoles as User['role'][]);
   
   if (!session) {
     // Session expired or not logged in
@@ -18,7 +19,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   
   if (!allowedRoles.includes(user.role)) {
     // Wrong role - redirect to appropriate dashboard or login
-    clearSession();
+    clearSession(user.role);
     return <Navigate to="/login" replace />;
   }
 
