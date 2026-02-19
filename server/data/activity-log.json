@@ -376,5 +376,12 @@
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Admin User",
     "user": "Admin User"
+  },
+  {
+    "id": "1771460524757",
+    "timestamp": "2026-02-19T00:22:04.757Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
   }
 ]

@@ -8,7 +8,8 @@ interface DataTableProps {
 const MAX_DISPLAY_LENGTH = 100;
 
 export default function DataTable({ data, maxRows = 10 }: DataTableProps) {
-  if (!data || data.length === 0) {
+  const safeData = (data || []).filter((row) => row && typeof row === 'object');
+  if (safeData.length === 0) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500">
         No data available
@@ -16,8 +17,8 @@ export default function DataTable({ data, maxRows = 10 }: DataTableProps) {
     );
   }
 
-  const displayData = maxRows ? data.slice(0, maxRows) : data;
-  const headers = Object.keys(data[0]);
+  const displayData = maxRows ? safeData.slice(0, maxRows) : safeData;
+  const headers = Object.keys(safeData[0] as Record<string, unknown>);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -63,9 +64,9 @@ export default function DataTable({ data, maxRows = 10 }: DataTableProps) {
           </tbody>
         </table>
       </div>
-      {maxRows && data.length > maxRows && (
+      {maxRows && safeData.length > maxRows && (
         <div className="bg-gray-50 px-4 py-3 text-sm text-gray-600 text-center border-t">
-          Showing {maxRows} of {data.length} records
+          Showing {maxRows} of {safeData.length} records
         </div>
       )}
     </div>

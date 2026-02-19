@@ -79,7 +79,16 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
   }, [currentMonth, startDay, daysInMonth]);
   const isSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
   const eventsForSelectedDate = events.filter((event) => isSameDay(new Date(event.start), selectedDate));
-  const selectedDateInput = selectedDate.toISOString().slice(0, 10);
+  const formatDateInput = (date: Date) => {
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+    const y = date.getFullYear();
+    const m = `${date.getMonth() + 1}`.padStart(2, '0');
+    const d = `${date.getDate()}`.padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+  const selectedDateInput = formatDateInput(selectedDate);
 
   return (
     <div className="p-8">
@@ -124,11 +133,11 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
             ))}
           </div>
           <div className="grid grid-cols-7 gap-1">
-            {calendarDays.map(({ date, inMonth }) => {
+            {calendarDays.map(({ date, inMonth }, index) => {
               const isSelected = isSameDay(date, selectedDate);
               return (
                 <button
-                  key={date.toISOString()}
+                  key={`${currentMonth.getFullYear()}-${currentMonth.getMonth()}-${index}`}
                   onClick={() => { setSelectedDate(date); setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1)); setEditingEvent(null); setShowScheduleModal(true); }}
                   className={`h-9 w-9 rounded-full text-sm mx-auto ${isSelected ? 'bg-blue-600 text-white' : inMonth ? 'text-gray-800 hover:bg-blue-50' : 'text-gray-400 hover:bg-gray-100'}`}
                 >
