@@ -7,6 +7,7 @@ import AgentCalendar from '../components/agent/AgentCalendar';
 import AgentProperties from '../components/agent/AgentProperties';
 import type { User } from '../types';
 import { getUser, clearSession } from '../utils/session';
+import ErrorBoundary from '../components/shared/ErrorBoundary';
 
 const AgentPortal = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -32,7 +33,11 @@ const AgentPortal = () => {
           <Route path="/" element={<Navigate to="/agent/dashboard" replace />} />
           <Route path="/dashboard" element={<AgentDashboard user={user} />} />
           <Route path="/inquiries" element={<AgentInquiries user={user} />} />
-          <Route path="/calendar" element={<AgentCalendar user={user} />} />
+          <Route path="/calendar" element={
+            <ErrorBoundary title="Calendar failed to load">
+              <AgentCalendar user={user} />
+            </ErrorBoundary>
+          } />
           <Route path="/properties" element={<AgentProperties />} />
         </Routes>
       </div>

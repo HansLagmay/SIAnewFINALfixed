@@ -411,5 +411,26 @@
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Maria Santos",
     "user": "Maria Santos"
+  },
+  {
+    "id": "1771462676223",
+    "timestamp": "2026-02-19T00:57:56.223Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1771462689661",
+    "timestamp": "2026-02-19T00:58:09.661Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1771462723347",
+    "timestamp": "2026-02-19T00:58:43.347Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
   }
 ]

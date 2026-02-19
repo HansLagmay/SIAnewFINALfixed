@@ -41,6 +41,10 @@ const ScheduleViewingModal = ({ user, inquiry, event, initialDate, onClose, onSu
     const loadInquiries = async () => {
       try {
         const res = await inquiriesAPI.getAll();
+        if (!Array.isArray(res.data)) {
+          setInquiries([]);
+          return;
+        }
         const mine = res.data.filter((i: Inquiry) =>
           (i.assignedTo === user.id || i.claimedBy === user.id) &&
           (i.status === 'assigned' || i.status === 'claimed' || i.status === 'in-progress' || i.status === 'viewing-scheduled')
