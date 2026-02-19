@@ -439,5 +439,26 @@
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Maria Santos",
     "user": "Maria Santos"
+  },
+  {
+    "id": "1771463250127",
+    "timestamp": "2026-02-19T01:07:30.127Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1771463267003",
+    "timestamp": "2026-02-19T01:07:47.003Z",
+    "action": "DELETE_INQUIRY",
+    "details": "Deleted inquiry: INQ-2026-002",
+    "user": "Admin User"
+  },
+  {
+    "id": "1771463268287",
+    "timestamp": "2026-02-19T01:07:48.287Z",
+    "action": "DELETE_INQUIRY",
+    "details": "Deleted inquiry: INQ-2026-001",
+    "user": "Admin User"
   }
 ]
