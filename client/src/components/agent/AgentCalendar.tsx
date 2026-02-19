@@ -65,10 +65,6 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
     }
   };
 
-  if (loading) {
-    return <div className="p-8">Loading calendar...</div>;
-  }
-
   const monthLabel = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const selectedLabel = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -96,6 +92,10 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
     return `${y}-${m}-${d}`;
   };
   const selectedDateInput = formatDateInput(selectedDate);
+
+  if (loading) {
+    return <div className="p-8">Loading calendar...</div>;
+  }
 
   return (
     <div className="p-8">
