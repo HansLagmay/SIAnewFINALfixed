@@ -7,19 +7,20 @@ import AdminInquiries from '../components/admin/AdminInquiries';
 import AdminAgents from '../components/admin/AdminAgents';
 import AdminReports from '../components/admin/AdminReports';
 import type { User } from '../types';
+import { getUser, clearSession } from '../utils/session';
 
 const AdminPortal = () => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      setUser(JSON.parse(userStr));
+    const sessionUser = getUser('admin');
+    if (sessionUser) {
+      setUser(sessionUser);
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    clearSession('admin');
     window.location.href = '/login';
   };
 

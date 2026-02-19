@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { setSession } from '../utils/session';
 
@@ -10,6 +10,9 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { role } = useParams();
+  const roleParam = role === 'admin' || role === 'agent' ? role : null;
+  const roleLabel = roleParam === 'admin' ? 'Admin' : roleParam === 'agent' ? 'Agent' : 'Account';
 
   // Check if session expired
   const sessionExpired = new URLSearchParams(location.search).get('session_expired');
@@ -22,6 +25,11 @@ const LoginPage = () => {
     try {
       const response = await authAPI.login({ email, password });
       const { user, token } = response.data;
+      
+      if (roleParam && user.role !== roleParam) {
+        setError(`This login is for ${roleLabel} accounts.`);
+        return;
+      }
 
       // Store session with JWT token
       setSession(user, token);
@@ -46,7 +54,7 @@ const LoginPage = () => {
       <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">TES Property</h1>
-          <p className="text-gray-600">Login to your account</p>
+          <p className="text-gray-600">{roleParam ? `${roleLabel} Login` : 'Login to your account'}</p>
         </div>
 
         {sessionExpired && (
@@ -54,6 +62,23 @@ const LoginPage = () => {
             Your session has expired. Please login again.
           </div>
         )}
+
+        <div className="flex gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => navigate('/login/admin')}
+            className={`flex-1 py-2 rounded-lg font-semibold ${roleParam === 'admin' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            Admin
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/login/agent')}
+            className={`flex-1 py-2 rounded-lg font-semibold ${roleParam === 'agent' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            Agent
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
@@ -97,7 +122,7 @@ const LoginPage = () => {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-blue-300 disabled:cursor-not-allowed min-h-[44px]"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Logging in...' : roleParam ? `Login as ${roleLabel}` : 'Login'}
           </button>
         </form>
 

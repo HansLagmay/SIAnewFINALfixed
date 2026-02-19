@@ -1,4 +1,5 @@
 import { databaseAPI } from '../services/api';
+import { getUser } from './session';
 
 /**
  * Handle database export to CSV or JSON format
@@ -61,12 +62,19 @@ export const handleClearNewTracking = async (
  */
 export const getUserFromStorage = (): { name: string; id?: string } => {
   try {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      return { 
+    const user = getUser('admin') || getUser('superadmin');
+    if (user) {
+      return {
         name: user.name || 'Admin',
         id: user.id
+      };
+    }
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const legacyUser = JSON.parse(userStr);
+      return {
+        name: legacyUser.name || 'Admin',
+        id: legacyUser.id
       };
     }
   } catch (e) {

@@ -7,6 +7,7 @@ import type { Property, User } from '../../types';
 import type { PropertyUpdateData } from '../../types/api';
 import { PropertyFormData } from '../../types/forms';
 import { useDialog } from '../../hooks/useDialog';
+import { getUser } from '../../utils/session';
 
 const AdminProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -118,7 +119,7 @@ const AdminProperties = () => {
   };
 
   const handleStatusChange = async (property: Property, newStatus: Property['status']) => {
-    const admin = JSON.parse(localStorage.getItem('user') || '{}');
+    const admin = getUser('admin') || getUser('superadmin') || { id: 'system', name: 'Admin' };
     
     try {
       let updateData: PropertyUpdateData = {
@@ -224,7 +225,7 @@ const AdminProperties = () => {
     
     if (!confirmed) return;
 
-    const admin = JSON.parse(localStorage.getItem('user') || '{}');
+    const admin = getUser('admin') || getUser('superadmin') || { id: 'system', name: 'Admin' };
 
     try {
       const updateData: PropertyUpdateData = {
@@ -275,7 +276,7 @@ const AdminProperties = () => {
     const hours = hoursStr ? parseInt(hoursStr) : 24;
     const reservedUntil = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 
-    const admin = JSON.parse(localStorage.getItem('user') || '{}');
+    const admin = getUser('admin') || getUser('superadmin') || { id: 'system', name: 'Admin' };
 
     try {
       const updateData: PropertyUpdateData = {

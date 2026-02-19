@@ -12,21 +12,14 @@ const AgentPortal = () => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const sessionUser = getUser();
+    const sessionUser = getUser('agent');
     if (sessionUser) {
       setUser(sessionUser);
-      localStorage.setItem('user', JSON.stringify(sessionUser));
-    } else {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        setUser(JSON.parse(userStr));
-      }
     }
   }, []);
 
   const handleLogout = () => {
-    clearSession();
-    localStorage.removeItem('user');
+    clearSession('agent');
     window.location.href = '/login';
   };
 

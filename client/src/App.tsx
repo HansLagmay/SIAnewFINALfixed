@@ -14,6 +14,7 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<CustomerPortal />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/login/:role" element={<LoginPage />} />
 
         {/* Protected Routes */}
         <Route

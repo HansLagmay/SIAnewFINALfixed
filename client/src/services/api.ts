@@ -149,7 +149,7 @@ export const usersAPI = {
 // Calendar API
 export const calendarAPI = {
   // Backward compatible - returns all items
-  getAll: () => api.get<CalendarEvent[]>('/calendar', { params: { limit: 1000 } }).then(res => {
+  getAll: (params?: Record<string, string | number | boolean>) => api.get<CalendarEvent[]>('/calendar', { params: { limit: 1000, ...(params || {}) } }).then(res => {
     if (res.data && typeof res.data === 'object' && 'data' in res.data) {
       const paginatedData = res.data as unknown as PaginatedResponse<CalendarEvent>;
       return { ...res, data: paginatedData.data };

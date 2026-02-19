@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { calendarAPI } from '../../services/api';
 import { inquiriesAPI } from '../../services/api';
 import type { CalendarEvent, Inquiry, User } from '../../types';
@@ -17,26 +17,27 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
   const [effectiveUser, setEffectiveUser] = useState<User | null>(null);
     const [inquiryMap, setInquiryMap] = useState<Record<string, Inquiry>>({});
     const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+    const [currentMonth, setCurrentMonth] = useState(() => new Date());
+    const [selectedDate, setSelectedDate] = useState(() => new Date());
 
   useEffect(() => {
-    const u = user || getUser();
+    const u = user || getUser('agent');
     setEffectiveUser(u);
   }, [user]);
 
   useEffect(() => {
     if (effectiveUser) {
-      loadEvents(effectiveUser);
+      loadEvents();
       loadAgentInquiries(effectiveUser);
     } else {
       setLoading(false);
     }
   }, [effectiveUser]);
 
-  const loadEvents = async (u: User) => {
+  const loadEvents = async () => {
     try {
-      const response = await calendarAPI.getAll();
-      const myEvents = response.data.filter((e: any) => e.agentId === u.id);
-      setEvents(myEvents);
+      const response = await calendarAPI.getAll({ shared: true });
+      setEvents(response.data);
     } catch (error) {
       console.error('Failed to load calendar events:', error);
       setError('Failed to load calendar events. Please try again later.');
@@ -63,6 +64,23 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
     return <div className="p-8">Loading calendar...</div>;
   }
 
+  const monthLabel = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const selectedLabel = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const startDay = startOfMonth.getDay();
+  const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+  const calendarDays = useMemo(() => {
+    return Array.from({ length: 42 }, (_, i) => {
+      const dayNumber = i - startDay + 1;
+      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayNumber);
+      const inMonth = dayNumber >= 1 && dayNumber <= daysInMonth;
+      return { date, inMonth };
+    });
+  }, [currentMonth, startDay, daysInMonth]);
+  const isSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+  const eventsForSelectedDate = events.filter((event) => isSameDay(new Date(event.start), selectedDate));
+  const selectedDateInput = selectedDate.toISOString().slice(0, 10);
+
   return (
     <div className="p-8">
       {error && (
@@ -80,66 +98,111 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        {events.length === 0 ? (
-          <div className="p-8 text-center text-gray-600">
-            No scheduled events yet.
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-gray-900 font-semibold">{selectedLabel}</div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+                className="px-2 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200"
+              >
+                ‹
+              </button>
+              <button
+                onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+                className="px-2 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200"
+              >
+                ›
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="divide-y divide-gray-200">
-            {events.map((event) => (
-              <div key={event.id} className="p-6 hover:bg-gray-50">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{event.title}</h3>
-                    <div className="text-sm text-gray-600 mb-3 space-y-1">
-                      {(() => {
-                        const linkedInquiry = event.inquiryId ? inquiryMap[event.inquiryId] : undefined;
-                        const customerLine = event.description?.split('\n').find(l => l.startsWith('Customer: '));
-                        const ticketLine = event.description?.split('\n').find(l => l.startsWith('Ticket: '));
-                        return (
-                          <>
-                            <p>Customer: <span className="font-semibold">{linkedInquiry?.name || (customerLine ? customerLine.replace('Customer: ', '') : '—')}</span></p>
-                            <p>Ticket: <span className="font-mono">{linkedInquiry?.ticketNumber || (ticketLine ? ticketLine.replace('Ticket: ', '') : '—')}</span></p>
-                            {linkedInquiry?.propertyTitle && (
-                              <p>Property: <span className="font-semibold">{linkedInquiry.propertyTitle}</span></p>
-                            )}
-                          </>
-                        );
-                      })()}
-                    </div>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <p>📅 <strong>Start:</strong> {new Date(event.start).toLocaleString()}</p>
-                      <p>📅 <strong>End:</strong> {new Date(event.end).toLocaleString()}</p>
-                      <p>🏷️ <strong>Type:</strong> 
-                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${
-                          event.type === 'viewing' ? 'bg-blue-100 text-blue-800' :
-                          event.type === 'meeting' ? 'bg-green-100 text-green-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {event.type}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <button
-                      onClick={() => { setEditingEvent(event); setShowScheduleModal(true); }}
-                      className="px-3 py-2 text-sm bg-gray-100 text-gray-800 rounded hover:bg-gray-200"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                </div>
-              </div>
+          <div className="text-gray-600 text-sm mb-3">{monthLabel}</div>
+          <div className="grid grid-cols-7 text-xs text-gray-500 mb-2">
+            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
+              <div key={d} className="text-center py-1">{d}</div>
             ))}
           </div>
-        )}
+          <div className="grid grid-cols-7 gap-1">
+            {calendarDays.map(({ date, inMonth }) => {
+              const isSelected = isSameDay(date, selectedDate);
+              return (
+                <button
+                  key={date.toISOString()}
+                  onClick={() => { setSelectedDate(date); setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1)); setEditingEvent(null); setShowScheduleModal(true); }}
+                  className={`h-9 w-9 rounded-full text-sm mx-auto ${isSelected ? 'bg-blue-600 text-white' : inMonth ? 'text-gray-800 hover:bg-blue-50' : 'text-gray-400 hover:bg-gray-100'}`}
+                >
+                  {date.getDate()}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 bg-white rounded-lg shadow">
+          {eventsForSelectedDate.length === 0 ? (
+            <div className="p-8 text-center text-gray-600">
+              No scheduled events on this date.
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {eventsForSelectedDate.map((event) => (
+                <div key={event.id} className="p-6 hover:bg-gray-50">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">{event.title}</h3>
+                      <div className="text-sm text-gray-600 mb-3 space-y-1">
+                        {(() => {
+                          const linkedInquiry = event.inquiryId ? inquiryMap[event.inquiryId] : undefined;
+                          const customerLine = event.description?.split('\n').find(l => l.startsWith('Customer: '));
+                          const ticketLine = event.description?.split('\n').find(l => l.startsWith('Ticket: '));
+                          return (
+                            <>
+                              <p>Customer: <span className="font-semibold">{linkedInquiry?.name || (customerLine ? customerLine.replace('Customer: ', '') : '—')}</span></p>
+                              <p>Ticket: <span className="font-mono">{linkedInquiry?.ticketNumber || (ticketLine ? ticketLine.replace('Ticket: ', '') : '—')}</span></p>
+                              <p>Agent: <span className="font-mono">{event.agentId}</span></p>
+                              {linkedInquiry?.propertyTitle && (
+                                <p>Property: <span className="font-semibold">{linkedInquiry.propertyTitle}</span></p>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        <p>📅 <strong>Start:</strong> {new Date(event.start).toLocaleString()}</p>
+                        <p>📅 <strong>End:</strong> {new Date(event.end).toLocaleString()}</p>
+                        <p>🏷️ <strong>Type:</strong> 
+                          <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${
+                            event.type === 'viewing' ? 'bg-blue-100 text-blue-800' :
+                            event.type === 'meeting' ? 'bg-green-100 text-green-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {event.type}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    {effectiveUser && event.agentId === effectiveUser.id && (
+                      <div className="ml-4">
+                        <button
+                          onClick={() => { setEditingEvent(event); setShowScheduleModal(true); }}
+                          className="px-3 py-2 text-sm bg-gray-100 text-gray-800 rounded hover:bg-gray-200"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 p-6 bg-blue-50 rounded-lg">
         <p className="text-sm text-blue-800">
-          💡 <strong>Tip:</strong> Use the "Schedule Viewing" button to create property viewing appointments.
+          💡 <strong>Tip:</strong> Click a date to schedule a viewing for your assigned or claimed tickets.
         </p>
       </div>
 
@@ -147,10 +210,11 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
         <ScheduleViewingModal
           user={effectiveUser}
           event={editingEvent || undefined}
+          initialDate={editingEvent ? undefined : selectedDateInput}
           onClose={() => setShowScheduleModal(false)}
           onSuccess={() => {
             if (effectiveUser) {
-              loadEvents(effectiveUser);
+              loadEvents();
             }
           }}
         />

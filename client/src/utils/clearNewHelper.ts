@@ -1,4 +1,5 @@
 import { databaseAPI } from '../services/api';
+import { getUser } from './session';
 
 /**
  * Gets the current user's name from localStorage
@@ -6,10 +7,14 @@ import { databaseAPI } from '../services/api';
  */
 const getUserName = (): string => {
   try {
+    const user = getUser('admin') || getUser('superadmin');
+    if (user) {
+      return user.name || 'Admin';
+    }
     const userStr = localStorage.getItem('user');
     if (userStr) {
-      const user = JSON.parse(userStr);
-      return user.name || 'Admin';
+      const legacyUser = JSON.parse(userStr);
+      return legacyUser.name || 'Admin';
     }
   } catch (e) {
     console.error('Error parsing user data:', e);

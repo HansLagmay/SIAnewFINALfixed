@@ -6,16 +6,17 @@ interface ScheduleViewingModalProps {
   user: User;
   inquiry?: Inquiry;
   event?: CalendarEvent;
+  initialDate?: string;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const ScheduleViewingModal = ({ user, inquiry, event, onClose, onSuccess }: ScheduleViewingModalProps) => {
+const ScheduleViewingModal = ({ user, inquiry, event, initialDate, onClose, onSuccess }: ScheduleViewingModalProps) => {
   const isEdit = Boolean(event);
   const initialStart = event ? new Date(event.start) : null;
   const initialEnd = event ? new Date(event.end) : null;
   const [formData, setFormData] = useState({
-    date: initialStart ? initialStart.toISOString().slice(0, 10) : '',
+    date: initialStart ? initialStart.toISOString().slice(0, 10) : (initialDate || ''),
     time: initialStart ? initialStart.toTimeString().slice(0, 5) : '',
     duration: initialStart && initialEnd ? Math.round((initialEnd.getTime() - initialStart.getTime()) / 60000).toString() : '60',
     notes: event?.description?.split('\n').slice(1).join('\n') || ''
@@ -29,6 +30,12 @@ const ScheduleViewingModal = ({ user, inquiry, event, onClose, onSuccess }: Sche
     name: '',
     propertyTitle: ''
   });
+
+  useEffect(() => {
+    if (!isEdit && initialDate) {
+      setFormData((prev) => ({ ...prev, date: initialDate }));
+    }
+  }, [initialDate, isEdit]);
 
   useEffect(() => {
     const loadInquiries = async () => {

@@ -39,6 +39,23 @@ const readSession = (role: User['role']): Session | null => {
   }
 };
 
+const readLegacySession = (): Session | null => {
+  const sessionStr = localStorage.getItem('session');
+  if (!sessionStr) return null;
+  try {
+    const session: Session = JSON.parse(sessionStr);
+    if (Date.now() > session.expiresAt) {
+      localStorage.removeItem('session');
+      return null;
+    }
+    return session;
+  } catch (error) {
+    console.error('Error parsing session:', error);
+    localStorage.removeItem('session');
+    return null;
+  }
+};
+
 const rolesForPath = (): User['role'][] => {
   const role = getRoleFromPath();
   if (role === 'superadmin') return ['superadmin', 'admin'];
@@ -65,6 +82,12 @@ export const getSession = (role?: User['role']): Session | null => {
     const session = readSession(r);
     if (session) return session;
   }
+  const legacy = readLegacySession();
+  if (legacy) {
+    localStorage.setItem(getKeyForRole(legacy.user.role), JSON.stringify(legacy));
+    localStorage.removeItem('session');
+    return legacy;
+  }
   return null;
 };
 
@@ -72,6 +95,12 @@ export const getSessionForRoles = (roles: User['role'][]): Session | null => {
   for (const r of roles) {
     const session = readSession(r);
     if (session) return session;
+  }
+  const legacy = readLegacySession();
+  if (legacy && roles.includes(legacy.user.role)) {
+    localStorage.setItem(getKeyForRole(legacy.user.role), JSON.stringify(legacy));
+    localStorage.removeItem('session');
+    return legacy;
   }
   return null;
 };

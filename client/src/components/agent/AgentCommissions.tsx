@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { propertiesAPI } from '../../services/api';
 import type { Property } from '../../types';
 import LoadingSpinner from '../shared/LoadingSpinner';
+import { getUser } from '../../utils/session';
 
 const AgentCommissions = () => {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -18,8 +19,7 @@ const AgentCommissions = () => {
       const response = await propertiesAPI.getAll();
       
       // Get current user from localStorage
-      const userStr = localStorage.getItem('user');
-      const user = userStr ? JSON.parse(userStr) : null;
+      const user = getUser('agent');
       
       if (!user) {
         setError('User not authenticated');

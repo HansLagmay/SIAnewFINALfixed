@@ -14,9 +14,9 @@ router.get('/', authenticateToken, async (req, res) => {
     
     const events = await readJSONFile('calendar-events.json');
     
-    // Filter by agent if not admin
+    const shared = req.query.shared === 'true';
     let filteredEvents = events;
-    if (req.user.role === 'agent') {
+    if (req.user.role === 'agent' && !shared) {
       filteredEvents = events.filter(e => e.agentId === req.user.id);
     }
     
