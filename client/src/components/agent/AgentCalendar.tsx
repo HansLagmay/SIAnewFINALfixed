@@ -37,7 +37,12 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
   const loadEvents = async () => {
     try {
       const response = await calendarAPI.getAll({ shared: true });
-      setEvents(response.data);
+      if (Array.isArray(response.data)) {
+        setEvents(response.data);
+      } else {
+        setEvents([]);
+        setError('Failed to load calendar events. Please try again later.');
+      }
     } catch (error) {
       console.error('Failed to load calendar events:', error);
       setError('Failed to load calendar events. Please try again later.');
@@ -78,7 +83,9 @@ const AgentCalendar = ({ user }: AgentCalendarProps) => {
     });
   }, [currentMonth, startDay, daysInMonth]);
   const isSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
-  const eventsForSelectedDate = events.filter((event) => isSameDay(new Date(event.start), selectedDate));
+  const eventsForSelectedDate = Array.isArray(events)
+    ? events.filter((event) => isSameDay(new Date(event.start), selectedDate))
+    : [];
   const formatDateInput = (date: Date) => {
     if (Number.isNaN(date.getTime())) {
       return '';
