@@ -68,7 +68,7 @@ export const setSession = (user: User, token: string): void => {
   const session: Session = {
     user,
     token,
-    expiresAt: Date.now() + (8 * 60 * 60 * 1000) // 8 hours
+    expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
   };
   localStorage.setItem(getKeyForRole(user.role), JSON.stringify(session));
 };
@@ -109,10 +109,9 @@ export const clearSession = (role?: User['role']): void => {
   const resolvedRole = role || rolesForPath()[0] || null;
   if (resolvedRole) {
     localStorage.removeItem(getKeyForRole(resolvedRole));
-  } else {
-    // Fallback: clear all known sessions
-    Object.values(SESSION_KEYS).forEach(k => localStorage.removeItem(k));
   }
+  // Note: Removed fallback that clears all sessions to support multi-role login
+  // Each role maintains its own session independently
   localStorage.removeItem('user');
 };
 

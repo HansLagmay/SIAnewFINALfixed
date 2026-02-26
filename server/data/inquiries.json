@@ -1,1 +1,64 @@
-[]
+[
+  {
+    "id": "mm2v0giaziijaiy7g2n",
+    "ticketNumber": "INQ-2026-001",
+    "name": "HANS ZELMUR LAGMAY",
+    "email": "hzglagmay@addu.edu.ph",
+    "phone": "09999441618",
+    "message": "hello i am interested to view\n\nPreferred contact methods: Email, Phone, SMS",
+    "propertyId": "prop002",
+    "propertyTitle": "Luxury Condo in BGC",
+    "propertyPrice": 12000000,
+    "propertyLocation": "Bonifacio Global City, Taguig",
+    "status": "viewing-scheduled",
+    "assignedTo": "user002",
+    "claimedBy": "user002",
+    "assignedBy": null,
+    "claimedAt": "2026-02-26T02:54:01.355Z",
+    "assignedAt": null,
+    "notes": [
+      {
+        "id": "1772074514458",
+        "agentId": "user002",
+        "agentName": "Maria Santos",
+        "note": "Viewing scheduled for 2026-02-26 at 15:00",
+        "createdAt": "2026-02-26T02:55:14.458Z"
+      }
+    ],
+    "lastFollowUpAt": null,
+    "nextFollowUpAt": null,
+    "followUpReminders": [],
+    "createdAt": "2026-02-26T02:44:03.346Z",
+    "updatedAt": "2026-02-26T02:55:14.467Z",
+    "closedAt": null,
+    "changeHistory": [
+      {
+        "field": "assignedTo",
+        "oldValue": null,
+        "newValue": "user002",
+        "changedBy": "user002",
+        "changedByName": "Maria Santos",
+        "changedAt": "2026-02-26T02:54:01.355Z",
+        "reason": "Agent claimed ticket"
+      },
+      {
+        "field": "status",
+        "oldValue": "new",
+        "newValue": "claimed",
+        "changedBy": "user002",
+        "changedByName": "Maria Santos",
+        "changedAt": "2026-02-26T02:54:01.355Z",
+        "reason": null
+      },
+      {
+        "field": "status",
+        "oldValue": "claimed",
+        "newValue": "viewing-scheduled",
+        "changedBy": "user002",
+        "changedByName": "Maria Santos",
+        "changedAt": "2026-02-26T02:55:14.467Z",
+        "reason": null
+      }
+    ]
+  }
+]

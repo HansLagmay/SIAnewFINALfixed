@@ -474,5 +474,117 @@
     "action": "LOGIN_SUCCESS",
     "details": "User logged in: Maria Santos",
     "user": "Maria Santos"
+  },
+  {
+    "id": "1772073264059",
+    "timestamp": "2026-02-26T02:34:24.059Z",
+    "action": "LOGIN_FAILED",
+    "details": "Failed login attempt: admin@tesproperty.com",
+    "user": "Unknown"
+  },
+  {
+    "id": "1772073277179",
+    "timestamp": "2026-02-26T02:34:37.179Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1772073284342",
+    "timestamp": "2026-02-26T02:34:44.342Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1772073309575",
+    "timestamp": "2026-02-26T02:35:09.575Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: john doe (INQ-2026-001)",
+    "user": "Customer"
+  },
+  {
+    "id": "1772073377034",
+    "timestamp": "2026-02-26T02:36:17.034Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1772073810503",
+    "timestamp": "2026-02-26T02:43:30.503Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1772073821783",
+    "timestamp": "2026-02-26T02:43:41.783Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1772073843377",
+    "timestamp": "2026-02-26T02:44:03.377Z",
+    "action": "CREATE_INQUIRY",
+    "details": "New inquiry from: HANS ZELMUR LAGMAY (INQ-2026-001)",
+    "user": "Customer"
+  },
+  {
+    "id": "1772074146925",
+    "timestamp": "2026-02-26T02:49:06.925Z",
+    "action": "CREATE_AGENT",
+    "details": "Created new agent: HANS LAGMAY",
+    "user": "Admin"
+  },
+  {
+    "id": "1772074422967",
+    "timestamp": "2026-02-26T02:53:42.967Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1772074432934",
+    "timestamp": "2026-02-26T02:53:52.934Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1772074441367",
+    "timestamp": "2026-02-26T02:54:01.367Z",
+    "action": "CLAIM_INQUIRY",
+    "details": "Agent Maria Santos claimed inquiry INQ-2026-001",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1772074514446",
+    "timestamp": "2026-02-26T02:55:14.446Z",
+    "action": "CREATE_EVENT",
+    "details": "Created calendar event: Property Viewing - Luxury Condo in BGC",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1772074514481",
+    "timestamp": "2026-02-26T02:55:14.481Z",
+    "action": "UPDATE_INQUIRY",
+    "details": "Updated inquiry: INQ-2026-001",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1772075712098",
+    "timestamp": "2026-02-26T03:15:12.098Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1772075722097",
+    "timestamp": "2026-02-26T03:15:22.097Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
   }
 ]

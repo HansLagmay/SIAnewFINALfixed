@@ -148,15 +148,20 @@ const AdminInquiries = () => {
                         inquiry.status === 'new' ? 'bg-purple-100 text-purple-800' :
                         inquiry.status === 'claimed' ? 'bg-cyan-100 text-cyan-800' :
                         inquiry.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                        inquiry.status === 'contacted' ? 'bg-purple-100 text-purple-800' :
                         inquiry.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
+                        inquiry.status === 'negotiating' ? 'bg-orange-100 text-orange-800' :
                         inquiry.status === 'viewing-scheduled' ? 'bg-indigo-100 text-indigo-800' :
                         inquiry.status === 'viewed-interested' ? 'bg-green-100 text-green-800' :
-                        inquiry.status === 'viewed-not-interested' ? 'bg-orange-100 text-orange-800' :
-                        inquiry.status === 'successful' ? 'bg-green-100 text-green-800' :
-                        inquiry.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                        inquiry.status === 'viewed-not-interested' ? 'bg-gray-300 text-gray-800' :
+                        inquiry.status === 'deal-successful' ? 'bg-green-600 text-white' :
+                        inquiry.status === 'deal-cancelled' ? 'bg-red-600 text-white' :
+                        inquiry.status === 'no-response' ? 'bg-gray-400 text-white' :
                         'bg-gray-100 text-gray-800'
                       }`}>
-                        {inquiry.status}
+                        {inquiry.status === 'deal-successful' ? '✓ Deal Successful' :
+                         inquiry.status === 'deal-cancelled' ? '✗ Deal Cancelled' :
+                         inquiry.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                       </span>
                     </div>
                     <div className="space-y-1 text-sm text-gray-600 mb-3">
@@ -190,18 +195,20 @@ const AdminInquiries = () => {
                       <select
                         value={inquiry.status}
                         onChange={(e) => handleStatusUpdate(inquiry.id, e.target.value as Inquiry['status'])}
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium"
                       >
                         <option value="new">New</option>
                         <option value="claimed">Claimed</option>
                         <option value="assigned">Assigned</option>
+                        <option value="contacted">Contacted</option>
                         <option value="in-progress">In Progress</option>
                         <option value="viewing-scheduled">Viewing Scheduled</option>
+                        <option value="negotiating">Negotiating</option>
                         <option value="viewed-interested">Viewed - Interested</option>
                         <option value="viewed-not-interested">Viewed - Not Interested</option>
-                        <option value="successful">Successful</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="closed">Closed</option>
+                        <option value="deal-successful">✓ Deal Successful</option>
+                        <option value="deal-cancelled">✗ Deal Cancelled</option>
+                        <option value="no-response">No Response</option>
                       </select>
                       <button
                         onClick={() => handleDelete(inquiry.id)}

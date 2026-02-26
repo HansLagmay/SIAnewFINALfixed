@@ -31,8 +31,8 @@ export const useApiCall = <TArgs extends any[], TResponse>(
         // Handle specific HTTP status codes
         switch (error.response.status) {
           case 401:
-            errorMessage = 'Session expired. Please login again.';
-            // Clear session and redirect to login handled by axios interceptor
+            errorMessage = error.response.data?.error || 'Authentication required';
+            // Note: Removed automatic "Session expired" message to prevent confusion
             break;
           case 403:
             errorMessage = error.response.data?.error || 'Permission denied';

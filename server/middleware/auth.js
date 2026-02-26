@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d';
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {

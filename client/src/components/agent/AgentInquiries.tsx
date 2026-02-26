@@ -25,13 +25,13 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
         return;
       }
       
-      // SECURITY FIX: Filter to show only assigned tickets + unassigned tickets
+      // Show assigned tickets + all unassigned tickets (available to claim)
       const myInquiries = response.data.filter((inquiry: any) => {
         // Show if assigned to me
         if (inquiry.assignedTo === user.id) return true;
         
-        // Show if unassigned (so I can claim it)
-        if (!inquiry.assignedTo && inquiry.status === 'new') return true;
+        // Show if unassigned (available for any agent to claim)
+        if (!inquiry.assignedTo) return true;
         
         // Hide tickets assigned to other agents
         return false;
@@ -75,7 +75,7 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
 
   // Separate inquiries into assigned and available
   const assignedInquiries = inquiries.filter(i => i.assignedTo === user?.id);
-  const availableInquiries = inquiries.filter(i => !i.assignedTo && i.status === 'new');
+  const availableInquiries = inquiries.filter(i => !i.assignedTo);
   
   const filteredAssignedInquiries = filter === 'all' 
     ? assignedInquiries 
@@ -152,12 +152,12 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
             Claimed
           </button>
           <button
-            onClick={() => setFilter('assigned')}
+            onClick={() => setFilter('contacted')}
             className={`px-4 py-2 rounded-lg transition ${
-              filter === 'assigned' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === 'contacted' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
             }`}
           >
-            Assigned
+            Contacted
           </button>
           <button
             onClick={() => setFilter('in-progress')}
@@ -168,28 +168,28 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
             In Progress
           </button>
           <button
-            onClick={() => setFilter('viewing-scheduled')}
+            onClick={() => setFilter('negotiating')}
             className={`px-4 py-2 rounded-lg transition ${
-              filter === 'viewing-scheduled' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === 'negotiating' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
             }`}
           >
-            Viewing Scheduled
+            Negotiating
           </button>
           <button
-            onClick={() => setFilter('successful')}
+            onClick={() => setFilter('deal-successful')}
             className={`px-4 py-2 rounded-lg transition ${
-              filter === 'successful' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === 'deal-successful' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
             }`}
           >
-            Successful
+            ✓ Deal Successful
           </button>
           <button
-            onClick={() => setFilter('closed')}
+            onClick={() => setFilter('deal-cancelled')}
             className={`px-4 py-2 rounded-lg transition ${
-              filter === 'closed' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === 'deal-cancelled' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700'
             }`}
           >
-            Closed
+            ✗ Deal Cancelled
           </button>
         </div>
       </div>
@@ -215,15 +215,20 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         inquiry.status === 'claimed' ? 'bg-cyan-100 text-cyan-800' :
                         inquiry.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                        inquiry.status === 'contacted' ? 'bg-purple-100 text-purple-800' :
                         inquiry.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
+                        inquiry.status === 'negotiating' ? 'bg-orange-100 text-orange-800' :
                         inquiry.status === 'viewing-scheduled' ? 'bg-indigo-100 text-indigo-800' :
                         inquiry.status === 'viewed-interested' ? 'bg-green-100 text-green-800' :
-                        inquiry.status === 'viewed-not-interested' ? 'bg-orange-100 text-orange-800' :
-                        inquiry.status === 'successful' ? 'bg-green-100 text-green-800' :
-                        inquiry.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                        inquiry.status === 'viewed-not-interested' ? 'bg-gray-100 text-gray-800' :
+                        inquiry.status === 'deal-successful' ? 'bg-green-600 text-white' :
+                        inquiry.status === 'deal-cancelled' ? 'bg-red-600 text-white' :
+                        inquiry.status === 'no-response' ? 'bg-gray-400 text-white' :
                         'bg-gray-100 text-gray-800'
                       }`}>
-                        {inquiry.status}
+                        {inquiry.status === 'deal-successful' ? '✓ Deal Successful' :
+                         inquiry.status === 'deal-cancelled' ? '✗ Deal Cancelled' :
+                         inquiry.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                       </span>
                       {inquiry.claimedBy === user?.id && (
                         <span className="px-2 py-1 rounded text-xs font-semibold bg-green-50 text-green-700">
@@ -254,17 +259,19 @@ const AgentInquiries = ({ user }: AgentInquiriesProps) => {
                       <select
                         value={inquiry.status}
                         onChange={(e) => handleStatusUpdate(inquiry.id, e.target.value as Inquiry['status'])}
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium"
                       >
                         <option value="claimed">Claimed</option>
                         <option value="assigned">Assigned</option>
+                        <option value="contacted">Contacted</option>
                         <option value="in-progress">In Progress</option>
                         <option value="viewing-scheduled">Viewing Scheduled</option>
+                        <option value="negotiating">Negotiating</option>
                         <option value="viewed-interested">Viewed - Interested</option>
                         <option value="viewed-not-interested">Viewed - Not Interested</option>
-                        <option value="successful">Successful</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="closed">Closed</option>
+                        <option value="deal-successful">✓ Deal Successful</option>
+                        <option value="deal-cancelled">✗ Deal Cancelled</option>
+                        <option value="no-response">No Response</option>
                       </select>
                     </div>
                   </div>

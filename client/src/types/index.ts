@@ -105,9 +105,10 @@ export interface Inquiry {
   propertyLocation?: string;
   
   // Assignment Status
-  status: 'new' | 'claimed' | 'assigned' | 'in-progress' | 
-          'viewing-scheduled' | 'viewed-interested' | 'viewed-not-interested' |
-          'successful' | 'cancelled' | 'closed';
+  status: 'new' | 'claimed' | 'assigned' | 'contacted' | 'in-progress' | 
+          'viewing-scheduled' | 'negotiating' | 
+          'viewed-interested' | 'viewed-not-interested' |
+          'deal-successful' | 'deal-cancelled' | 'no-response';
   
   assignedTo: string | null; // agent ID
   claimedBy: string | null; // agent ID (if self-claimed)

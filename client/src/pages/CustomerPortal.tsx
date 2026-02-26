@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import PropertyList from '../components/customer/PropertyList';
 import PropertyDetailModal from '../components/customer/PropertyDetailModal';
 import InquiryModal from '../components/customer/InquiryModal';
-import AppointmentModal from '../components/customer/AppointmentModal';
 import CustomerNavbar from '../components/customer/CustomerNavbar';
 import type { Property } from '../types';
 import { propertiesAPI } from '../services/api';
@@ -12,7 +11,6 @@ const CustomerPortal = () => {
   const [loading, setLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [showInquiryModal, setShowInquiryModal] = useState(false);
-  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
 
@@ -35,7 +33,10 @@ const CustomerPortal = () => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          property.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = !filterType || property.type === filterType;
-    return matchesSearch && matchesType && property.status === 'available';
+    // Only show available and reserved properties to customers
+    // Hide sold, withdrawn, off-market, under-contract, and draft properties
+    const isAvailableToView = ['available', 'reserved'].includes(property.status);
+    return matchesSearch && matchesType && isAvailableToView;
   });
 
   return (
@@ -125,12 +126,11 @@ const CustomerPortal = () => {
           </section>
         )}
 
-        {selectedProperty && !showInquiryModal && !showAppointmentModal && (
+        {selectedProperty && !showInquiryModal && (
           <PropertyDetailModal
             property={selectedProperty}
             onClose={() => setSelectedProperty(null)}
             onInquire={() => setShowInquiryModal(true)}
-            onBookAppointment={() => setShowAppointmentModal(true)}
           />
         )}
 
@@ -139,16 +139,6 @@ const CustomerPortal = () => {
             property={selectedProperty}
             onClose={() => {
               setShowInquiryModal(false);
-              setSelectedProperty(null);
-            }}
-          />
-        )}
-
-        {showAppointmentModal && selectedProperty && (
-          <AppointmentModal
-            property={selectedProperty}
-            onClose={() => {
-              setShowAppointmentModal(false);
               setSelectedProperty(null);
             }}
           />
@@ -233,8 +223,8 @@ const CustomerPortal = () => {
                 <div className="text-gray-700">Within 24 hours via your preferred contact methods (Email/Phone/SMS).</div>
               </div>
               <div className="border rounded-lg p-4">
-                <div className="font-semibold mb-2">Can I book a viewing date online?</div>
-                <div className="text-gray-700">Yes. Use “Book Viewing” to send your preferred date/time. Agents will confirm via SMS or email.</div>
+                <div className="font-semibold mb-2">How do I schedule a property viewing?</div>
+                <div className="text-gray-700">After submitting an inquiry, our agents will contact you via SMS, email, or phone to arrange a convenient viewing time.</div>
               </div>
               <div className="border rounded-lg p-4">
                 <div className="font-semibold mb-2">Do you offer mortgage assistance?</div>

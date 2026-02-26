@@ -333,95 +333,134 @@ const AdminProperties = () => {
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Properties</h1>
+        <h1 className="text-3xl font-bold text-gray-800">📋 Property Management</h1>
         <button
           onClick={() => setShowCreate(s => !s)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md transition"
         >
-          {showCreate ? 'Close' : 'Add Property'}
+          {showCreate ? '✕ Close' : '+ Add New Property'}
         </button>
       </div>
       
       {showCreate && (
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              value={createForm.title}
-              onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
-              placeholder="Title *"
-              className="px-4 py-2 border rounded-lg"
-            />
-            <select
-              value={createForm.type}
-              onChange={(e) => setCreateForm({ ...createForm, type: e.target.value })}
-              className="px-4 py-2 border rounded-lg"
-            >
-              <option value="House">House</option>
-              <option value="Condominium">Condominium</option>
-              <option value="Villa">Villa</option>
-              <option value="Apartment">Apartment</option>
-            </select>
-            <input
-              type="number"
-              value={createForm.price}
-              onChange={(e) => setCreateForm({ ...createForm, price: Number(e.target.value) })}
-              placeholder="Price (PHP) *"
-              className="px-4 py-2 border rounded-lg"
-            />
-            <input
-              type="text"
-              value={createForm.location}
-              onChange={(e) => setCreateForm({ ...createForm, location: e.target.value })}
-              placeholder="Location *"
-              className="px-4 py-2 border rounded-lg"
-            />
-            <input
-              type="number"
-              value={createForm.bedrooms}
-              onChange={(e) => setCreateForm({ ...createForm, bedrooms: Number(e.target.value) })}
-              placeholder="Bedrooms"
-              className="px-4 py-2 border rounded-lg"
-            />
-            <input
-              type="number"
-              value={createForm.bathrooms}
-              onChange={(e) => setCreateForm({ ...createForm, bathrooms: Number(e.target.value) })}
-              placeholder="Bathrooms"
-              className="px-4 py-2 border rounded-lg"
-            />
-            <input
-              type="number"
-              value={createForm.area}
-              onChange={(e) => setCreateForm({ ...createForm, area: Number(e.target.value) })}
-              placeholder="Area (sqm)"
-              className="px-4 py-2 border rounded-lg"
-            />
-            <input
-              type="text"
-              value={createForm.imageUrl}
-              onChange={(e) => setCreateForm({ ...createForm, imageUrl: e.target.value })}
-              placeholder="Image URL"
-              className="px-4 py-2 border rounded-lg"
-            />
-            <textarea
-              value={createForm.description}
-              onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-              placeholder="Description *"
-              className="md:col-span-2 px-4 py-2 border rounded-lg"
-              rows={4}
-            />
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8 border border-blue-200">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Add New Property</h2>
+          <p className="text-gray-600 mb-6 text-sm">
+            ✨ Create a new property listing that will be immediately available for customers to view and agents to manage.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Property Title <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={createForm.title}
+                onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
+                placeholder="e.g., Luxury Condo in BGC"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Property Type</label>
+              <select
+                value={createForm.type}
+                onChange={(e) => setCreateForm({ ...createForm, type: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="House">House</option>
+                <option value="Condominium">Condominium</option>
+                <option value="Villa">Villa</option>
+                <option value="Apartment">Apartment</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Price (PHP) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                value={createForm.price}
+                onChange={(e) => setCreateForm({ ...createForm, price: Number(e.target.value) })}
+                placeholder="e.g., 12000000"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Location <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={createForm.location}
+                onChange={(e) => setCreateForm({ ...createForm, location: e.target.value })}
+                placeholder="e.g., Bonifacio Global City, Taguig"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Bedrooms</label>
+              <input
+                type="number"
+                value={createForm.bedrooms}
+                onChange={(e) => setCreateForm({ ...createForm, bedrooms: Number(e.target.value) })}
+                placeholder="e.g., 2"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Bathrooms</label>
+              <input
+                type="number"
+                value={createForm.bathrooms}
+                onChange={(e) => setCreateForm({ ...createForm, bathrooms: Number(e.target.value) })}
+                placeholder="e.g., 2"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Area (square meters)</label>
+              <input
+                type="number"
+                value={createForm.area}
+                onChange={(e) => setCreateForm({ ...createForm, area: Number(e.target.value) })}
+                placeholder="e.g., 85"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
+              <input
+                type="text"
+                value={createForm.imageUrl}
+                onChange={(e) => setCreateForm({ ...createForm, imageUrl: e.target.value })}
+                placeholder="https://example.com/property.jpg"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Description <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={createForm.description}
+                onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
+                placeholder="Detailed description of the property, including key features, nearby amenities, and unique selling points..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                rows={4}
+              />
+            </div>
           </div>
-          <div className="mt-4 flex gap-3">
+          <div className="mt-6 flex gap-3">
             <button
               onClick={handleCreateProperty}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold shadow-md transition"
             >
-              Create Property
+              ✓ Create Property
             </button>
             <button
               onClick={() => setShowCreate(false)}
-              className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-semibold"
+              className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-semibold transition"
             >
               Cancel
             </button>
@@ -430,6 +469,16 @@ const AdminProperties = () => {
       )}
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="p-6 bg-blue-50 border-b border-blue-200">
+          <h2 className="text-lg font-bold text-gray-800 mb-2">📊 All Properties</h2>
+          <p className="text-sm text-gray-600">
+            <strong>💡 Quick Actions:</strong><br/>
+            • <strong>Status Dropdown:</strong> Change property status (Draft → Available → Reserved → Sold)<br/>
+            • <strong>Reserve Button:</strong> Temporarily hold an Available property for a specific agent (prevents others from claiming it)<br/>
+            • <strong>Pay Commission:</strong> Mark commission as paid after a successful sale<br/>
+            • <strong>Delete:</strong> Permanently remove property from system
+          </p>
+        </div>
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -536,26 +585,27 @@ const AdminProperties = () => {
                   {property.status === 'available' && (
                     <button
                       onClick={() => handleSetReservation(property)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                      title="Reserve property for an agent"
+                      className="text-blue-600 hover:text-blue-900 mr-4 font-semibold"
+                      title="⏰ Reserve this property for a specific agent for a limited time (default 24 hours). This prevents other agents from claiming it while your designated agent works on it."
                     >
-                      Reserve
+                      🔒 Reserve
                     </button>
                   )}
                   {property.commission && property.commission.status === 'pending' && (
                     <button
                       onClick={() => handleMarkCommissionPaid(property)}
-                      className="text-green-600 hover:text-green-900 mr-4"
-                      title="Mark commission as paid"
+                      className="text-green-600 hover:text-green-900 mr-4 font-semibold"
+                      title="Mark commission as paid to the agent"
                     >
-                      Pay Commission
+                      💵 Pay
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(property.id)}
-                    className="text-red-600 hover:text-red-900"
+                    className="text-red-600 hover:text-red-900 font-semibold"
+                    title="Permanently delete this property"
                   >
-                    Delete
+                    🗑️ Delete
                   </button>
                 </td>
               </tr>

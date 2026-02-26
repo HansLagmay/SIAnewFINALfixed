@@ -30,11 +30,9 @@ router.get('/', authenticateToken, async (req, res) => {
     
     const inquiries = await readJSONFile('inquiries.json');
     
-    // Filter by agent if not admin
+    // Agents can see all inquiries (to claim available tickets)
+    // Admin/superadmin see all inquiries
     let filteredInquiries = inquiries;
-    if (req.user.role === 'agent') {
-      filteredInquiries = inquiries.filter(i => i.assignedTo === req.user.id);
-    }
     
     const result = paginate(filteredInquiries, page, limit);
     res.json(result);

@@ -40,15 +40,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Session expired or invalid
-      clearSession();
-      
-      // Only redirect if not already on login page
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login?session_expired=true';
-      }
-    }
+    // Note: Removed automatic session clearing and redirect on 401 errors
+    // to prevent premature "session expired" messages
+    // Components will handle authentication errors as needed
     return Promise.reject(error);
   }
 );

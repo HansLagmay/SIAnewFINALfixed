@@ -155,11 +155,16 @@ const AgentDashboard = ({ user }: AgentDashboardProps) => {
                       inquiry.status === 'new' ? 'bg-purple-100 text-purple-800' :
                       inquiry.status === 'claimed' ? 'bg-cyan-100 text-cyan-800' :
                       inquiry.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                      inquiry.status === 'contacted' ? 'bg-purple-100 text-purple-800' :
                       inquiry.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
-                      inquiry.status === 'successful' ? 'bg-green-100 text-green-800' :
+                      inquiry.status === 'negotiating' ? 'bg-orange-100 text-orange-800' :
+                      inquiry.status === 'deal-successful' ? 'bg-green-600 text-white' :
+                      inquiry.status === 'deal-cancelled' ? 'bg-red-600 text-white' :
                       'bg-gray-100 text-gray-800'
                     }`}>
-                      {inquiry.status}
+                      {inquiry.status === 'deal-successful' ? '✓ Success' :
+                       inquiry.status === 'deal-cancelled' ? '✗ Cancelled' :
+                       inquiry.status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                     </span>
                     <p className="text-xs text-gray-500 mt-2">
                       {new Date(inquiry.createdAt).toLocaleDateString()}
