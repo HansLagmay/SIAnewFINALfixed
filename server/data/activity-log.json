@@ -460,5 +460,19 @@
     "action": "DELETE_INQUIRY",
     "details": "Deleted inquiry: INQ-2026-001",
     "user": "Admin User"
+  },
+  {
+    "id": "1772066251736",
+    "timestamp": "2026-02-26T00:37:31.736Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1772066262553",
+    "timestamp": "2026-02-26T00:37:42.553Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
   }
 ]
