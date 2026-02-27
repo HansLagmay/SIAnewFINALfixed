@@ -10,5 +10,17 @@
     "type": "viewing",
     "createdBy": "Maria Santos",
     "createdAt": "2026-02-26T02:55:14.435Z"
+  },
+  {
+    "id": "mm4ngcygx908s918w9",
+    "title": "Property Viewing - Modern Family Home in Manila",
+    "description": "Customer: john doe\nTicket: INQ-2026-002",
+    "start": "2026-02-27T09:00:00.000Z",
+    "end": "2026-02-27T10:00:00.000Z",
+    "agentId": "mm2v6yqi7gsnxs6atmf",
+    "inquiryId": "mm4nb4smwk1v8970d5r",
+    "type": "viewing",
+    "createdBy": "HANS LAGMAY",
+    "createdAt": "2026-02-27T08:48:00.664Z"
   }
 ]

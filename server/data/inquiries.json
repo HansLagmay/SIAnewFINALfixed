@@ -60,5 +60,67 @@
         "reason": null
       }
     ]
+  },
+  {
+    "id": "mm4nb4smwk1v8970d5r",
+    "ticketNumber": "INQ-2026-002",
+    "name": "john doe",
+    "email": "john@gmail.com",
+    "phone": "09994418617",
+    "message": "hello i am interested \n\nPreferred contact methods: Email, Phone, SMS",
+    "propertyId": "prop001",
+    "propertyTitle": "Modern Family Home in Manila",
+    "propertyPrice": 8500000,
+    "propertyLocation": "Quezon City, Metro Manila",
+    "status": "viewing-scheduled",
+    "assignedTo": "mm2v6yqi7gsnxs6atmf",
+    "claimedBy": "mm2v6yqi7gsnxs6atmf",
+    "assignedBy": null,
+    "claimedAt": "2026-02-27T08:46:54.163Z",
+    "assignedAt": null,
+    "notes": [
+      {
+        "id": "1772182080676",
+        "agentId": "mm2v6yqi7gsnxs6atmf",
+        "agentName": "HANS LAGMAY",
+        "note": "Viewing scheduled for 2026-02-27 at 17:00",
+        "createdAt": "2026-02-27T08:48:00.676Z"
+      }
+    ],
+    "lastFollowUpAt": null,
+    "nextFollowUpAt": null,
+    "followUpReminders": [],
+    "createdAt": "2026-02-27T08:43:56.807Z",
+    "updatedAt": "2026-02-27T08:48:00.682Z",
+    "closedAt": null,
+    "changeHistory": [
+      {
+        "field": "assignedTo",
+        "oldValue": null,
+        "newValue": "mm2v6yqi7gsnxs6atmf",
+        "changedBy": "mm2v6yqi7gsnxs6atmf",
+        "changedByName": "HANS LAGMAY",
+        "changedAt": "2026-02-27T08:46:54.163Z",
+        "reason": "Agent claimed ticket"
+      },
+      {
+        "field": "status",
+        "oldValue": "new",
+        "newValue": "claimed",
+        "changedBy": "mm2v6yqi7gsnxs6atmf",
+        "changedByName": "HANS LAGMAY",
+        "changedAt": "2026-02-27T08:46:54.163Z",
+        "reason": null
+      },
+      {
+        "field": "status",
+        "oldValue": "claimed",
+        "newValue": "viewing-scheduled",
+        "changedBy": "mm2v6yqi7gsnxs6atmf",
+        "changedByName": "HANS LAGMAY",
+        "changedAt": "2026-02-27T08:48:00.682Z",
+        "reason": null
+      }
+    ]
   }
 ]

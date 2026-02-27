@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import type { User } from '../../types';
+import SessionSwitcher from '../shared/SessionSwitcher';
 
 interface AdminSidebarProps {
   user: User | null;
@@ -17,10 +18,15 @@ const AdminSidebar = ({ user, onLogout }: AdminSidebarProps) => {
       </div>
 
       {user && (
-        <div className="p-4 border-b border-gray-700">
-          <p className="text-sm text-gray-400">Logged in as</p>
-          <p className="font-semibold">{user.name}</p>
-          <p className="text-xs text-gray-400">{user.email}</p>
+        <div className="p-4 border-b border-gray-700 space-y-3">
+          <div>
+            <p className="text-xs text-gray-400 mb-1">Logged in as</p>
+            <p className="font-semibold text-white truncate">{user.name}</p>
+            <p className="text-xs text-gray-400 truncate">{user.email}</p>
+          </div>
+          
+          {/* Session Switcher for multi-account demo */}
+          <SessionSwitcher role="admin" currentUser={user} />
         </div>
       )}
 
