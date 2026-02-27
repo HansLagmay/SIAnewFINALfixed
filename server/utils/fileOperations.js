@@ -67,7 +67,7 @@ const writeJSONFile = async (filename, data) => {
     const filePath = path.join(__dirname, '../data', filename);
     
     try {
-      // Create backup before writing
+      // Create backup before writing (backupFile handles exclusions internally)
       if (fs.existsSync(filePath)) {
         backupFile(filename);
       }

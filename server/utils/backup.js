@@ -1,8 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 
+// Files that should not be backed up (frequently changing or large files)
+const EXCLUDED_FROM_BACKUP = [
+  'activity-log.json',
+  'new-inquiries.json',
+  'new-properties.json',
+  'new-agents.json'
+];
+
 // Create backup of a file before modification
 const backupFile = (filename) => {
+  // Skip backup for excluded files
+  if (EXCLUDED_FROM_BACKUP.includes(filename)) {
+    return null;
+  }
+  
   const dataPath = path.join(__dirname, '../data', filename);
   const backupDir = path.join(__dirname, '../data/backups');
   
@@ -17,16 +30,17 @@ const backupFile = (filename) => {
       return null;
     }
     
-    // Create timestamped backup filename
+    // Create timestamped backup filename with .json extension at the end
     const timestamp = new Date().toISOString().replace(/:/g, '-');
-    const backupFilename = `${filename}.backup.${timestamp}`;
+    const baseNameWithoutExt = filename.replace(/\.json$/, '');
+    const backupFilename = `${baseNameWithoutExt}.backup.${timestamp}.json`;
     const backupPath = path.join(backupDir, backupFilename);
     
     // Copy file to backup
     fs.copyFileSync(dataPath, backupPath);
     
-    // Clean old backups (keep last 10)
-    cleanOldBackups(filename, 10);
+    // Clean old backups (keep last 5 for better disk space management)
+    cleanOldBackups(filename, 5);
     
     console.log(`Backup created: ${backupFilename}`);
     return backupFilename;
@@ -45,9 +59,15 @@ const cleanOldBackups = (filename, keepCount) => {
       return;
     }
     
-    // Get all backup files for this filename
+    // Get base filename without extension for matching
+    const baseNameWithoutExt = filename.replace(/\.json$/, '');
+    
+    // Get all backup files for this filename (match both old and new naming conventions)
     const files = fs.readdirSync(backupDir)
-      .filter(f => f.startsWith(filename + '.backup.'))
+      .filter(f => 
+        f.startsWith(baseNameWithoutExt + '.backup.') || 
+        f.startsWith(filename + '.backup.')
+      )
       .map(f => ({
         name: f,
         path: path.join(backupDir, f),
@@ -80,6 +100,12 @@ const restoreFromBackup = (filename, backupFilename) => {
       return false;
     }
     
+    // Verify it's a JSON file
+    if (!backupFilename.endsWith('.json')) {
+      console.error(`Backup file must be a JSON file: ${backupFilename}`);
+      return false;
+    }
+    
     // Copy backup to original location
     fs.copyFileSync(backupPath, dataPath);
     console.log(`Restored ${filename} from backup: ${backupFilename}`);
@@ -99,8 +125,14 @@ const listBackups = (filename) => {
       return [];
     }
     
+    // Get base filename without extension for matching
+    const baseNameWithoutExt = filename.replace(/\.json$/, '');
+    
     return fs.readdirSync(backupDir)
-      .filter(f => f.startsWith(filename + '.backup.'))
+      .filter(f => 
+        f.startsWith(baseNameWithoutExt + '.backup.') || 
+        f.startsWith(filename + '.backup.')
+      )
       .map(f => {
         const stats = fs.statSync(path.join(backupDir, f));
         return {
@@ -116,9 +148,46 @@ const listBackups = (filename) => {
   }
 };
 
+// Delete all backups for a specific file
+const deleteAllBackups = (filename) => {
+  const backupDir = path.join(__dirname, '../data/backups');
+  
+  try {
+    if (!fs.existsSync(backupDir)) {
+      return 0;
+    }
+    
+    // Get base filename without extension for matching
+    const baseNameWithoutExt = filename.replace(/\.json$/, '');
+    
+    const files = fs.readdirSync(backupDir)
+      .filter(f => 
+        f.startsWith(baseNameWithoutExt + '.backup.') || 
+        f.startsWith(filename + '.backup.')
+      );
+    
+    let deletedCount = 0;
+    files.forEach(file => {
+      try {
+        fs.unlinkSync(path.join(backupDir, file));
+        deletedCount++;
+        console.log(`Deleted backup: ${file}`);
+      } catch (error) {
+        console.error(`Error deleting backup ${file}:`, error);
+      }
+    });
+    
+    return deletedCount;
+  } catch (error) {
+    console.error(`Error deleting backups for ${filename}:`, error);
+    return 0;
+  }
+};
+
 module.exports = {
   backupFile,
   cleanOldBackups,
   restoreFromBackup,
-  listBackups
+  listBackups,
+  deleteAllBackups
 };
