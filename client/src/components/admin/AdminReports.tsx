@@ -35,13 +35,26 @@ const AdminReports = () => {
       const properties = propertiesRes.data || [];
       
       const metrics = agents.map((agent: User) => {
-        const agentInquiries = inquiries.filter((i: Inquiry) => i.assignedTo === agent.id);
+        // Only count inquiries from last 6 months for accurate conversion rate
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        
+        const agentInquiries = inquiries.filter((i: Inquiry) => 
+          i.assignedTo === agent.id && 
+          new Date(i.createdAt) >= sixMonthsAgo
+        );
+        
         const totalInquiries = agentInquiries.length;
         const activeInquiries = agentInquiries.filter((i: Inquiry) => 
           i.status !== 'deal-successful' && i.status !== 'deal-cancelled' && i.status !== 'no-response'
         ).length;
         const successfulInquiries = agentInquiries.filter((i: Inquiry) => i.status === 'deal-successful').length;
-        const conversionRate = totalInquiries > 0 ? (successfulInquiries / totalInquiries) * 100 : 0;
+        
+        // Calculate conversion rate based on closed inquiries (successful + cancelled + no-response)
+        const closedInquiries = agentInquiries.filter((i: Inquiry) => 
+          i.status === 'deal-successful' || i.status === 'deal-cancelled' || i.status === 'no-response'
+        ).length;
+        const conversionRate = closedInquiries > 0 ? (successfulInquiries / closedInquiries) * 100 : 0;
         
         const soldProperties = properties.filter((p: Property) => p.soldByAgentId === agent.id);
         const totalSalesValue = soldProperties.reduce((sum: number, p: Property) => sum + (p.salePrice || p.price), 0);

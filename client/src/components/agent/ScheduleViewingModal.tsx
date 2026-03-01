@@ -139,33 +139,9 @@ const ScheduleViewingModal = ({ user, inquiry, event, initialDate, onClose, onSu
           ]
         });
         
-        // Update property status to "under-contract" when viewing is scheduled
-        if (selectedInquiry.propertyId && !isEdit) {
-          try {
-            const propertyRes = await propertiesAPI.getById(selectedInquiry.propertyId);
-            const property = propertyRes.data;
-            
-            // Only update if property is available or reserved
-            if (property.status === 'available' || property.status === 'reserved') {
-              await propertiesAPI.update(selectedInquiry.propertyId, {
-                status: 'under-contract',
-                statusHistory: [
-                  ...(property.statusHistory || []),
-                  {
-                    status: 'under-contract',
-                    changedBy: user.id,
-                    changedByName: user.name,
-                    changedAt: new Date().toISOString(),
-                    reason: `Viewing scheduled with ${selectedInquiry.name} (${selectedInquiry.ticketNumber})`
-                  }
-                ]
-              });
-            }
-          } catch (err) {
-            console.error('Failed to update property status:', err);
-            // Don't fail the entire operation if property update fails
-          }
-        }
+        // Note: Property status is kept as 'available' or 'reserved' to allow other buyers to inquire
+        // Property should only change to 'pending' when an offer is accepted
+        // and 'under-contract' when contracts are signed by both parties
       }
       
       alert(isEdit ? 'Viewing updated successfully!' : 'Viewing scheduled successfully!');
