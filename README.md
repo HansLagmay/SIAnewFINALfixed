@@ -1,4 +1,4 @@
-# 🏠 TES Property System v2.1 - Real Estate Inquiry Management
+# 🏠 TES Property System v2.3 - Real Estate Inquiry Management
 
 A complete professional real estate management system with **React + Express** architecture, using **JSON file-based database** for simplicity and portability.
 
@@ -12,15 +12,24 @@ A complete professional real estate management system with **React + Express** a
 
 All you need is **VS Code** and **Node.js**.
 
+### Key Features
+- 🏢 **Property Management** - Create, list, and manage property listings with workflow validation
+- 📋 **Inquiry System** - Customer inquiries with agent assignment and status tracking
+- 📅 **Calendar & Scheduling** - Schedule property viewings with automatic property status updates
+- 👥 **Multi-Role System** - Admin, Agent, and Customer portals with role-based access
+- 📊 **Agent Performance** - Track agent metrics, conversion rates, and sales performance
+- 🔒 **Enterprise Security** - JWT auth, bcrypt hashing, input sanitization, rate limiting
+- 📁 **JSON Database** - No external database needed, automatic backups included
+
 ---
 
-## 🔒 Security Features (Version 2.1)
+## 🔒 Security Features (Version 2.3)
 
 ### ✅ Implemented Security
 - **Password Hashing** - bcrypt with 10 salt rounds
 - **JWT Authentication** - 8-hour session tokens
 - **Input Sanitization** - XSS protection on all user inputs
-- **Rate Limiting** - Brute force protection (5 login attempts/15min)
+- **Rate Limiting** - API protection (1000 requests/min), login brute force protection (5 attempts/15min)
 - **Session Management** - Auto-logout on token expiration
 - **File Locking** - Race condition prevention with proper-lockfile
 - **Automatic Backups** - Timestamped backups before every write (keep last 10)
@@ -130,6 +139,19 @@ This starts both:
 | **Super Admin Portal** | `http://localhost:5173/superadmin` | ✅ Yes | Use admin credentials |
 | **Database Portal** | `http://localhost:5173/database` | ✅ Yes | Use admin credentials |
 
+**Admin Portal Features:**
+- Dashboard with real-time statistics
+- Property management with workflow validation
+- Inquiry management and agent assignment
+- Agent management (create, edit, delete agents)
+- Agent Performance tracking and metrics
+
+**Agent Portal Features:**
+- Dashboard with assigned inquiries
+- Calendar for scheduling property viewings
+- Property listings with reservation capabilities
+- Inquiry management (view and update status)
+
 ---
 
 ## 🗄️ JSON File Database Structure
@@ -162,12 +184,12 @@ server/data/
 ### Admin Account
 - **Email**: `admin@tesproperty.com`
 - **Password**: `admin123`
-- **Access**: All features (properties, inquiries, agents, database, reports)
+- **Access**: All features (properties, inquiries, agents, database, agent performance reports)
 
 ### Agent Account
 - **Email**: `maria@tesproperty.com`
 - **Password**: `agent123`
-- **Access**: Own inquiries, calendar, available properties
+- **Access**: Own inquiries, calendar, available properties, property reservations
 
 ⚠️ **Password Security**: 
 - All passwords are **hashed** using bcrypt (not stored as plain text)
@@ -237,7 +259,7 @@ cd client && npm run preview
 | GET | `/api/properties` | Get all properties (paginated) | ❌ Public | ❌ |
 | GET | `/api/properties/:id` | Get single property | ❌ Public | ❌ |
 | POST | `/api/properties` | Create property | ✅ Admin | ✅ 10/hour |
-| PUT | `/api/properties/:id` | Update property (with workflow validation) | ✅ Admin | ❌ |
+| PUT | `/api/properties/:id` | Update property (with workflow validation) | ✅ Admin/Agent | ❌ |
 | DELETE | `/api/properties/:id` | Delete property | ✅ Admin | ❌ |
 | POST | `/api/properties/upload` | Upload images (max 10, 5MB each) | ✅ Admin | ❌ |
 
@@ -254,12 +276,12 @@ cd client && npm run preview
 
 ### Users
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/users` | Get all users | ✅ Admin |
-| GET | `/api/users/agents` | Get all agents | ✅ Admin |
-| POST | `/api/users` | Create agent | ✅ Admin |
-| DELETE | `/api/users/:id` | Delete user | ✅ Admin |
+| Method | Endpoint | Description | Auth Required | Rate Limited |
+|--------|----------|-------------|---------------|--------------|
+| GET | `/api/users` | Get all users | ✅ Admin | ✅ 1000/min |
+| GET | `/api/users/agents` | Get all agents | ✅ Admin | ❌ |
+| POST | `/api/users` | Create agent | ✅ Admin | ❌ |
+| DELETE | `/api/users/:id` | Delete user | ✅ Admin | ❌ |
 
 ### Calendar
 
@@ -267,9 +289,11 @@ cd client && npm run preview
 |--------|----------|-------------|---------------|
 | GET | `/api/calendar` | Get all events | ✅ Admin/Agent |
 | GET | `/api/calendar/agent/:id` | Get agent events | ✅ Agent |
-| POST | `/api/calendar` | Create event | ✅ Admin/Agent |
+| POST | `/api/calendar` | Create event (auto-updates property status) | ✅ Admin/Agent |
 | PUT | `/api/calendar/:id` | Update event | ✅ Admin/Agent |
 | DELETE | `/api/calendar/:id` | Delete event | ✅ Admin/Agent |
+
+**Note:** When scheduling a viewing via calendar, the associated property automatically updates to "under-contract" status.
 
 ### Database Portal
 
@@ -283,67 +307,26 @@ cd client && npm run preview
 | GET | `/api/database/export/:filename/csv` | Export as CSV | ✅ Admin |
 | GET | `/api/database/export/:filename/json` | Export as JSON | ✅ Admin |
 
-### Activity Log
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/activity-log` | Get activity logs | ✅ Admin |
-
----
-
-## 💼 Commission System
-
-The system includes a complete commission tracking system for managing agent commissions on sold properties.
-
-### Features
-- **Automatic Calculation**: Commission is automatically calculated when a property is marked as sold
-- **Configurable Rates**: Each sale can have a custom commission rate (default: 3%)
-- **Payment Tracking**: Track commission status (pending/paid) with payment dates
-- **Agent Dashboard**: Agents can view their commission earnings and payment status
-- **Admin Controls**: Admins can mark commissions as paid
-
-### How It Works
-
-1. **When Property is Sold**:
-   - Admin marks property status as "sold"
-   - System prompts for: agent ID, sale price, and commission rate
-   - Commission amount is automatically calculated: `(sale price × rate) / 100`
-   - Commission record is created with status: "pending"
-
-2. **Commission Payment**:
-   - Admin can mark commission as "paid" from Properties page
-   - System records payment date and admin who processed it
-   - Status changes from "pending" to "paid"
-
-3. **Agent View**:
-   - Agents access `/agent/commissions` to view their earnings
-   - See total, paid, and pending commissions
-   - View detailed breakdown by property
-
-### Commission Data Structure
-```typescript
-commission: {
-  rate: number;        // Percentage (e.g., 3 for 3%)
-  amount: number;      // Calculated amount in PHP
-  status: 'pending' | 'paid';
-  paidAt?: string;     // ISO timestamp
-  paidBy?: string;     // Admin name
-}
-```
-
 ---
 
 ## 🔄 Property Workflow System
 
-The system enforces strict workflow rules for property status transitions to maintain data integrity.
+The system enforces strict workflow rules for property status transitions and includes automatic status updates.
+
+### Automatic Status Updates
+
+**Viewing Scheduled:**
+- When an agent schedules a property viewing through the calendar
+- Property status automatically changes from `available` or `reserved` to `under-contract`
+- Status history is logged with customer name and ticket number
+- Ensures properties are marked as in-progress once viewings are scheduled
 
 ### Status Transition Rules
 
 ```
 draft → available, withdrawn
-available → reserved, viewing-scheduled, under-contract, withdrawn, off-market
+available → reserved, under-contract, withdrawn, off-market
 reserved → under-contract, available, withdrawn
-viewing-scheduled → available, reserved, withdrawn
 under-contract → sold, available, withdrawn
 sold → [terminal state - no transitions]
 withdrawn → available
@@ -358,7 +341,8 @@ Each status requires specific fields to be present:
 |--------|----------------|
 | `available` | title, price, location, description |
 | `reserved` | reservedBy, reservedAt, reservedUntil |
-| `sold` | soldBy, soldByAgentId, soldAt, salePrice, commission |
+| `under-contract` | Auto-set when viewing scheduled |
+| `sold` | soldBy, soldByAgentId, soldAt, salePrice |
 | `draft`, `withdrawn`, `off-market` | No additional requirements |
 
 ### Workflow Diagram
@@ -371,9 +355,10 @@ Each status requires specific fields to be present:
 ┌─────────────┐      ┌──────────┐
 │  Available  │ ←──→ │ Reserved │
 └──────┬──────┘      └────┬─────┘
+       │                  │
        ↓                  ↓
 ┌──────────────────┐      │
-│ Under Contract   │ ←────┘
+│ Under Contract   │ ←────┘  [Auto-set on viewing scheduled]
 └────────┬─────────┘
          ↓
     ┌────────┐
@@ -389,6 +374,7 @@ Each status requires specific fields to be present:
 ### Validation
 
 - **Server-Side**: All status changes are validated in `server/utils/propertyWorkflow.js`
+- **Automatic Updates**: ViewScheduling triggers automatic status change to under-contract
 - **Automatic Rejection**: Invalid transitions return 400 error with clear message
 - **Missing Fields**: System checks for required fields before allowing status change
 
@@ -513,24 +499,24 @@ SIAnewFINALfixed/
 │   │   │   │   ├── AdminAgents.tsx
 │   │   │   │   ├── AdminDashboard.tsx
 │   │   │   │   ├── AdminInquiries.tsx
-│   │   │   │   ├── AdminProperties.tsx (with commission & reservation UI)
-│   │   │   │   ├── AdminReports.tsx
+│   │   │   │   ├── AdminProperties.tsx (property management with workflow)
+│   │   │   │   ├── AdminReports.tsx (agent performance metrics)
 │   │   │   │   ├── AdminSidebar.tsx
 │   │   │   │   └── AssignAgentModal.tsx
 │   │   │   ├── agent/          # Agent portal components
 │   │   │   │   ├── AgentCalendar.tsx
-│   │   │   │   ├── AgentCommissions.tsx (commission tracking dashboard)
 │   │   │   │   ├── AgentDashboard.tsx
 │   │   │   │   ├── AgentInquiries.tsx
 │   │   │   │   ├── AgentProperties.tsx
 │   │   │   │   ├── AgentSidebar.tsx
-│   │   │   │   └── ScheduleViewingModal.tsx
+│   │   │   │   └── ScheduleViewingModal.tsx (auto-updates property status)
 │   │   │   ├── customer/       # Customer portal components
 │   │   │   ├── database/       # Database portal components
 │   │   │   └── shared/         # Shared components
 │   │   │       ├── AgentSelectModal.tsx (agent search & selection)
 │   │   │       ├── ConfirmDialog.tsx
 │   │   │       ├── PromptDialog.tsx
+│   │   │       ├── SelectDialog.tsx (dropdown selection)
 │   │   │       └── Toast.tsx
 │   │   ├── hooks/              # Custom React hooks
 │   │   ├── pages/              # Page components
@@ -538,7 +524,7 @@ SIAnewFINALfixed/
 │   │   ├── types/              # TypeScript type definitions
 │   │   │   ├── api.ts
 │   │   │   ├── forms.ts
-│   │   │   └── index.ts (includes Commission type)
+│   │   │   └── index.ts (Property, Inquiry, User types)
 │   │   ├── utils/              # Utility functions
 │   │   ├── App.tsx             # Main app component
 │   │   └── main.tsx            # Entry point
@@ -596,6 +582,14 @@ SIAnewFINALfixed/
 ---
 
 ## 🗓️ Update Log
+
+### 2026-03-01 (v2.3)
+- **Removed Commission Tracking**: Commission management removed from system - now handled externally/offline by admin
+- **Agent Performance Only**: Simplified Reports to show only Agent Performance metrics (removed Activity Logs to save space)
+- **Automatic Property Status**: Properties automatically update to "under-contract" when viewing is scheduled
+- **Rate Limiter Optimization**: Increased API rate limit from 100/15min to 1000/min for better development experience
+- **Navigation Update**: Admin sidebar now shows "Agent Performance" instead of "Reports"
+- **Property Sales Tracking**: Admins can still mark properties as sold and track which agent sold them for manual commission calculations
 
 ### 2026-01-29
 - Agent Portal: fixed infinite loading by using session-based user detection across dashboard and calendar; user-friendly error banners added
@@ -670,9 +664,10 @@ npm install xyz
 
 ### Issue: "Rate limit exceeded"
 **Solution:**
-- Wait 15 minutes for login rate limit to reset
-- Wait 1 hour for inquiry rate limit to reset
-- Clear tracking in `node_modules/express-rate-limit/` (dev only)
+- API Rate Limit: 1000 requests per minute (general endpoints)
+- Login Rate Limit: 5 attempts per 15 minutes
+- Wait for the time window to reset
+- In development, you can adjust limits in `server/middleware/rateLimiter.js`
 
 ### Issue: "Data not persisting"
 **Solution:**
@@ -692,31 +687,50 @@ npm install xyz
 
 ## 🧪 Testing Guide for New Features
 
-### Testing Commission System
+### Testing Automatic Property Status Update
 
-1. **As Admin - Mark Property as Sold**:
+1. **As Agent - Schedule a Viewing**:
+   ```bash
+   # Login as agent (maria@tesproperty.com / agent123)
+   # Navigate to Calendar or Inquiries
+   # Select an inquiry with an assigned property
+   # Click "Schedule Viewing"
+   # Fill in viewing date/time and customer details
+   # Save the viewing
+   # Expected: Property status automatically changes to "under-contract"
+   # Verify status history shows: "Viewing scheduled with [customer] ([ticket])"
+   ```
+
+2. **Verify Property Status Change**:
+   ```bash
+   # As admin, navigate to Properties page
+   # Find the property that had viewing scheduled
+   # Status should show "Under Contract"
+   # Click "View History" to see status change log
+   ```
+
+### Testing Agent Performance Metrics
+
+1. **As Admin - View Agent Performance**:
    ```bash
    # Login as admin
-   # Navigate to Properties page
-   # Change property status to "Sold"
-   # Enter agent ID, sale price, and commission rate
-   # Verify commission is calculated and displayed
+   # Navigate to "Agent Performance" from sidebar
+   # Expected: See list of all agents with metrics
+   # Metrics include:
+   #   - Active Inquiries count
+   #   - Properties Sold count
+   #   - Total Sales Value
+   #   - Conversion Rate (%)
+   # Click "Refresh" to reload latest data
    ```
 
-2. **As Admin - Pay Commission**:
+2. **Verify Metrics Calculation**:
    ```bash
-   # Find property with pending commission
-   # Click "Pay Commission" button
-   # Verify status changes to "Paid"
-   # Check payment date and admin name are recorded
-   ```
-
-3. **As Agent - View Commissions**:
-   ```bash
-   # Login as agent (maria@tesproperty.com)
-   # Navigate to Commissions page
-   # Verify summary cards show: Total, Paid, Pending
-   # Check detailed table shows all sold properties
+   # Manual verification:
+   # - Active Inquiries = inquiries with agent assigned and not closed
+   # - Properties Sold = properties with agent as soldByAgentId
+   # - Total Sales = sum of salePrice for sold properties
+   # - Conversion Rate = (Properties Sold / Total Assigned Inquiries) × 100
    ```
 
 ### Testing Property Workflow
@@ -735,7 +749,7 @@ npm install xyz
 
 3. **Missing Required Fields**:
    ```bash
-   # Try: Change to "sold" without commission data
+   # Try: Change to "sold" without setting agent and sale price
    # Expected: Error about missing required fields
    ```
 
@@ -793,55 +807,56 @@ npm run dev
 # 2. Check startup logs for:
 #    - Password migration
 #    - Reservation checker started
-#    - Business features listed
+#    - Rate limiter configured
 
 # 3. Test complete workflow:
 #    - Customer submits inquiry
-#    - Agent claims inquiry
-#    - Agent schedules viewing
-#    - Admin marks property as sold with commission
-#    - Agent views commission
-#    - Admin pays commission
+#    - Admin assigns inquiry to agent
+#    - Agent schedules viewing (property auto-updates to "under-contract")
+#    - Admin marks property as sold
+#    - Admin views agent performance metrics
 ```
 
 ---
 
 ## 🎯 Features Roadmap
 
-### ✅ Completed (v2.2)
-- JWT authentication
-- Password hashing (bcrypt)
+### ✅ Completed (v2.3)
+- JWT authentication with 8-hour session tokens
+- Password hashing (bcrypt with 10 salt rounds)
 - Input sanitization with XSS rejection
-- Rate limiting
-- File-based database with backups
-- Multi-role system (Admin/Agent)
-- Image upload
-- Activity logging
-- Database portal
-- **Commission tracking system**
-- **Property workflow validation**
-- **Auto-expiring reservations**
-- **Enhanced security (XSS protection, 7-day duplicate check)**
-- Database portal
+- Rate limiting (API: 1000 req/min, Login: 5 attempts/15min)
+- File-based JSON database with automatic backups
+- Multi-role system (Admin/Agent/Customer portals)
+- Image upload (max 10 images, 5MB each)
+- Activity logging and audit trails
+- Database portal with export functionality
+- Property workflow validation
+- Auto-expiring property reservations
+- **Automatic property status updates** (under-contract when viewing scheduled)
+- **Agent performance tracking** (conversion rates, sales metrics)
+- **Enhanced security** (XSS protection, duplicate prevention)
 
 ### 🔄 In Progress
-- Email notifications
-- Advanced search filters
+- Email notifications for inquiry assignments
+- Advanced search filters for properties
 - Property comparison feature
 
-### 📋 Planned (v2.2)
+### 📋 Planned (v2.4)
 - Two-factor authentication (2FA)
 - Real-time notifications (WebSockets)
 - Advanced analytics dashboard
 - Mobile responsive improvements
 - Dark mode theme
+- Document attachment support
 
 ### 🚀 Future (v3.0)
-- Migration to PostgreSQL/MongoDB
-- GraphQL API
+- Migration to PostgreSQL/MongoDB for scalability
+- GraphQL API implementation
 - Mobile app (React Native)
-- Multi-language support
+- Multi-language support (i18n)
 - AI-powered property recommendations
+- Integrated payment gateway for reservations
 
 ---
 
@@ -869,8 +884,8 @@ This project is licensed under the MIT License.
 
 ---
 
-**Version:** 2.2.0  
-**Last Updated:** January 20, 2026  
+**Version:** 2.3.0  
+**Last Updated:** March 1, 2026  
 **Maintained by:** HansLagmay
 
 ---
@@ -883,3 +898,5 @@ This project is licensed under the MIT License.
 - Real estate management systems
 - Understanding JWT authentication
 - File-based database implementation
+- Property workflow management
+- Multi-role authentication systems

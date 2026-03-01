@@ -35,7 +35,8 @@ export interface Property {
   description: string;
   features: string[];
   status: 'draft' | 'available' | 'reserved' | 'under-contract' | 'sold' | 'withdrawn' | 'off-market';
-  imageUrl: string;
+  imageUrl: string; // Primary image (backward compatibility)
+  images?: string[]; // Array of all images including primary
   createdBy?: string;
   
   // Status History
@@ -46,15 +47,6 @@ export interface Property {
   soldByAgentId?: string; // agent ID
   soldAt?: string; // timestamp
   salePrice?: number; // final closing price
-  
-  // Commission tracking
-  commission?: {
-    rate: number; // percentage (e.g., 3 for 3%)
-    amount: number; // calculated commission amount
-    status: 'pending' | 'paid';
-    paidAt?: string;
-    paidBy?: string; // admin who marked as paid
-  };
   
   // Reservation info
   reservedBy?: string; // agent name

@@ -663,5 +663,26 @@
     "action": "UPDATE_INQUIRY",
     "details": "Updated inquiry: INQ-2026-002",
     "user": "HANS LAGMAY"
+  },
+  {
+    "id": "1772368656675",
+    "timestamp": "2026-03-01T12:37:36.675Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Admin User",
+    "user": "Admin User"
+  },
+  {
+    "id": "1772368665790",
+    "timestamp": "2026-03-01T12:37:45.790Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: Maria Santos",
+    "user": "Maria Santos"
+  },
+  {
+    "id": "1772368675635",
+    "timestamp": "2026-03-01T12:37:55.635Z",
+    "action": "LOGIN_SUCCESS",
+    "details": "User logged in: HANS LAGMAY",
+    "user": "HANS LAGMAY"
   }
 ]

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { Property } from '../../types';
 import { propertiesAPI } from '../../services/api';
+import ImageGallery from './ImageGallery';
 
 interface PropertyDetailModalProps {
   property: Property;
@@ -40,18 +41,19 @@ const PropertyDetailModal = ({ property, onClose, onInquire }: PropertyDetailMod
     return diffDays;
   };
 
+  // Get all images (use images array if available, otherwise fallback to single imageUrl)
+  const allImages = property.images && property.images.length > 0 
+    ? property.images 
+    : [property.imageUrl];
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="relative">
-          <img
-            src={property.imageUrl}
-            alt={property.title}
-            className="w-full h-96 object-cover"
-          />
+          <ImageGallery images={allImages} title={property.title} />
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 bg-white rounded-full p-2 hover:bg-gray-100"
+            className="absolute top-4 right-4 bg-white rounded-full p-2 hover:bg-gray-100 shadow-lg z-10"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
